@@ -1,0 +1,194 @@
+@model IEnumerable<DairyProductApp.Models.MilkRate>
+@{
+    ViewData["Title"] = "Milk Rate Chart";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 class="fw-bold text-primary mb-0"><i class="bi bi-currency-rupee me-2"></i>Milk Rate Chart</h2>
+        <p class="text-muted mb-0">Fat aur SNF ke base pe rate set karein</p>
+    </div>
+    <a asp-action="Create" class="btn btn-primary shadow-sm"><i class="bi bi-plus-circle me-1"></i>Add Rate</a>
+</div>
+
+@{
+    var cowRates = Model.Where(r => r.MilkType == DairyProductApp.Models.MilkType.Cow).ToList();
+    var buffaloRates = Model.Where(r => r.MilkType == DairyProductApp.Models.MilkType.Buffalo).ToList();
+    var mixedRates = Model.Where(r => r.MilkType == DairyProductApp.Models.MilkType.Mixed).ToList();
+}
+
+@if (cowRates.Any())
+{
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-header text-white" style="background: linear-gradient(135deg, #0dcaf0, #0aa2c0);">
+            <h5 class="mb-0"><i class="bi bi-tag-fill me-2"></i>Cow Milk Rates</h5>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>#</th>
+                            <th>Fat Range (%)</th>
+                            <th>SNF Range (%)</th>
+                            <th>Rate Per Liter</th>
+                            <th>Effective From</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @{ int sn1 = 1; }
+                        @foreach (var rate in cowRates)
+                        {
+                            <tr>
+                                <td>@(sn1++)</td>
+                                <td><span class="badge bg-danger bg-opacity-75 fs-6">@rate.MinFat.ToString("F1") - @rate.MaxFat.ToString("F1")%</span></td>
+                                <td><span class="badge bg-success bg-opacity-75 fs-6">@rate.MinSNF.ToString("F1") - @rate.MaxSNF.ToString("F1")%</span></td>
+                                <td class="fw-bold text-success fs-5">&#8377;@rate.RatePerLiter.ToString("F2")</td>
+                                <td>@rate.EffectiveFrom.ToString("dd MMM yyyy")</td>
+                                <td>
+                                    @if (rate.IsActive)
+                                    {
+                                        <span class="badge bg-success"><i class="bi bi-check-circle me-1"></i>Active</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-secondary">Inactive</span>
+                                    }
+                                </td>
+                                <td>
+                                    <a asp-action="Edit" asp-route-id="@rate.Id" class="btn btn-sm btn-outline-primary me-1"><i class="bi bi-pencil"></i></a>
+                                    <form asp-action="Delete" asp-route-id="@rate.Id" method="post" class="d-inline" onsubmit="return confirm('Kya aap sure hain?');">
+                                        @Html.AntiForgeryToken()
+                                        <button type="submit" class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></button>
+                                    </form>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+}
+
+@if (buffaloRates.Any())
+{
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-header text-white" style="background: linear-gradient(135deg, #0d6efd, #0b5ed7);">
+            <h5 class="mb-0"><i class="bi bi-tag-fill me-2"></i>Buffalo Milk Rates</h5>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>#</th>
+                            <th>Fat Range (%)</th>
+                            <th>SNF Range (%)</th>
+                            <th>Rate Per Liter</th>
+                            <th>Effective From</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @{ int sn2 = 1; }
+                        @foreach (var rate in buffaloRates)
+                        {
+                            <tr>
+                                <td>@(sn2++)</td>
+                                <td><span class="badge bg-danger bg-opacity-75 fs-6">@rate.MinFat.ToString("F1") - @rate.MaxFat.ToString("F1")%</span></td>
+                                <td><span class="badge bg-success bg-opacity-75 fs-6">@rate.MinSNF.ToString("F1") - @rate.MaxSNF.ToString("F1")%</span></td>
+                                <td class="fw-bold text-success fs-5">&#8377;@rate.RatePerLiter.ToString("F2")</td>
+                                <td>@rate.EffectiveFrom.ToString("dd MMM yyyy")</td>
+                                <td>
+                                    @if (rate.IsActive)
+                                    {
+                                        <span class="badge bg-success"><i class="bi bi-check-circle me-1"></i>Active</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-secondary">Inactive</span>
+                                    }
+                                </td>
+                                <td>
+                                    <a asp-action="Edit" asp-route-id="@rate.Id" class="btn btn-sm btn-outline-primary me-1"><i class="bi bi-pencil"></i></a>
+                                    <form asp-action="Delete" asp-route-id="@rate.Id" method="post" class="d-inline" onsubmit="return confirm('Kya aap sure hain?');">
+                                        @Html.AntiForgeryToken()
+                                        <button type="submit" class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></button>
+                                    </form>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+}
+
+@if (mixedRates.Any())
+{
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-header text-white" style="background: linear-gradient(135deg, #6c757d, #5a6268);">
+            <h5 class="mb-0"><i class="bi bi-tag-fill me-2"></i>Mixed Milk Rates</h5>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>#</th>
+                            <th>Fat Range (%)</th>
+                            <th>SNF Range (%)</th>
+                            <th>Rate Per Liter</th>
+                            <th>Effective From</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @{ int sn3 = 1; }
+                        @foreach (var rate in mixedRates)
+                        {
+                            <tr>
+                                <td>@(sn3++)</td>
+                                <td><span class="badge bg-danger bg-opacity-75 fs-6">@rate.MinFat.ToString("F1") - @rate.MaxFat.ToString("F1")%</span></td>
+                                <td><span class="badge bg-success bg-opacity-75 fs-6">@rate.MinSNF.ToString("F1") - @rate.MaxSNF.ToString("F1")%</span></td>
+                                <td class="fw-bold text-success fs-5">&#8377;@rate.RatePerLiter.ToString("F2")</td>
+                                <td>@rate.EffectiveFrom.ToString("dd MMM yyyy")</td>
+                                <td>
+                                    @if (rate.IsActive)
+                                    {
+                                        <span class="badge bg-success"><i class="bi bi-check-circle me-1"></i>Active</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-secondary">Inactive</span>
+                                    }
+                                </td>
+                                <td>
+                                    <a asp-action="Edit" asp-route-id="@rate.Id" class="btn btn-sm btn-outline-primary me-1"><i class="bi bi-pencil"></i></a>
+                                    <form asp-action="Delete" asp-route-id="@rate.Id" method="post" class="d-inline" onsubmit="return confirm('Kya aap sure hain?');">
+                                        @Html.AntiForgeryToken()
+                                        <button type="submit" class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></button>
+                                    </form>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+}
+
+@if (!Model.Any())
+{
+    <div class="text-center py-5">
+        <i class="bi bi-inbox fs-1 text-muted d-block mb-2"></i>
+        <p class="text-muted">Koi rate set nahi hai. Naya rate add karein!</p>
+    </div>
+}

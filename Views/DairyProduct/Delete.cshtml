@@ -1,0 +1,30 @@
+@model DairyProductApp.Models.DairyProduct
+@{
+    ViewData["Title"] = "Delete Product";
+}
+
+<div class="row justify-content-center">
+    <div class="col-lg-6">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body p-4 text-center">
+                <i class="bi bi-exclamation-triangle-fill text-danger fs-1 mb-3 d-block"></i>
+                <h3 class="fw-bold">Kya aap sure hain?</h3>
+                <p class="text-muted">Yeh product permanently delete ho jayega</p>
+                <div class="card bg-light border-0 my-3">
+                    <div class="card-body">
+                        <h5 class="fw-bold">@Model.ProductName</h5>
+                        <p class="mb-1"><strong>Category:</strong> @Model.Category | <strong>Price:</strong> &#8377;@Model.Price.ToString("F0")</p>
+                        <p class="mb-0"><strong>Stock:</strong> @Model.StockQuantity @Model.Unit</p>
+                    </div>
+                </div>
+                <form asp-action="Delete" method="post">
+                    <input type="hidden" asp-for="Id" />
+                    <div class="d-flex gap-2 justify-content-center">
+                        <button type="submit" class="btn btn-danger btn-lg"><i class="bi bi-trash me-1"></i>Ha, Delete Karein</button>
+                        <a asp-action="Index" class="btn btn-outline-secondary btn-lg">Cancel</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

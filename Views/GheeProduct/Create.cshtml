@@ -1,0 +1,116 @@
+@model DairyProductApp.Models.GheeProduct
+@{
+    ViewData["Title"] = "New Ghee Batch";
+}
+
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h2 class="fw-bold text-warning mb-0"><i class="bi bi-fire me-2"></i>New Ghee Batch</h2>
+                <p class="text-muted mb-0">Naya ghee production batch add karein</p>
+            </div>
+            <a asp-action="Index" class="btn btn-outline-secondary"><i class="bi bi-arrow-left me-1"></i>Back</a>
+        </div>
+
+        <div class="card border-0 shadow-sm">
+            <div class="card-body p-4">
+                <form asp-action="Create" method="post">
+                    <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
+                    <div class="row g-3">
+                        <div class="col-md-4">
+                            <label asp-for="BatchNumber" class="form-label fw-semibold"></label>
+                            <input asp-for="BatchNumber" class="form-control" placeholder="e.g. GH-2026-003">
+                            <span asp-validation-for="BatchNumber" class="text-danger small"></span>
+                        </div>
+                        <div class="col-md-4">
+                            <label asp-for="GheeType" class="form-label fw-semibold"></label>
+                            <select asp-for="GheeType" asp-items="Html.GetEnumSelectList<DairyProductApp.Models.GheeType>()" class="form-select">
+                                <option value="">-- Select --</option>
+                            </select>
+                            <span asp-validation-for="GheeType" class="text-danger small"></span>
+                        </div>
+                        <div class="col-md-4">
+                            <label asp-for="Quality" class="form-label fw-semibold"></label>
+                            <select asp-for="Quality" asp-items="Html.GetEnumSelectList<DairyProductApp.Models.QualityGrade>()" class="form-select"></select>
+                        </div>
+                        <div class="col-12"><hr class="my-1"></div>
+                        <div class="col-md-4">
+                            <label asp-for="MilkUsedLiters" class="form-label fw-semibold"></label>
+                            <div class="input-group">
+                                <input asp-for="MilkUsedLiters" class="form-control" id="milkUsed" step="0.1">
+                                <span class="input-group-text">L</span>
+                            </div>
+                            <span asp-validation-for="MilkUsedLiters" class="text-danger small"></span>
+                        </div>
+                        <div class="col-md-4">
+                            <label asp-for="GheeProducedKg" class="form-label fw-semibold"></label>
+                            <div class="input-group">
+                                <input asp-for="GheeProducedKg" class="form-control" id="gheeProduced" step="0.01">
+                                <span class="input-group-text">Kg</span>
+                            </div>
+                            <span asp-validation-for="GheeProducedKg" class="text-danger small"></span>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label fw-semibold">Yield Rate</label>
+                            <div class="input-group">
+                                <input type="text" class="form-control fw-bold text-success" id="yieldDisplay" readonly>
+                                <span class="input-group-text">%</span>
+                            </div>
+                            <small class="text-info">Auto-calculated</small>
+                        </div>
+                        <div class="col-md-4">
+                            <label asp-for="PricePerKg" class="form-label fw-semibold"></label>
+                            <div class="input-group">
+                                <span class="input-group-text">&#8377;</span>
+                                <input asp-for="PricePerKg" class="form-control" id="pricePerKg" step="0.01">
+                            </div>
+                            <span asp-validation-for="PricePerKg" class="text-danger small"></span>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label fw-semibold">Total Value</label>
+                            <div class="input-group">
+                                <span class="input-group-text">&#8377;</span>
+                                <input type="text" class="form-control fw-bold text-success" id="totalValue" readonly>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <label asp-for="ProductionDate" class="form-label fw-semibold"></label>
+                            <input asp-for="ProductionDate" class="form-control" type="date">
+                        </div>
+                        <div class="col-md-4">
+                            <label asp-for="ExpiryDate" class="form-label fw-semibold"></label>
+                            <input asp-for="ExpiryDate" class="form-control" type="date">
+                        </div>
+                        <div class="col-md-8">
+                            <label asp-for="Description" class="form-label fw-semibold"></label>
+                            <input asp-for="Description" class="form-control" placeholder="Description (optional)">
+                        </div>
+                    </div>
+                    <div class="mt-4 d-flex gap-2">
+                        <button type="submit" class="btn btn-warning btn-lg text-white"><i class="bi bi-check-circle me-1"></i>Save Batch</button>
+                        <a asp-action="Index" class="btn btn-outline-secondary btn-lg">Cancel</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        function calculate() {
+            var milk = parseFloat($('#milkUsed').val()) || 0;
+            var ghee = parseFloat($('#gheeProduced').val()) || 0;
+            var price = parseFloat($('#pricePerKg').val()) || 0;
+
+            if (milk > 0 && ghee > 0) {
+                var yieldRate = (ghee / milk) * 100;
+                $('#yieldDisplay').val(yieldRate.toFixed(2));
+            }
+            $('#totalValue').val((ghee * price).toFixed(2));
+        }
+        $('#milkUsed, #gheeProduced, #pricePerKg').on('change keyup', calculate);
+    </script>
+}

@@ -1,0 +1,322 @@
+html {
+    font-size: 14px;
+}
+
+@media (min-width: 768px) {
+    html {
+        font-size: 16px;
+    }
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f0f2f5;
+    min-height: 100vh;
+    overflow-x: hidden;
+}
+
+.btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
+    box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
+}
+
+/* ========== TOP NAVBAR ========== */
+.top-navbar {
+    background: linear-gradient(135deg, #1a3a5c 0%, #1a5276 50%, #2471a3 100%);
+    height: 60px;
+    z-index: 1040;
+    padding: 0 1rem;
+}
+
+.top-navbar .navbar-brand {
+    font-size: 1.3rem;
+    letter-spacing: 0.5px;
+}
+
+/* ========== SIDEBAR ========== */
+.sidebar {
+    width: 260px;
+    min-height: 100vh;
+    background: linear-gradient(180deg, #1a3a5c 0%, #1b4f72 40%, #154360 100%);
+    position: fixed;
+    top: 60px;
+    left: 0;
+    bottom: 0;
+    z-index: 1030;
+    overflow-y: auto;
+    transition: transform 0.3s ease;
+    padding-top: 0;
+}
+
+.sidebar-header {
+    padding: 0.5rem 1rem;
+}
+
+.admin-avatar {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.15);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.8rem;
+    color: #fff;
+    border: 3px solid rgba(255,255,255,0.25);
+}
+
+.sidebar-divider {
+    border-color: rgba(255,255,255,0.12);
+    margin: 0 1rem;
+}
+
+.sidebar-nav {
+    padding: 0 0.75rem;
+}
+
+.sidebar-heading {
+    padding: 1rem 0.75rem 0.4rem;
+}
+
+.sidebar-heading span {
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    color: rgba(255,255,255,0.35);
+    text-transform: uppercase;
+}
+
+.sidebar-nav .nav-link {
+    color: rgba(255,255,255,0.7);
+    padding: 0.55rem 0.85rem;
+    border-radius: 8px;
+    margin-bottom: 2px;
+    transition: all 0.2s ease;
+    font-weight: 500;
+    font-size: 0.88rem;
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+}
+
+.sidebar-nav .nav-link i {
+    font-size: 1.05rem;
+    width: 22px;
+    text-align: center;
+}
+
+.sidebar-nav .nav-link:hover {
+    color: #fff;
+    background: rgba(255,255,255,0.1);
+}
+
+.sidebar-nav .nav-link.active {
+    color: #fff;
+    background: linear-gradient(135deg, #2e86c1, #3498db);
+    box-shadow: 0 2px 8px rgba(52, 152, 219, 0.4);
+}
+
+.sidebar-footer {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    border-top: 1px solid rgba(255,255,255,0.1);
+}
+
+/* ========== MAIN CONTENT ========== */
+.main-content {
+    margin-left: 260px;
+    margin-top: 60px;
+    padding: 1.5rem;
+    min-height: calc(100vh - 60px);
+    width: calc(100% - 260px);
+    display: flex;
+    flex-direction: column;
+}
+
+.main-content main {
+    flex: 1;
+}
+
+.content-footer {
+    padding: 1rem 0;
+    margin-top: auto;
+    border-top: 1px solid #dee2e6;
+}
+
+/* ========== RESPONSIVE ========== */
+@media (max-width: 991.98px) {
+    .sidebar {
+        transform: translateX(-100%);
+    }
+    .sidebar.show {
+        transform: translateX(0);
+    }
+    .main-content {
+        margin-left: 0;
+        width: 100%;
+    }
+    .sidebar-overlay {
+        display: none;
+        position: fixed;
+        top: 60px;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0,0,0,0.5);
+        z-index: 1025;
+    }
+    .sidebar.show ~ .sidebar-overlay {
+        display: block;
+    }
+}
+
+/* ========== CARDS ========== */
+.card {
+    border-radius: 12px;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.card:hover {
+    transform: translateY(-1px);
+}
+
+.card-header {
+    border-radius: 12px 12px 0 0 !important;
+    padding: 1rem 1.25rem;
+}
+
+/* ========== TABLES ========== */
+.table th {
+    font-weight: 600;
+    font-size: 0.82rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: #6c757d;
+    white-space: nowrap;
+}
+
+.table td {
+    vertical-align: middle;
+}
+
+.table-hover tbody tr:hover {
+    background-color: rgba(52, 152, 219, 0.05);
+}
+
+/* ========== BADGES ========== */
+.badge {
+    font-weight: 500;
+    padding: 0.35em 0.65em;
+    border-radius: 6px;
+}
+
+/* ========== BUTTONS ========== */
+.btn {
+    border-radius: 8px;
+    font-weight: 500;
+    transition: all 0.2s;
+}
+
+.btn-lg {
+    padding: 0.6rem 1.5rem;
+}
+
+.btn-group .btn {
+    border-radius: 6px;
+    margin: 0 1px;
+}
+
+/* ========== FORMS ========== */
+.form-control, .form-select {
+    border-radius: 8px;
+    border: 1px solid #dee2e6;
+    padding: 0.5rem 0.75rem;
+}
+
+.form-control:focus, .form-select:focus {
+    border-color: #3498db;
+    box-shadow: 0 0 0 0.2rem rgba(52, 152, 219, 0.15);
+}
+
+.input-group-text {
+    border-radius: 8px;
+    background-color: #f8f9fa;
+}
+
+.form-label {
+    margin-bottom: 0.35rem;
+    color: #495057;
+}
+
+/* ========== ALERTS ========== */
+.alert {
+    border-radius: 10px;
+    border: none;
+}
+
+/* ========== QUICK ACTION BUTTONS ========== */
+.btn-primary.py-3, .btn-success.py-3, .btn-warning.py-3, .btn-info.py-3 {
+    border-radius: 12px;
+    font-weight: 600;
+    transition: transform 0.2s;
+}
+
+.btn-primary.py-3:hover, .btn-success.py-3:hover, .btn-warning.py-3:hover, .btn-info.py-3:hover {
+    transform: translateY(-2px);
+}
+
+/* ========== DROPDOWN ========== */
+.dropdown-menu {
+    border-radius: 10px;
+    border: none;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    padding: 0.5rem;
+}
+
+.dropdown-item {
+    border-radius: 6px;
+    padding: 0.5rem 1rem;
+}
+
+.dropdown-item:hover {
+    background-color: rgba(52, 152, 219, 0.1);
+}
+
+/* ========== STAT CARDS ========== */
+.stat-card {
+    border: none;
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.stat-card .stat-icon {
+    width: 50px;
+    height: 50px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.4rem;
+}
+
+/* ========== SCROLLBAR ========== */
+.sidebar::-webkit-scrollbar {
+    width: 5px;
+}
+
+.sidebar::-webkit-scrollbar-thumb {
+    background: rgba(255,255,255,0.2);
+    border-radius: 3px;
+}
+
+.sidebar::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+/* ========== PAGE HEADER ========== */
+.page-header {
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 2px solid #e9ecef;
+}

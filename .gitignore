@@ -1,0 +1,10 @@
+bin/
+obj/
+*.db
+credentials.json
+.vs/
+*.user
+DairyProduct.db
+RajDairyTokens/
+wwwroot/uploads/profile/*
+!wwwroot/uploads/profile/.gitkeep

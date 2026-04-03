@@ -1,0 +1,92 @@
+@model DairyProductApp.Models.MilkCollection
+@{
+    ViewData["Title"] = "Milk Collection Details";
+}
+
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2 class="fw-bold text-primary mb-0"><i class="bi bi-eye me-2"></i>Collection Details</h2>
+            <a asp-action="Index" class="btn btn-outline-secondary"><i class="bi bi-arrow-left me-1"></i>Back</a>
+        </div>
+
+        <div class="card border-0 shadow-sm">
+            <div class="card-body p-4">
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label text-muted small">Farmer Name</label>
+                        <p class="fw-bold fs-5">@Model.FarmerName</p>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label text-muted small">Mobile Number</label>
+                        <p class="fw-bold fs-5">@Model.MobileNumber</p>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label text-muted small">Milk Type</label>
+                        <p><span class="badge bg-info fs-6">@Model.MilkType</span></p>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label text-muted small">Shift</label>
+                        <p><span class="badge bg-warning text-dark fs-6">@Model.Shift</span></p>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label text-muted small">Collection Date</label>
+                        <p class="fw-bold">@Model.CollectionDate.ToString("dd MMM yyyy")</p>
+                    </div>
+                    <div class="col-12"><hr></div>
+                    <div class="col-md-3">
+                        <div class="card bg-primary bg-opacity-10 border-0">
+                            <div class="card-body text-center">
+                                <small class="text-muted">Quantity</small>
+                                <h4 class="fw-bold text-primary">@Model.Quantity.ToString("F1") L</h4>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card bg-danger bg-opacity-10 border-0">
+                            <div class="card-body text-center">
+                                <small class="text-muted">Fat %</small>
+                                <h4 class="fw-bold text-danger">@Model.FatPercentage.ToString("F1")%</h4>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card bg-success bg-opacity-10 border-0">
+                            <div class="card-body text-center">
+                                <small class="text-muted">SNF %</small>
+                                <h4 class="fw-bold text-success">@Model.SNFPercentage.ToString("F1")%</h4>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card bg-warning bg-opacity-10 border-0">
+                            <div class="card-body text-center">
+                                <small class="text-muted">Rate/L</small>
+                                <h4 class="fw-bold text-warning">&#8377;@Model.RatePerLiter.ToString("F2")</h4>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-12 text-center mt-3">
+                        <div class="card bg-success bg-opacity-10 border-0">
+                            <div class="card-body">
+                                <small class="text-muted">Total Amount</small>
+                                <h2 class="fw-bold text-success">&#8377;@Model.TotalAmount.ToString("F2")</h2>
+                            </div>
+                        </div>
+                    </div>
+                    @if (!string.IsNullOrEmpty(Model.Remarks))
+                    {
+                        <div class="col-12">
+                            <label class="form-label text-muted small">Remarks</label>
+                            <p>@Model.Remarks</p>
+                        </div>
+                    }
+                </div>
+                <div class="mt-4 d-flex gap-2">
+                    <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary"><i class="bi bi-pencil me-1"></i>Edit</a>
+                    <a asp-action="Delete" asp-route-id="@Model.Id" class="btn btn-danger"><i class="bi bi-trash me-1"></i>Delete</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

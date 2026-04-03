@@ -1,0 +1,154 @@
+@model IEnumerable<DairyProductApp.Models.GheeProduct>
+@{
+    ViewData["Title"] = "Ghee Production";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 class="fw-bold text-primary mb-0"><i class="bi bi-fire me-2"></i>Ghee Production</h2>
+        <p class="text-muted mb-0">Ghee production aur stock manage karein</p>
+    </div>
+    <a asp-action="Create" class="btn btn-warning shadow-sm text-white"><i class="bi bi-plus-circle me-1"></i>New Batch</a>
+</div>
+
+<!-- Filters -->
+<div class="card border-0 shadow-sm mb-4">
+    <div class="card-body">
+        <form method="get" class="row g-3 align-items-end">
+            <div class="col-md-4">
+                <label class="form-label small fw-semibold">Ghee Type</label>
+                <select name="gheeType" class="form-select">
+                    <option value="">All Types</option>
+                    @foreach (var gt in Enum.GetValues<DairyProductApp.Models.GheeType>())
+                    {
+                        <option value="@gt" selected="@(ViewBag.GheeType?.ToString() == gt.ToString())">@gt</option>
+                    }
+                </select>
+            </div>
+            <div class="col-md-4">
+                <label class="form-label small fw-semibold">Quality Grade</label>
+                <select name="quality" class="form-select">
+                    <option value="">All Grades</option>
+                    @foreach (var q in Enum.GetValues<DairyProductApp.Models.QualityGrade>())
+                    {
+                        <option value="@q" selected="@(ViewBag.Quality?.ToString() == q.ToString())">@q</option>
+                    }
+                </select>
+            </div>
+            <div class="col-md-4 d-flex gap-2">
+                <button type="submit" class="btn btn-primary"><i class="bi bi-search me-1"></i>Filter</button>
+                <a asp-action="Index" class="btn btn-outline-secondary"><i class="bi bi-x-circle me-1"></i>Clear</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Summary -->
+@if (Model.Any())
+{
+    <div class="row g-3 mb-3">
+        <div class="col-md-3">
+            <div class="card border-0 bg-warning bg-opacity-10">
+                <div class="card-body py-2 text-center">
+                    <small class="text-muted">Total Stock</small>
+                    <h5 class="fw-bold text-warning mb-0">@Model.Sum(g => g.StockKg).ToString("F1") Kg</h5>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-0 bg-success bg-opacity-10">
+                <div class="card-body py-2 text-center">
+                    <small class="text-muted">Total Value</small>
+                    <h5 class="fw-bold text-success mb-0">&#8377;@Model.Sum(g => g.TotalValue).ToString("F0")</h5>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-0 bg-primary bg-opacity-10">
+                <div class="card-body py-2 text-center">
+                    <small class="text-muted">Milk Used</small>
+                    <h5 class="fw-bold text-primary mb-0">@Model.Sum(g => g.MilkUsedLiters).ToString("F0") L</h5>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-0 bg-info bg-opacity-10">
+                <div class="card-body py-2 text-center">
+                    <small class="text-muted">Total Batches</small>
+                    <h5 class="fw-bold text-info mb-0">@Model.Count()</h5>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+<!-- Table -->
+<div class="card border-0 shadow-sm">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>#</th>
+                        <th>Batch No.</th>
+                        <th>Type</th>
+                        <th>Milk Used</th>
+                        <th>Ghee Produced</th>
+                        <th>Yield</th>
+                        <th>Price/Kg</th>
+                        <th>Total Value</th>
+                        <th>Stock</th>
+                        <th>Quality</th>
+                        <th>Date</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model.Any())
+                    {
+                        int sn = 1;
+                        @foreach (var item in Model)
+                        {
+                            <tr>
+                                <td>@(sn++)</td>
+                                <td class="fw-semibold">@item.BatchNumber</td>
+                                <td>
+                                    @{
+                                        var typeColor = item.GheeType == DairyProductApp.Models.GheeType.CowGhee ? "info" :
+                                                       (item.GheeType == DairyProductApp.Models.GheeType.BuffaloGhee ? "primary" : "secondary");
+                                    }
+                                    <span class="badge bg-@typeColor">@item.GheeType</span>
+                                </td>
+                                <td>@item.MilkUsedLiters.ToString("F0") L</td>
+                                <td class="fw-bold">@item.GheeProducedKg.ToString("F1") Kg</td>
+                                <td><span class="badge bg-success">@item.YieldRate.ToString("F1")%</span></td>
+                                <td>&#8377;@item.PricePerKg.ToString("F0")</td>
+                                <td class="fw-bold text-success">&#8377;@item.TotalValue.ToString("F0")</td>
+                                <td>@item.StockKg.ToString("F1") Kg</td>
+                                <td>
+                                    @{
+                                        var qualityColor = item.Quality == DairyProductApp.Models.QualityGrade.Premium ? "warning" :
+                                                          (item.Quality == DairyProductApp.Models.QualityGrade.Standard ? "info" : "secondary");
+                                    }
+                                    <span class="badge bg-@qualityColor">@item.Quality</span>
+                                </td>
+                                <td>@item.ProductionDate.ToString("dd/MM/yy")</td>
+                                <td>
+                                    <div class="btn-group btn-group-sm">
+                                        <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-outline-info"><i class="bi bi-eye"></i></a>
+                                        <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-outline-primary"><i class="bi bi-pencil"></i></a>
+                                        <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-outline-danger"><i class="bi bi-trash"></i></a>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr><td colspan="12" class="text-center text-muted py-5"><i class="bi bi-inbox fs-1 d-block mb-2"></i>Koi ghee production record nahi hai</td></tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

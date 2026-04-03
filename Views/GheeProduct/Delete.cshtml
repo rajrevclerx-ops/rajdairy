@@ -1,0 +1,31 @@
+@model DairyProductApp.Models.GheeProduct
+@{
+    ViewData["Title"] = "Delete Ghee Batch";
+}
+
+<div class="row justify-content-center">
+    <div class="col-lg-6">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body p-4 text-center">
+                <i class="bi bi-exclamation-triangle-fill text-danger fs-1 mb-3 d-block"></i>
+                <h3 class="fw-bold">Kya aap sure hain?</h3>
+                <p class="text-muted">Yeh ghee batch record permanently delete ho jayega</p>
+                <div class="card bg-light border-0 my-3">
+                    <div class="card-body">
+                        <h5 class="fw-bold">Batch: @Model.BatchNumber</h5>
+                        <p class="mb-1"><strong>Type:</strong> @Model.GheeType | <strong>Quality:</strong> @Model.Quality</p>
+                        <p class="mb-1"><strong>Ghee:</strong> @Model.GheeProducedKg Kg | <strong>Price:</strong> &#8377;@Model.PricePerKg/Kg</p>
+                        <p class="mb-0"><strong>Total Value:</strong> <span class="text-success fw-bold">&#8377;@Model.TotalValue.ToString("F2")</span></p>
+                    </div>
+                </div>
+                <form asp-action="Delete" method="post">
+                    <input type="hidden" asp-for="Id" />
+                    <div class="d-flex gap-2 justify-content-center">
+                        <button type="submit" class="btn btn-danger btn-lg"><i class="bi bi-trash me-1"></i>Ha, Delete Karein</button>
+                        <a asp-action="Index" class="btn btn-outline-secondary btn-lg">Cancel</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
