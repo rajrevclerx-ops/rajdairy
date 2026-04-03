@@ -1,0 +1,68 @@
+@model DairyProductApp.Models.Transaction
+@{ ViewData["Title"] = "Edit Transaction"; }
+
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h3 class="fw-bold text-primary mb-0"><i class="bi bi-pencil-square me-2"></i>Edit Transaction</h3>
+            <a asp-controller="Partner" asp-action="Ledger" asp-route-id="@Model.PartnerId" class="btn btn-outline-secondary"><i class="bi bi-arrow-left me-1"></i>Back</a>
+        </div>
+        <div class="card border-0 shadow-sm">
+            <div class="card-body p-4">
+                <form asp-action="Edit" method="post">
+                    <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+                    <input type="hidden" asp-for="Id" />
+                    <input type="hidden" asp-for="CreatedAt" />
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label asp-for="PartnerId" class="form-label fw-semibold">Partner</label>
+                            <select asp-for="PartnerId" asp-items="@ViewBag.Partners" class="form-select"></select>
+                        </div>
+                        <div class="col-md-3">
+                            <label asp-for="Type" class="form-label fw-semibold"></label>
+                            <select asp-for="Type" asp-items="Html.GetEnumSelectList<DairyProductApp.Models.TransactionType>()" class="form-select"></select>
+                        </div>
+                        <div class="col-md-3">
+                            <label asp-for="TransactionDate" class="form-label fw-semibold"></label>
+                            <input asp-for="TransactionDate" class="form-control" type="date">
+                        </div>
+                        <div class="col-md-4">
+                            <label asp-for="Item" class="form-label fw-semibold"></label>
+                            <select asp-for="Item" asp-items="Html.GetEnumSelectList<DairyProductApp.Models.TransactionItem>()" class="form-select"></select>
+                        </div>
+                        <div class="col-md-3">
+                            <label asp-for="Quantity" class="form-label fw-semibold"></label>
+                            <input asp-for="Quantity" class="form-control" step="0.1">
+                        </div>
+                        <div class="col-md-2">
+                            <label asp-for="Unit" class="form-label fw-semibold"></label>
+                            <select asp-for="Unit" class="form-select">
+                                <option>Liter</option><option>Kg</option><option>Gram</option><option>Piece</option><option>Rupees</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label asp-for="Rate" class="form-label fw-semibold"></label>
+                            <div class="input-group">
+                                <span class="input-group-text">&#8377;</span>
+                                <input asp-for="Rate" class="form-control" step="0.01">
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <label asp-for="PaymentStatus" class="form-label fw-semibold"></label>
+                            <select asp-for="PaymentStatus" asp-items="Html.GetEnumSelectList<DairyProductApp.Models.PaymentStatus>()" class="form-select"></select>
+                        </div>
+                        <div class="col-md-8">
+                            <label asp-for="Remarks" class="form-label fw-semibold"></label>
+                            <input asp-for="Remarks" class="form-control">
+                        </div>
+                    </div>
+                    <div class="mt-4 d-flex gap-2">
+                        <button type="submit" class="btn btn-primary btn-lg"><i class="bi bi-check-circle me-1"></i>Update</button>
+                        <a asp-controller="Partner" asp-action="Ledger" asp-route-id="@Model.PartnerId" class="btn btn-outline-secondary btn-lg">Cancel</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+@section Scripts { <partial name="_ValidationScriptsPartial" /> }

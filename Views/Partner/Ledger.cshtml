@@ -1,0 +1,120 @@
+@model DairyProductApp.Models.PartnerLedgerViewModel
+@{ ViewData["Title"] = $"{Model.Partner.Name} - Hisab"; }
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h3 class="fw-bold text-primary mb-0"><i class="bi bi-journal-text me-2"></i>@Model.Partner.Name - Hisab Kitab</h3>
+        <p class="text-muted mb-0 small">Mobile: @Model.Partner.Mobile | Code: <code>@Model.Partner.AccessCode</code> | Type: @Model.Partner.Type</p>
+    </div>
+    <div class="d-flex gap-2">
+        <a asp-controller="Transaction" asp-action="Create" asp-route-partnerId="@Model.Partner.Id" class="btn btn-success shadow-sm"><i class="bi bi-plus-circle me-1"></i>New Transaction</a>
+        <a asp-action="Index" class="btn btn-outline-secondary"><i class="bi bi-arrow-left me-1"></i>Back</a>
+    </div>
+</div>
+
+<!-- Summary Cards -->
+<div class="row g-3 mb-4">
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm" style="border-left:4px solid #27ae60 !important;">
+            <div class="card-body text-center">
+                <small class="text-muted">Maal Diya (Given)</small>
+                <h4 class="fw-bold text-success mb-0">&#8377;@Model.TotalGiven.ToString("F0")</h4>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm" style="border-left:4px solid #e74c3c !important;">
+            <div class="card-body text-center">
+                <small class="text-muted">Maal Liya (Received)</small>
+                <h4 class="fw-bold text-danger mb-0">&#8377;@Model.TotalReceived.ToString("F0")</h4>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm" style="border-left:4px solid #e67e22 !important;">
+            <div class="card-body text-center">
+                <small class="text-muted">Pending (Baaki)</small>
+                <h4 class="fw-bold text-warning mb-0">&#8377;@Model.TotalPending.ToString("F0")</h4>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm" style="border-left:4px solid #3498db !important;">
+            <div class="card-body text-center">
+                <small class="text-muted">Balance</small>
+                <h4 class="fw-bold @(Model.Balance >= 0 ? "text-success" : "text-danger") mb-0">&#8377;@Math.Abs(Model.Balance).ToString("F0") @(Model.Balance >= 0 ? "(Dena)" : "(Lena)")</h4>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Transactions Table -->
+<div class="card border-0 shadow-sm">
+    <div class="card-header bg-white border-0">
+        <h6 class="fw-bold mb-0"><i class="bi bi-list-ul me-2"></i>Transactions</h6>
+    </div>
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>Date</th>
+                        <th>Type</th>
+                        <th>Item</th>
+                        <th>Qty</th>
+                        <th>Rate</th>
+                        <th>Amount</th>
+                        <th>Payment</th>
+                        <th>Remarks</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model.Transactions.Any())
+                    {
+                        @foreach (var t in Model.Transactions)
+                        {
+                            <tr>
+                                <td>@t.TransactionDate.ToString("dd/MM/yy")</td>
+                                <td>
+                                    @if (t.Type == DairyProductApp.Models.TransactionType.Given)
+                                    { <span class="badge bg-success">Diya</span> }
+                                    else
+                                    { <span class="badge bg-danger">Liya</span> }
+                                </td>
+                                <td><span class="badge bg-info">@t.Item</span></td>
+                                <td>@t.Quantity @t.Unit</td>
+                                <td>&#8377;@t.Rate.ToString("F0")</td>
+                                <td class="fw-bold">&#8377;@t.TotalAmount.ToString("F0")</td>
+                                <td>
+                                    @if (t.PaymentStatus == DairyProductApp.Models.PaymentStatus.Paid)
+                                    { <span class="badge bg-success">Paid</span> }
+                                    else if (t.PaymentStatus == DairyProductApp.Models.PaymentStatus.Partial)
+                                    { <span class="badge bg-warning text-dark">Partial</span> }
+                                    else
+                                    { <span class="badge bg-danger">Pending</span> }
+                                </td>
+                                <td class="small">@t.Remarks</td>
+                                <td>
+                                    <div class="btn-group btn-group-sm">
+                                        <a asp-controller="Transaction" asp-action="Edit" asp-route-id="@t.Id" class="btn btn-outline-primary"><i class="bi bi-pencil"></i></a>
+                                        <form asp-controller="Transaction" asp-action="Delete" method="post" class="d-inline" onsubmit="return confirm('Delete karein?');">
+                                            @Html.AntiForgeryToken()
+                                            <input type="hidden" name="id" value="@t.Id" />
+                                            <input type="hidden" name="partnerId" value="@Model.Partner.Id" />
+                                            <button type="submit" class="btn btn-outline-danger btn-sm"><i class="bi bi-trash"></i></button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr><td colspan="9" class="text-center text-muted py-4"><i class="bi bi-inbox fs-3 d-block mb-2"></i>Koi transaction nahi hai</td></tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

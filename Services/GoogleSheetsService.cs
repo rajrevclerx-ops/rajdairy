@@ -18,6 +18,8 @@ namespace DairyProductApp.Services
         private const string DairyProductSheet = "DairyProducts";
         private const string GheeProductSheet = "GheeProducts";
         private const string SettingsSheet = "Settings";
+        private const string PartnerSheet = "Partners";
+        private const string TransactionSheet = "Transactions";
 
         public GoogleSheetsService(IConfiguration configuration)
         {
@@ -75,7 +77,9 @@ namespace DairyProductApp.Services
                 [MilkRateSheet] = new List<object> { "Id", "MilkType", "MinFat", "MaxFat", "MinSNF", "MaxSNF", "RatePerLiter", "EffectiveFrom", "IsActive" },
                 [DairyProductSheet] = new List<object> { "Id", "ProductName", "Category", "Quantity", "Unit", "Price", "ManufacturingDate", "ExpiryDate", "StockQuantity", "Description", "IsActive", "CreatedAt" },
                 [GheeProductSheet] = new List<object> { "Id", "BatchNumber", "GheeType", "MilkUsedLiters", "GheeProducedKg", "YieldRate", "PricePerKg", "TotalValue", "StockKg", "ProductionDate", "ExpiryDate", "Quality", "Description", "CreatedAt" },
-                [SettingsSheet] = new List<object> { "Key", "Value" }
+                [SettingsSheet] = new List<object> { "Key", "Value" },
+                [PartnerSheet] = new List<object> { "Id", "Name", "Mobile", "Address", "Type", "AccessCode", "IsActive", "CreatedAt" },
+                [TransactionSheet] = new List<object> { "Id", "PartnerId", "PartnerName", "Type", "Item", "Description", "Quantity", "Unit", "Rate", "TotalAmount", "PaymentStatus", "TransactionDate", "CreatedAt", "Remarks" }
             };
 
             // Create missing sheets
@@ -486,6 +490,141 @@ namespace DairyProductApp.Services
         public async Task DeleteProfilePhoto()
         {
             await DeleteSetting("ProfilePhoto");
+        }
+
+        // ============ PARTNERS ============
+        public async Task<List<Partner>> GetAllPartners()
+        {
+            var rows = await GetAllRows(PartnerSheet);
+            return rows.Select(r => new Partner
+            {
+                Id = int.TryParse(SafeGet(r, 0), out var id) ? id : 0,
+                Name = SafeGet(r, 1),
+                Mobile = SafeGet(r, 2),
+                Address = SafeGet(r, 3),
+                Type = Enum.TryParse<PartnerType>(SafeGet(r, 4), out var t) ? t : PartnerType.Supplier,
+                AccessCode = SafeGet(r, 5),
+                IsActive = SafeGet(r, 6).ToLower() != "false",
+                CreatedAt = DateTime.TryParse(SafeGet(r, 7), out var ca) ? ca : DateTime.Now
+            }).ToList();
+        }
+
+        public async Task<Partner?> GetPartnerById(int id)
+        {
+            var all = await GetAllPartners();
+            return all.FirstOrDefault(p => p.Id == id);
+        }
+
+        public async Task<Partner?> GetPartnerByAccessCode(string code)
+        {
+            var all = await GetAllPartners();
+            return all.FirstOrDefault(p => p.AccessCode == code && p.IsActive);
+        }
+
+        public async Task AddPartner(Partner p)
+        {
+            p.Id = await GetNextId(PartnerSheet);
+            // Generate unique access code
+            if (string.IsNullOrEmpty(p.AccessCode))
+            {
+                p.AccessCode = "RD" + p.Id.ToString("D4");
+            }
+            var row = new List<object>
+            {
+                p.Id, p.Name, p.Mobile, p.Address ?? "", p.Type.ToString(),
+                p.AccessCode, p.IsActive.ToString(), p.CreatedAt.ToString("yyyy-MM-dd HH:mm:ss")
+            };
+            await AppendRow(PartnerSheet, row);
+        }
+
+        public async Task UpdatePartner(Partner p)
+        {
+            var rows = await GetAllRows(PartnerSheet);
+            var index = rows.ToList().FindIndex(r => SafeGet(r, 0) == p.Id.ToString());
+            if (index < 0) return;
+            var row = new List<object>
+            {
+                p.Id, p.Name, p.Mobile, p.Address ?? "", p.Type.ToString(),
+                p.AccessCode, p.IsActive.ToString(), p.CreatedAt.ToString("yyyy-MM-dd HH:mm:ss")
+            };
+            await UpdateRow(PartnerSheet, index, row);
+        }
+
+        public async Task DeletePartner(int id)
+        {
+            var rows = await GetAllRows(PartnerSheet);
+            var index = rows.ToList().FindIndex(r => SafeGet(r, 0) == id.ToString());
+            if (index >= 0) await DeleteRow(PartnerSheet, index);
+        }
+
+        // ============ TRANSACTIONS ============
+        public async Task<List<Transaction>> GetAllTransactions()
+        {
+            var rows = await GetAllRows(TransactionSheet);
+            return rows.Select(r => new Transaction
+            {
+                Id = int.TryParse(SafeGet(r, 0), out var id) ? id : 0,
+                PartnerId = int.TryParse(SafeGet(r, 1), out var pid) ? pid : 0,
+                PartnerName = SafeGet(r, 2),
+                Type = Enum.TryParse<TransactionType>(SafeGet(r, 3), out var tt) ? tt : TransactionType.Received,
+                Item = Enum.TryParse<TransactionItem>(SafeGet(r, 4), out var ti) ? ti : TransactionItem.Milk,
+                Description = SafeGet(r, 5),
+                Quantity = decimal.TryParse(SafeGet(r, 6), out var qty) ? qty : 0,
+                Unit = SafeGet(r, 7),
+                Rate = decimal.TryParse(SafeGet(r, 8), out var rate) ? rate : 0,
+                TotalAmount = decimal.TryParse(SafeGet(r, 9), out var amt) ? amt : 0,
+                PaymentStatus = Enum.TryParse<PaymentStatus>(SafeGet(r, 10), out var ps) ? ps : PaymentStatus.Pending,
+                TransactionDate = DateTime.TryParse(SafeGet(r, 11), out var td) ? td : DateTime.Today,
+                CreatedAt = DateTime.TryParse(SafeGet(r, 12), out var ca) ? ca : DateTime.Now,
+                Remarks = SafeGet(r, 13)
+            }).ToList();
+        }
+
+        public async Task<List<Transaction>> GetTransactionsByPartnerId(int partnerId)
+        {
+            var all = await GetAllTransactions();
+            return all.Where(t => t.PartnerId == partnerId).OrderByDescending(t => t.TransactionDate).ToList();
+        }
+
+        public async Task<Transaction?> GetTransactionById(int id)
+        {
+            var all = await GetAllTransactions();
+            return all.FirstOrDefault(t => t.Id == id);
+        }
+
+        public async Task AddTransaction(Transaction t)
+        {
+            t.Id = await GetNextId(TransactionSheet);
+            var row = new List<object>
+            {
+                t.Id, t.PartnerId, t.PartnerName, t.Type.ToString(), t.Item.ToString(),
+                t.Description ?? "", t.Quantity, t.Unit, t.Rate, t.TotalAmount,
+                t.PaymentStatus.ToString(), t.TransactionDate.ToString("yyyy-MM-dd"),
+                t.CreatedAt.ToString("yyyy-MM-dd HH:mm:ss"), t.Remarks ?? ""
+            };
+            await AppendRow(TransactionSheet, row);
+        }
+
+        public async Task UpdateTransaction(Transaction t)
+        {
+            var rows = await GetAllRows(TransactionSheet);
+            var index = rows.ToList().FindIndex(r => SafeGet(r, 0) == t.Id.ToString());
+            if (index < 0) return;
+            var row = new List<object>
+            {
+                t.Id, t.PartnerId, t.PartnerName, t.Type.ToString(), t.Item.ToString(),
+                t.Description ?? "", t.Quantity, t.Unit, t.Rate, t.TotalAmount,
+                t.PaymentStatus.ToString(), t.TransactionDate.ToString("yyyy-MM-dd"),
+                t.CreatedAt.ToString("yyyy-MM-dd HH:mm:ss"), t.Remarks ?? ""
+            };
+            await UpdateRow(TransactionSheet, index, row);
+        }
+
+        public async Task DeleteTransaction(int id)
+        {
+            var rows = await GetAllRows(TransactionSheet);
+            var index = rows.ToList().FindIndex(r => SafeGet(r, 0) == id.ToString());
+            if (index >= 0) await DeleteRow(TransactionSheet, index);
         }
     }
 }

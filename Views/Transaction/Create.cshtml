@@ -1,0 +1,88 @@
+@model DairyProductApp.Models.Transaction
+@{ ViewData["Title"] = "New Transaction"; }
+
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h3 class="fw-bold text-success mb-0"><i class="bi bi-plus-circle me-2"></i>New Transaction</h3>
+            <a asp-controller="Partner" asp-action="Index" class="btn btn-outline-secondary"><i class="bi bi-arrow-left me-1"></i>Back</a>
+        </div>
+        <div class="card border-0 shadow-sm">
+            <div class="card-body p-4">
+                <form asp-action="Create" method="post">
+                    <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label asp-for="PartnerId" class="form-label fw-semibold">Partner</label>
+                            <select asp-for="PartnerId" asp-items="@ViewBag.Partners" class="form-select">
+                                <option value="">-- Select Partner --</option>
+                            </select>
+                            <span asp-validation-for="PartnerId" class="text-danger small"></span>
+                        </div>
+                        <div class="col-md-3">
+                            <label asp-for="Type" class="form-label fw-semibold"></label>
+                            <select asp-for="Type" asp-items="Html.GetEnumSelectList<DairyProductApp.Models.TransactionType>()" class="form-select"></select>
+                        </div>
+                        <div class="col-md-3">
+                            <label asp-for="TransactionDate" class="form-label fw-semibold"></label>
+                            <input asp-for="TransactionDate" class="form-control" type="date">
+                        </div>
+                        <div class="col-md-4">
+                            <label asp-for="Item" class="form-label fw-semibold"></label>
+                            <select asp-for="Item" asp-items="Html.GetEnumSelectList<DairyProductApp.Models.TransactionItem>()" class="form-select"></select>
+                        </div>
+                        <div class="col-md-3">
+                            <label asp-for="Quantity" class="form-label fw-semibold"></label>
+                            <input asp-for="Quantity" class="form-control" id="qty" step="0.1">
+                        </div>
+                        <div class="col-md-2">
+                            <label asp-for="Unit" class="form-label fw-semibold"></label>
+                            <select asp-for="Unit" class="form-select">
+                                <option>Liter</option><option>Kg</option><option>Gram</option><option>Piece</option><option>Rupees</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label asp-for="Rate" class="form-label fw-semibold"></label>
+                            <div class="input-group">
+                                <span class="input-group-text">&#8377;</span>
+                                <input asp-for="Rate" class="form-control" id="rate" step="0.01">
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label fw-semibold">Total Amount</label>
+                            <div class="input-group">
+                                <span class="input-group-text">&#8377;</span>
+                                <input type="text" class="form-control fw-bold text-success" id="totalDisplay" readonly>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <label asp-for="PaymentStatus" class="form-label fw-semibold"></label>
+                            <select asp-for="PaymentStatus" asp-items="Html.GetEnumSelectList<DairyProductApp.Models.PaymentStatus>()" class="form-select"></select>
+                        </div>
+                        <div class="col-md-4">
+                            <label asp-for="Description" class="form-label fw-semibold"></label>
+                            <input asp-for="Description" class="form-control" placeholder="Optional">
+                        </div>
+                        <div class="col-12">
+                            <label asp-for="Remarks" class="form-label fw-semibold"></label>
+                            <input asp-for="Remarks" class="form-control" placeholder="Koi bhi remark (optional)">
+                        </div>
+                    </div>
+                    <div class="mt-4 d-flex gap-2">
+                        <button type="submit" class="btn btn-success btn-lg"><i class="bi bi-check-circle me-1"></i>Save Transaction</button>
+                        <a asp-controller="Partner" asp-action="Index" class="btn btn-outline-secondary btn-lg">Cancel</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        $('#qty, #rate').on('change keyup', function () {
+            var total = (parseFloat($('#qty').val()) || 0) * (parseFloat($('#rate').val()) || 0);
+            $('#totalDisplay').val(total.toFixed(2));
+        });
+    </script>
+}

@@ -1,0 +1,81 @@
+@model List<DairyProductApp.Models.Transaction>
+@{ ViewData["Title"] = "All Transactions"; }
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h3 class="fw-bold text-primary mb-0"><i class="bi bi-journal-text me-2"></i>
+            @if (ViewBag.PartnerName != null) { @($"{ViewBag.PartnerName} - ") }All Transactions
+        </h3>
+        <p class="text-muted mb-0 small">Sabhi lena-dena ka record</p>
+    </div>
+    <a asp-controller="Transaction" asp-action="Create" class="btn btn-success shadow-sm"><i class="bi bi-plus-circle me-1"></i>New Transaction</a>
+</div>
+
+@if (Model.Any())
+{
+    <div class="row g-3 mb-3">
+        <div class="col-md-4">
+            <div class="card border-0 bg-success bg-opacity-10">
+                <div class="card-body py-2 text-center">
+                    <small class="text-muted">Total Given</small>
+                    <h5 class="fw-bold text-success mb-0">&#8377;@Model.Where(t => t.Type == DairyProductApp.Models.TransactionType.Given).Sum(t => t.TotalAmount).ToString("F0")</h5>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card border-0 bg-danger bg-opacity-10">
+                <div class="card-body py-2 text-center">
+                    <small class="text-muted">Total Received</small>
+                    <h5 class="fw-bold text-danger mb-0">&#8377;@Model.Where(t => t.Type == DairyProductApp.Models.TransactionType.Received).Sum(t => t.TotalAmount).ToString("F0")</h5>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card border-0 bg-warning bg-opacity-10">
+                <div class="card-body py-2 text-center">
+                    <small class="text-muted">Pending</small>
+                    <h5 class="fw-bold text-warning mb-0">&#8377;@Model.Where(t => t.PaymentStatus == DairyProductApp.Models.PaymentStatus.Pending).Sum(t => t.TotalAmount).ToString("F0")</h5>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+<div class="card border-0 shadow-sm">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr><th>Date</th><th>Partner</th><th>Type</th><th>Item</th><th>Qty</th><th>Rate</th><th>Amount</th><th>Payment</th><th>Actions</th></tr>
+                </thead>
+                <tbody>
+                    @if (Model.Any())
+                    {
+                        @foreach (var t in Model)
+                        {
+                            <tr>
+                                <td>@t.TransactionDate.ToString("dd/MM/yy")</td>
+                                <td class="fw-semibold">
+                                    <a asp-controller="Partner" asp-action="Ledger" asp-route-id="@t.PartnerId" class="text-decoration-none">@t.PartnerName</a>
+                                </td>
+                                <td>@if (t.Type == DairyProductApp.Models.TransactionType.Given) { <span class="badge bg-success">Diya</span> } else { <span class="badge bg-danger">Liya</span> }</td>
+                                <td><span class="badge bg-info">@t.Item</span></td>
+                                <td>@t.Quantity @t.Unit</td>
+                                <td>&#8377;@t.Rate.ToString("F0")</td>
+                                <td class="fw-bold">&#8377;@t.TotalAmount.ToString("F0")</td>
+                                <td>@if (t.PaymentStatus == DairyProductApp.Models.PaymentStatus.Paid) { <span class="badge bg-success">Paid</span> } else if (t.PaymentStatus == DairyProductApp.Models.PaymentStatus.Partial) { <span class="badge bg-warning text-dark">Partial</span> } else { <span class="badge bg-danger">Pending</span> }</td>
+                                <td>
+                                    <a asp-action="Edit" asp-route-id="@t.Id" class="btn btn-sm btn-outline-primary"><i class="bi bi-pencil"></i></a>
+                                </td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr><td colspan="9" class="text-center text-muted py-5"><i class="bi bi-inbox fs-1 d-block mb-2"></i>Koi transaction nahi hai</td></tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

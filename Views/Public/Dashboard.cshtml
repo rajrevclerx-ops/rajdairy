@@ -1,0 +1,143 @@
+@model DairyProductApp.Models.PartnerLedgerViewModel
+@{
+    ViewData["Title"] = $"{Model.Partner.Name} - My Account";
+    Layout = null;
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Raj Dairy - @Model.Partner.Name</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+    <style>
+        body { background: #f0f2f5; font-family: 'Segoe UI', sans-serif; }
+        .top-bar { background: linear-gradient(135deg, #1a3a5c 0%, #2e86c1 100%); }
+    </style>
+</head>
+<body>
+    <!-- Top Bar -->
+    <nav class="top-bar py-3 px-3 mb-4">
+        <div class="container-fluid">
+            <div class="d-flex justify-content-between align-items-center">
+                <div class="d-flex align-items-center text-white">
+                    <i class="bi bi-droplet-fill fs-4 me-2"></i>
+                    <div>
+                        <h5 class="mb-0 fw-bold">Raj Dairy</h5>
+                        <small class="text-white-50">Partner Portal</small>
+                    </div>
+                </div>
+                <div class="text-end text-white">
+                    <div class="fw-bold">@Model.Partner.Name</div>
+                    <small class="text-white-50">Code: @Model.Partner.AccessCode</small>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container-fluid px-3 pb-4">
+        <!-- Summary Cards -->
+        <div class="row g-3 mb-4">
+            <div class="col-6 col-md-3">
+                <div class="card border-0 shadow-sm h-100" style="border-left:4px solid #27ae60 !important;">
+                    <div class="card-body text-center py-3">
+                        <small class="text-muted">Maal Diya</small>
+                        <h4 class="fw-bold text-success mb-0">&#8377;@Model.TotalGiven.ToString("F0")</h4>
+                    </div>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="card border-0 shadow-sm h-100" style="border-left:4px solid #e74c3c !important;">
+                    <div class="card-body text-center py-3">
+                        <small class="text-muted">Maal Liya</small>
+                        <h4 class="fw-bold text-danger mb-0">&#8377;@Model.TotalReceived.ToString("F0")</h4>
+                    </div>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="card border-0 shadow-sm h-100" style="border-left:4px solid #e67e22 !important;">
+                    <div class="card-body text-center py-3">
+                        <small class="text-muted">Pending</small>
+                        <h4 class="fw-bold text-warning mb-0">&#8377;@Model.TotalPending.ToString("F0")</h4>
+                    </div>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="card border-0 shadow-sm h-100" style="border-left:4px solid #3498db !important;">
+                    <div class="card-body text-center py-3">
+                        <small class="text-muted">Balance</small>
+                        <h4 class="fw-bold @(Model.Balance >= 0 ? "text-success" : "text-danger") mb-0">
+                            &#8377;@Math.Abs(Model.Balance).ToString("F0")
+                            <small class="fs-6">@(Model.Balance >= 0 ? "(Dena)" : "(Lena)")</small>
+                        </h4>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Transactions -->
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white border-0">
+                <h6 class="fw-bold mb-0"><i class="bi bi-list-ul me-2 text-primary"></i>Mera Hisab - All Transactions</h6>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0" style="font-size:0.9rem;">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Date</th>
+                                <th>Type</th>
+                                <th>Item</th>
+                                <th>Qty</th>
+                                <th>Rate</th>
+                                <th>Amount</th>
+                                <th>Payment</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (Model.Transactions.Any())
+                            {
+                                @foreach (var t in Model.Transactions)
+                                {
+                                    <tr>
+                                        <td>@t.TransactionDate.ToString("dd/MM/yy")</td>
+                                        <td>
+                                            @if (t.Type == DairyProductApp.Models.TransactionType.Given)
+                                            { <span class="badge bg-success">Diya</span> }
+                                            else
+                                            { <span class="badge bg-danger">Liya</span> }
+                                        </td>
+                                        <td>@t.Item</td>
+                                        <td>@t.Quantity @t.Unit</td>
+                                        <td>&#8377;@t.Rate.ToString("F0")</td>
+                                        <td class="fw-bold">&#8377;@t.TotalAmount.ToString("F0")</td>
+                                        <td>
+                                            @if (t.PaymentStatus == DairyProductApp.Models.PaymentStatus.Paid)
+                                            { <span class="badge bg-success">Paid</span> }
+                                            else if (t.PaymentStatus == DairyProductApp.Models.PaymentStatus.Partial)
+                                            { <span class="badge bg-warning text-dark">Partial</span> }
+                                            else
+                                            { <span class="badge bg-danger">Pending</span> }
+                                        </td>
+                                    </tr>
+                                }
+                            }
+                            else
+                            {
+                                <tr><td colspan="7" class="text-center text-muted py-4"><i class="bi bi-inbox fs-3 d-block mb-2"></i>Abhi koi transaction nahi hai</td></tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="text-center mt-4">
+            <a asp-action="Login" class="btn btn-outline-secondary btn-sm"><i class="bi bi-box-arrow-left me-1"></i>Logout</a>
+            <p class="text-muted small mt-2 mb-0"><i class="bi bi-shield-lock me-1"></i>Read-only access - Changes sirf admin kar sakta hai</p>
+        </div>
+    </div>
+</body>
+</html>
