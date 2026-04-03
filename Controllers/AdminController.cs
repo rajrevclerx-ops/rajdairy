@@ -6,12 +6,10 @@ namespace DairyProductApp.Controllers
     public class AdminController : Controller
     {
         private readonly GoogleSheetsService _sheets;
-        private readonly IWebHostEnvironment _env;
 
-        public AdminController(GoogleSheetsService sheets, IWebHostEnvironment env)
+        public AdminController(GoogleSheetsService sheets)
         {
             _sheets = sheets;
-            _env = env;
         }
 
         public async Task<IActionResult> Profile()
@@ -30,8 +28,8 @@ namespace DairyProductApp.Controllers
             ViewBag.TotalRevenue = collections.Sum(c => c.TotalAmount);
             ViewBag.TotalGheeStock = ghee.Sum(g => g.StockKg);
 
-            // Check if profile photo exists
-            ViewBag.ProfilePhoto = GetProfilePhotoPath();
+            // Get profile photo from Google Sheets
+            ViewBag.ProfilePhoto = await _sheets.GetProfilePhoto();
 
             return View();
         }
@@ -42,7 +40,6 @@ namespace DairyProductApp.Controllers
         {
             if (photo != null && photo.Length > 0)
             {
-                // Validate file type
                 var allowedTypes = new[] { ".jpg", ".jpeg", ".png", ".gif", ".webp" };
                 var extension = Path.GetExtension(photo.FileName).ToLowerInvariant();
 
@@ -52,30 +49,26 @@ namespace DairyProductApp.Controllers
                     return RedirectToAction(nameof(Profile));
                 }
 
-                // Max 5MB
                 if (photo.Length > 5 * 1024 * 1024)
                 {
                     TempData["Error"] = "Photo 5MB se chhoti honi chahiye!";
                     return RedirectToAction(nameof(Profile));
                 }
 
-                // Delete old photos
-                var uploadDir = Path.Combine(_env.WebRootPath, "uploads", "profile");
-                Directory.CreateDirectory(uploadDir);
-                foreach (var oldFile in Directory.GetFiles(uploadDir, "admin-photo.*"))
+                // Convert to base64 and save to Google Sheets
+                using var ms = new MemoryStream();
+                await photo.CopyToAsync(ms);
+                var bytes = ms.ToArray();
+                var mimeType = extension switch
                 {
-                    System.IO.File.Delete(oldFile);
-                }
+                    ".png" => "image/png",
+                    ".gif" => "image/gif",
+                    ".webp" => "image/webp",
+                    _ => "image/jpeg"
+                };
+                var base64 = $"data:{mimeType};base64,{Convert.ToBase64String(bytes)}";
 
-                // Save new photo
-                var fileName = $"admin-photo{extension}";
-                var filePath = Path.Combine(uploadDir, fileName);
-
-                using (var stream = new FileStream(filePath, FileMode.Create))
-                {
-                    await photo.CopyToAsync(stream);
-                }
-
+                await _sheets.SaveProfilePhoto(base64);
                 TempData["Success"] = "Profile photo successfully update ho gayi!";
             }
             else
@@ -88,13 +81,9 @@ namespace DairyProductApp.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult RemovePhoto()
+        public async Task<IActionResult> RemovePhoto()
         {
-            var uploadDir = Path.Combine(_env.WebRootPath, "uploads", "profile");
-            foreach (var file in Directory.GetFiles(uploadDir, "admin-photo.*"))
-            {
-                System.IO.File.Delete(file);
-            }
+            await _sheets.DeleteProfilePhoto();
             TempData["Success"] = "Profile photo remove ho gayi!";
             return RedirectToAction(nameof(Profile));
         }
@@ -135,15 +124,12 @@ namespace DairyProductApp.Controllers
             return View();
         }
 
-        private string? GetProfilePhotoPath()
+        // API to get profile photo (used by Layout)
+        [HttpGet]
+        public async Task<IActionResult> GetPhoto()
         {
-            var uploadDir = Path.Combine(_env.WebRootPath, "uploads", "profile");
-            if (!Directory.Exists(uploadDir)) return null;
-
-            var photoFile = Directory.GetFiles(uploadDir, "admin-photo.*").FirstOrDefault();
-            if (photoFile == null) return null;
-
-            return $"/uploads/profile/{Path.GetFileName(photoFile)}";
+            var photo = await _sheets.GetProfilePhoto();
+            return Json(new { photo = photo ?? "" });
         }
     }
 }

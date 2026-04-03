@@ -17,6 +17,7 @@ namespace DairyProductApp.Services
         private const string MilkRateSheet = "MilkRates";
         private const string DairyProductSheet = "DairyProducts";
         private const string GheeProductSheet = "GheeProducts";
+        private const string SettingsSheet = "Settings";
 
         public GoogleSheetsService(IConfiguration configuration)
         {
@@ -73,7 +74,8 @@ namespace DairyProductApp.Services
                 [MilkCollectionSheet] = new List<object> { "Id", "FarmerName", "MobileNumber", "MilkType", "Quantity", "FatPercentage", "SNFPercentage", "RatePerLiter", "TotalAmount", "Shift", "CollectionDate", "CreatedAt", "Remarks" },
                 [MilkRateSheet] = new List<object> { "Id", "MilkType", "MinFat", "MaxFat", "MinSNF", "MaxSNF", "RatePerLiter", "EffectiveFrom", "IsActive" },
                 [DairyProductSheet] = new List<object> { "Id", "ProductName", "Category", "Quantity", "Unit", "Price", "ManufacturingDate", "ExpiryDate", "StockQuantity", "Description", "IsActive", "CreatedAt" },
-                [GheeProductSheet] = new List<object> { "Id", "BatchNumber", "GheeType", "MilkUsedLiters", "GheeProducedKg", "YieldRate", "PricePerKg", "TotalValue", "StockKg", "ProductionDate", "ExpiryDate", "Quality", "Description", "CreatedAt" }
+                [GheeProductSheet] = new List<object> { "Id", "BatchNumber", "GheeType", "MilkUsedLiters", "GheeProducedKg", "YieldRate", "PricePerKg", "TotalValue", "StockKg", "ProductionDate", "ExpiryDate", "Quality", "Description", "CreatedAt" },
+                [SettingsSheet] = new List<object> { "Key", "Value" }
             };
 
             // Create missing sheets
@@ -438,6 +440,52 @@ namespace DairyProductApp.Services
             var rows = await GetAllRows(GheeProductSheet);
             var index = rows.ToList().FindIndex(r => SafeGet(r, 0) == id.ToString());
             if (index >= 0) await DeleteRow(GheeProductSheet, index);
+        }
+
+        // ============ SETTINGS (Profile Photo etc.) ============
+        public async Task<string?> GetSetting(string key)
+        {
+            var rows = await GetAllRows(SettingsSheet);
+            var row = rows.FirstOrDefault(r => SafeGet(r, 0) == key);
+            return row != null ? SafeGet(row, 1) : null;
+        }
+
+        public async Task SaveSetting(string key, string value)
+        {
+            var rows = await GetAllRows(SettingsSheet);
+            var index = rows.ToList().FindIndex(r => SafeGet(r, 0) == key);
+
+            if (index >= 0)
+            {
+                await UpdateRow(SettingsSheet, index, new List<object> { key, value });
+            }
+            else
+            {
+                await AppendRow(SettingsSheet, new List<object> { key, value });
+            }
+        }
+
+        public async Task DeleteSetting(string key)
+        {
+            var rows = await GetAllRows(SettingsSheet);
+            var index = rows.ToList().FindIndex(r => SafeGet(r, 0) == key);
+            if (index >= 0) await DeleteRow(SettingsSheet, index);
+        }
+
+        // Profile Photo - stored as base64 in Settings sheet
+        public async Task<string?> GetProfilePhoto()
+        {
+            return await GetSetting("ProfilePhoto");
+        }
+
+        public async Task SaveProfilePhoto(string base64Data)
+        {
+            await SaveSetting("ProfilePhoto", base64Data);
+        }
+
+        public async Task DeleteProfilePhoto()
+        {
+            await DeleteSetting("ProfilePhoto");
         }
     }
 }

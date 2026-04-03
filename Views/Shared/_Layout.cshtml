@@ -53,22 +53,9 @@
             <div class="sidebar-header">
                 <div class="text-center py-3">
                     <a asp-controller="Admin" asp-action="Profile" class="text-decoration-none">
-                        @{
-                            var photoDir = System.IO.Path.Combine(System.IO.Directory.GetCurrentDirectory(), "wwwroot", "uploads", "profile");
-                            var photoExists = System.IO.Directory.Exists(photoDir) && System.IO.Directory.GetFiles(photoDir, "admin-photo.*").Any();
-                            var photoUrl = photoExists ? $"/uploads/profile/{System.IO.Path.GetFileName(System.IO.Directory.GetFiles(photoDir, "admin-photo.*").First())}" : null;
-                        }
-                        @if (photoUrl != null)
-                        {
-                            <img src="@photoUrl" alt="Admin" class="rounded-circle shadow"
-                                 style="width:65px;height:65px;object-fit:cover;border:3px solid rgba(255,255,255,0.3);" />
-                        }
-                        else
-                        {
-                            <div class="admin-avatar">
-                                <i class="bi bi-person-fill"></i>
-                            </div>
-                        }
+                        <div id="sidebarAvatar" class="admin-avatar">
+                            <i class="bi bi-person-fill"></i>
+                        </div>
                     </a>
                     <h6 class="fw-bold text-white mt-2 mb-0">Admin Panel</h6>
                     <small class="text-white-50">Raj Dairy Management</small>
@@ -204,6 +191,17 @@
     @await RenderSectionAsync("Scripts", required: false)
 
     <script>
+        // Load profile photo from Google Sheets
+        $(function () {
+            $.get('@Url.Action("GetPhoto", "Admin")', function (data) {
+                if (data.photo) {
+                    $('#sidebarAvatar').replaceWith(
+                        '<img src="' + data.photo + '" alt="Admin" class="rounded-circle shadow" style="width:65px;height:65px;object-fit:cover;border:3px solid rgba(255,255,255,0.3);" />'
+                    );
+                }
+            });
+        });
+
         // Highlight active sidebar link
         $(function () {
             var currentPath = window.location.pathname.toLowerCase();
