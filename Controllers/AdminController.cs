@@ -57,19 +57,8 @@ namespace DairyProductApp.Controllers
                     return RedirectToAction(nameof(Profile));
                 }
 
-                // Convert to base64 and save to Google Sheets
-                using var ms = new MemoryStream();
-                await photo.CopyToAsync(ms);
-                var bytes = ms.ToArray();
-                var mimeType = extension switch
-                {
-                    ".png" => "image/png",
-                    ".gif" => "image/gif",
-                    ".webp" => "image/webp",
-                    _ => "image/jpeg"
-                };
-                var base64 = $"data:{mimeType};base64,{Convert.ToBase64String(bytes)}";
-
+                // Compress and convert to base64
+                var base64 = await CompressImageToBase64(photo, 200);
                 await _sheets.SaveProfilePhoto(base64);
                 TempData["Success"] = "Profile photo successfully update ho gayi!";
             }
@@ -154,9 +143,7 @@ namespace DairyProductApp.Controllers
                     return RedirectToAction(nameof(Settings));
                 }
 
-                using var ms = new MemoryStream();
-                await qrImage.CopyToAsync(ms);
-                var base64 = $"data:image/{(extension == ".png" ? "png" : "jpeg")};base64,{Convert.ToBase64String(ms.ToArray())}";
+                var base64 = await CompressImageToBase64(qrImage, 300);
                 await _sheets.SaveSetting("QrCode", base64);
                 TempData["Success"] = "QR Code upload ho gaya!";
             }
@@ -178,6 +165,37 @@ namespace DairyProductApp.Controllers
         {
             var photo = await _sheets.GetProfilePhoto();
             return Json(new { photo = photo ?? "" });
+        }
+
+        // Compress image to fit Google Sheets cell limit (~50K chars)
+        private async Task<string> CompressImageToBase64(IFormFile file, int maxSize)
+        {
+            using var inputStream = new MemoryStream();
+            await file.CopyToAsync(inputStream);
+            inputStream.Position = 0;
+
+            using var original = SkiaSharp.SKBitmap.Decode(inputStream);
+            if (original == null)
+                return "";
+
+            // Calculate new dimensions maintaining aspect ratio
+            int width = original.Width;
+            int height = original.Height;
+            if (width > maxSize || height > maxSize)
+            {
+                float ratio = Math.Min((float)maxSize / width, (float)maxSize / height);
+                width = (int)(width * ratio);
+                height = (int)(height * ratio);
+            }
+
+            using var resized = original.Resize(new SkiaSharp.SKImageInfo(width, height), SkiaSharp.SKFilterQuality.Medium);
+            using var image = SkiaSharp.SKImage.FromBitmap(resized);
+
+            // Encode as JPEG with quality 60 to keep size small
+            using var data = image.Encode(SkiaSharp.SKEncodedImageFormat.Jpeg, 60);
+            var bytes = data.ToArray();
+
+            return $"data:image/jpeg;base64,{Convert.ToBase64String(bytes)}";
         }
     }
 }
