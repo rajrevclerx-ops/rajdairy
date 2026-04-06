@@ -9,6 +9,13 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/DairyProductApp.styles.css" asp-append-version="true" />
+    <!-- PWA -->
+    <link rel="manifest" href="/manifest.json" />
+    <meta name="theme-color" content="#1a5276" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="Raj Dairy" />
+    <link rel="apple-touch-icon" href="/icons/icon-192.png" />
 </head>
 <body>
     <!-- Top Navbar -->
@@ -235,6 +242,11 @@
                 $('.sidebar-nav .nav-link').first().addClass('active');
             }
         });
+
+        // Register PWA Service Worker
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('/sw.js');
+        }
     </script>
 </body>
 </html>

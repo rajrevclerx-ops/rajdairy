@@ -1,0 +1,50 @@
+{
+  "name": "Raj Dairy - Dairy Management",
+  "short_name": "Raj Dairy",
+  "description": "Complete dairy management app - milk collection, ghee production, partner hisab-kitab",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#1a3a5c",
+  "theme_color": "#1a5276",
+  "orientation": "any",
+  "scope": "/",
+  "categories": ["business", "productivity"],
+  "icons": [
+    {
+      "src": "/icons/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "screenshots": [],
+  "shortcuts": [
+    {
+      "name": "New Milk Collection",
+      "url": "/MilkCollection/Create",
+      "icons": [{"src": "/icons/icon.svg", "sizes": "any"}]
+    },
+    {
+      "name": "Partner Hisab",
+      "url": "/Partner",
+      "icons": [{"src": "/icons/icon.svg", "sizes": "any"}]
+    },
+    {
+      "name": "Partner Login",
+      "url": "/Public/Login",
+      "icons": [{"src": "/icons/icon.svg", "sizes": "any"}]
+    }
+  ]
+}
