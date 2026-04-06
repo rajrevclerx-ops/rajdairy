@@ -2,9 +2,11 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using DairyProductApp.Models;
 using DairyProductApp.Services;
+using DairyProductApp.Filters;
 
 namespace DairyProductApp.Controllers
 {
+    [AdminOnly]
     public class TransactionController : Controller
     {
         private readonly GoogleSheetsService _sheets;

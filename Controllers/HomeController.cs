@@ -2,9 +2,11 @@ using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 using DairyProductApp.Models;
 using DairyProductApp.Services;
+using DairyProductApp.Filters;
 
 namespace DairyProductApp.Controllers
 {
+    [AdminOnly]
     public class HomeController : Controller
     {
         private readonly GoogleSheetsService _sheets;

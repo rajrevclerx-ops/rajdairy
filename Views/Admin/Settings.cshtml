@@ -88,25 +88,86 @@
         </div>
     </div>
 
-    <!-- Quick Actions -->
+    <!-- Payment QR Code & UPI -->
     <div class="col-lg-6">
         <div class="card border-0 shadow-sm">
             <div class="card-header bg-white border-0">
-                <h6 class="fw-bold mb-0"><i class="bi bi-lightning-fill text-warning me-2"></i>Quick Actions</h6>
+                <h6 class="fw-bold mb-0"><i class="bi bi-qr-code text-primary me-2"></i>Payment QR Code</h6>
+            </div>
+            <div class="card-body text-center">
+                @{var qrCode = ViewBag.QrCode as string;}
+                @if (!string.IsNullOrEmpty(qrCode))
+                {
+                    <img src="@Html.Raw(qrCode)" alt="QR Code" class="img-fluid rounded shadow-sm mb-3" style="max-width:200px;" />
+                    <form asp-action="RemoveQr" method="post" class="d-inline">
+                        @Html.AntiForgeryToken()
+                        <button type="submit" class="btn btn-sm btn-outline-danger"><i class="bi bi-trash me-1"></i>Remove QR</button>
+                    </form>
+                }
+                else
+                {
+                    <div class="py-3 text-muted"><i class="bi bi-qr-code fs-1 d-block mb-2"></i>Koi QR Code nahi hai</div>
+                }
+                <hr>
+                <form asp-action="UploadQr" method="post" enctype="multipart/form-data">
+                    @Html.AntiForgeryToken()
+                    <div class="input-group">
+                        <input type="file" name="qrImage" class="form-control" accept="image/*" required>
+                        <button type="submit" class="btn btn-primary"><i class="bi bi-upload me-1"></i>Upload</button>
+                    </div>
+                    <small class="text-muted">Payment QR code ki photo upload karein (JPG/PNG)</small>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- UPI ID -->
+    <div class="col-lg-6">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white border-0">
+                <h6 class="fw-bold mb-0"><i class="bi bi-credit-card text-success me-2"></i>UPI Payment Details</h6>
+            </div>
+            <div class="card-body">
+                <form asp-action="SaveUpi" method="post">
+                    @Html.AntiForgeryToken()
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">UPI ID</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="bi bi-at"></i></span>
+                            <input type="text" name="upiId" class="form-control" value="@ViewBag.UpiId" placeholder="e.g. rajdairy@upi">
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">UPI Display Name</label>
+                        <input type="text" name="upiName" class="form-control" value="@ViewBag.UpiName" placeholder="e.g. Raj Dairy">
+                    </div>
+                    <button type="submit" class="btn btn-success"><i class="bi bi-check-circle me-1"></i>Save UPI Details</button>
+                </form>
+                @if (!string.IsNullOrEmpty(ViewBag.UpiId as string))
+                {
+                    <hr>
+                    <div class="alert alert-success small mb-0">
+                        <i class="bi bi-check-circle me-1"></i>UPI Active: <strong>@ViewBag.UpiId</strong>
+                        <br>Partners ko yeh payment link dikhai dega unke portal mein
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+
+    <!-- Security -->
+    <div class="col-lg-6">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white border-0">
+                <h6 class="fw-bold mb-0"><i class="bi bi-shield-lock text-warning me-2"></i>Security</h6>
             </div>
             <div class="card-body">
                 <div class="d-grid gap-2">
-                    <a asp-controller="MilkRate" asp-action="Create" class="btn btn-outline-primary text-start">
-                        <i class="bi bi-plus-circle me-2"></i>Add New Milk Rate
+                    <a asp-controller="Account" asp-action="ChangePassword" class="btn btn-outline-warning text-start">
+                        <i class="bi bi-key me-2"></i>Change Username / Password
                     </a>
-                    <a asp-controller="DairyProduct" asp-action="Create" class="btn btn-outline-success text-start">
-                        <i class="bi bi-plus-circle me-2"></i>Add New Product
-                    </a>
-                    <a asp-controller="GheeProduct" asp-action="Create" class="btn btn-outline-warning text-start">
-                        <i class="bi bi-plus-circle me-2"></i>Add New Ghee Batch
-                    </a>
-                    <a asp-controller="MilkCollection" asp-action="Create" class="btn btn-outline-info text-start">
-                        <i class="bi bi-plus-circle me-2"></i>New Milk Collection
+                    <a asp-controller="Account" asp-action="Logout" class="btn btn-outline-danger text-start">
+                        <i class="bi bi-box-arrow-right me-2"></i>Logout
                     </a>
                 </div>
             </div>
@@ -120,36 +181,10 @@
                 <h6 class="fw-bold mb-0"><i class="bi bi-table text-success me-2"></i>Google Sheet</h6>
             </div>
             <div class="card-body">
-                <p class="text-muted small">Aapka saara data is Google Sheet mein store hai. Direct access ke liye neeche click karein:</p>
-                <a href="https://docs.google.com/spreadsheets/d/1wA0Vf1Lb-vwVLCogZni1DmUveMV5Hh2W4erGs0qFF2s/edit" target="_blank" class="btn btn-success w-100 mb-3">
+                <p class="text-muted small">Aapka saara data is Google Sheet mein store hai:</p>
+                <a href="https://docs.google.com/spreadsheets/d/1wA0Vf1Lb-vwVLCogZni1DmUveMV5Hh2W4erGs0qFF2s/edit" target="_blank" class="btn btn-success w-100 mb-2">
                     <i class="bi bi-box-arrow-up-right me-2"></i>Open Google Sheet
                 </a>
-                <div class="alert alert-info small mb-0">
-                    <i class="bi bi-info-circle me-2"></i>Sheet mein 4 tabs hain: MilkCollection, MilkRates, DairyProducts, GheeProducts
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Logout Section -->
-    <div class="col-12">
-        <div class="card border-0 shadow-sm border-danger">
-            <div class="card-header bg-white border-0">
-                <h6 class="fw-bold mb-0 text-danger"><i class="bi bi-exclamation-triangle me-2"></i>Danger Zone</h6>
-            </div>
-            <div class="card-body">
-                <div class="d-flex justify-content-between align-items-center">
-                    <div>
-                        <h6 class="fw-bold mb-1">Logout from Raj Dairy</h6>
-                        <p class="text-muted small mb-0">Google OAuth token delete ho jayega. Agla run pe phir se login karna hoga.</p>
-                    </div>
-                    <form asp-action="Logout" method="post">
-                        @Html.AntiForgeryToken()
-                        <button type="submit" class="btn btn-danger" onclick="return confirm('Kya aap sure hain ki logout karna hai?');">
-                            <i class="bi bi-box-arrow-right me-1"></i>Logout
-                        </button>
-                    </form>
-                </div>
             </div>
         </div>
     </div>

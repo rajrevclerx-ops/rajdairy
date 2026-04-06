@@ -59,6 +59,11 @@ namespace DairyProductApp.Controllers
                         - transactions.Where(t => t.Type == TransactionType.Received).Sum(t => t.TotalAmount)
             };
 
+            // Payment info for partner
+            ViewBag.UpiId = await _sheets.GetSetting("UpiId");
+            ViewBag.UpiName = await _sheets.GetSetting("UpiName") ?? "Raj Dairy";
+            ViewBag.QrCode = await _sheets.GetSetting("QrCode");
+
             return View(model);
         }
     }

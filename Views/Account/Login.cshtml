@@ -1,0 +1,68 @@
+@{
+    ViewData["Title"] = "Admin Login";
+    Layout = null;
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Raj Dairy - Admin Login</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+    <style>
+        body { background: linear-gradient(135deg, #0f2027 0%, #1a3a5c 50%, #2e86c1 100%); min-height: 100vh; display: flex; align-items: center; justify-content: center; font-family: 'Segoe UI', sans-serif; }
+        .login-card { max-width: 440px; width: 100%; }
+        .form-control:focus { border-color: #2e86c1; box-shadow: 0 0 0 0.2rem rgba(46,134,193,0.25); }
+    </style>
+</head>
+<body>
+    <div class="login-card">
+        <div class="card border-0 shadow-lg" style="border-radius:18px;">
+            <div class="card-body p-5">
+                <div class="text-center mb-4">
+                    <div class="mx-auto mb-3" style="width:80px;height:80px;border-radius:50%;background:linear-gradient(135deg,#1a5276,#2e86c1);display:flex;align-items:center;justify-content:center;">
+                        <i class="bi bi-droplet-fill text-white" style="font-size:2.5rem;"></i>
+                    </div>
+                    <h3 class="fw-bold mb-1">Raj Dairy</h3>
+                    <p class="text-muted">Admin Panel Login</p>
+                </div>
+
+                @if (ViewBag.Error != null)
+                {
+                    <div class="alert alert-danger small py-2"><i class="bi bi-exclamation-triangle me-1"></i>@ViewBag.Error</div>
+                }
+                @if (TempData["Success"] != null)
+                {
+                    <div class="alert alert-success small py-2"><i class="bi bi-check-circle me-1"></i>@TempData["Success"]</div>
+                }
+
+                <form asp-action="Login" method="post">
+                    @Html.AntiForgeryToken()
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold"><i class="bi bi-person me-1"></i>Username</label>
+                        <input type="text" name="username" class="form-control form-control-lg" placeholder="Username" required autofocus style="border-radius:10px;">
+                    </div>
+                    <div class="mb-4">
+                        <label class="form-label fw-semibold"><i class="bi bi-lock me-1"></i>Password</label>
+                        <input type="password" name="password" class="form-control form-control-lg" placeholder="Password" required style="border-radius:10px;">
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-lg w-100 mb-3" style="border-radius:10px;">
+                        <i class="bi bi-box-arrow-in-right me-2"></i>Login
+                    </button>
+                </form>
+
+                <hr class="my-3">
+                <div class="text-center">
+                    <a href="/Public/Login" class="text-decoration-none small">
+                        <i class="bi bi-person-badge me-1"></i>Partner Login (Hisab Dekhein)
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="text-center mt-3 text-white-50 small">
+            <i class="bi bi-shield-lock me-1"></i>Secured Admin Access
+        </div>
+    </div>
+</body>
+</html>

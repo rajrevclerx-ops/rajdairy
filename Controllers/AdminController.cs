@@ -1,8 +1,10 @@
 using Microsoft.AspNetCore.Mvc;
 using DairyProductApp.Services;
+using DairyProductApp.Filters;
 
 namespace DairyProductApp.Controllers
 {
+    [AdminOnly]
     public class AdminController : Controller
     {
         private readonly GoogleSheetsService _sheets;
@@ -99,6 +101,11 @@ namespace DairyProductApp.Controllers
             ViewBag.InactiveProducts = products.Count(p => !p.IsActive);
             ViewBag.ExpiredProducts = products.Count(p => p.ExpiryDate < DateTime.Today);
 
+            // Get UPI and QR settings
+            ViewBag.UpiId = await _sheets.GetSetting("UpiId") ?? "";
+            ViewBag.UpiName = await _sheets.GetSetting("UpiName") ?? "Raj Dairy";
+            ViewBag.QrCode = await _sheets.GetSetting("QrCode");
+
             return View();
         }
 
@@ -122,6 +129,47 @@ namespace DairyProductApp.Controllers
         public IActionResult LoggedOut()
         {
             return View();
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> SaveUpi(string upiId, string upiName)
+        {
+            await _sheets.SaveSetting("UpiId", upiId ?? "");
+            await _sheets.SaveSetting("UpiName", upiName ?? "Raj Dairy");
+            TempData["Success"] = "UPI details save ho gayi!";
+            return RedirectToAction(nameof(Settings));
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> UploadQr(IFormFile qrImage)
+        {
+            if (qrImage != null && qrImage.Length > 0)
+            {
+                var extension = Path.GetExtension(qrImage.FileName).ToLowerInvariant();
+                if (!new[] { ".jpg", ".jpeg", ".png", ".webp" }.Contains(extension))
+                {
+                    TempData["Error"] = "Sirf JPG, PNG, WEBP allowed hain!";
+                    return RedirectToAction(nameof(Settings));
+                }
+
+                using var ms = new MemoryStream();
+                await qrImage.CopyToAsync(ms);
+                var base64 = $"data:image/{(extension == ".png" ? "png" : "jpeg")};base64,{Convert.ToBase64String(ms.ToArray())}";
+                await _sheets.SaveSetting("QrCode", base64);
+                TempData["Success"] = "QR Code upload ho gaya!";
+            }
+            return RedirectToAction(nameof(Settings));
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> RemoveQr()
+        {
+            await _sheets.DeleteSetting("QrCode");
+            TempData["Success"] = "QR Code remove ho gaya!";
+            return RedirectToAction(nameof(Settings));
         }
 
         // API to get profile photo (used by Layout)

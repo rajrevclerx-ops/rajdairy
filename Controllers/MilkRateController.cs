@@ -1,9 +1,11 @@
 using Microsoft.AspNetCore.Mvc;
 using DairyProductApp.Models;
 using DairyProductApp.Services;
+using DairyProductApp.Filters;
 
 namespace DairyProductApp.Controllers
 {
+    [AdminOnly]
     public class MilkRateController : Controller
     {
         private readonly GoogleSheetsService _sheets;

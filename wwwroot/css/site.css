@@ -35,7 +35,6 @@ body {
 /* ========== SIDEBAR ========== */
 .sidebar {
     width: 260px;
-    min-height: 100vh;
     background: linear-gradient(180deg, #1a3a5c 0%, #1b4f72 40%, #154360 100%);
     position: fixed;
     top: 60px;
@@ -43,8 +42,11 @@ body {
     bottom: 0;
     z-index: 1030;
     overflow-y: auto;
+    overflow-x: hidden;
     transition: transform 0.3s ease;
     padding-top: 0;
+    padding-bottom: 60px;
+    -webkit-overflow-scrolling: touch;
 }
 
 .sidebar-header {
@@ -116,11 +118,8 @@ body {
 }
 
 .sidebar-footer {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    right: 0;
     border-top: 1px solid rgba(255,255,255,0.1);
+    margin-top: 1rem;
 }
 
 /* ========== MAIN CONTENT ========== */

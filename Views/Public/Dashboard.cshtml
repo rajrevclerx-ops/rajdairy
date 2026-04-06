@@ -133,6 +133,48 @@
             </div>
         </div>
 
+        <!-- Payment Section -->
+        @{
+            var upiId = ViewBag.UpiId as string;
+            var qrCode = ViewBag.QrCode as string;
+            var upiName = ViewBag.UpiName as string ?? "Raj Dairy";
+            var hasPayment = !string.IsNullOrEmpty(upiId) || !string.IsNullOrEmpty(qrCode);
+        }
+        @if (hasPayment)
+        {
+            <div class="card border-0 shadow-sm mt-4">
+                <div class="card-header bg-white border-0">
+                    <h6 class="fw-bold mb-0"><i class="bi bi-credit-card text-success me-2"></i>Payment Karein</h6>
+                </div>
+                <div class="card-body text-center">
+                    <div class="row g-3 align-items-center">
+                        @if (!string.IsNullOrEmpty(qrCode))
+                        {
+                            <div class="col-md-6">
+                                <p class="small text-muted mb-2">QR Code scan karein:</p>
+                                <img src="@Html.Raw(qrCode)" alt="Payment QR" class="img-fluid rounded shadow-sm" style="max-width:220px;" />
+                            </div>
+                        }
+                        @if (!string.IsNullOrEmpty(upiId))
+                        {
+                            <div class="col-md-6">
+                                <p class="small text-muted mb-2">Ya UPI se payment karein:</p>
+                                <div class="card bg-success bg-opacity-10 border-0 p-3">
+                                    <div class="fw-bold text-success fs-5">@upiName</div>
+                                    <div class="mt-2">
+                                        <code class="bg-white px-3 py-2 rounded fs-5">@upiId</code>
+                                    </div>
+                                    <button class="btn btn-success btn-sm mt-2" onclick="navigator.clipboard.writeText('@upiId');this.innerHTML='<i class=\'bi bi-check\'></i> Copied!';">
+                                        <i class="bi bi-clipboard me-1"></i>Copy UPI ID
+                                    </button>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        }
+
         <!-- Footer -->
         <div class="text-center mt-4">
             <a asp-action="Login" class="btn btn-outline-secondary btn-sm"><i class="bi bi-box-arrow-left me-1"></i>Logout</a>
