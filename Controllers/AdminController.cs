@@ -57,8 +57,12 @@ namespace DairyProductApp.Controllers
                     return RedirectToAction(nameof(Profile));
                 }
 
-                // Compress and convert to base64
-                var base64 = await CompressImageToBase64(photo, 200);
+                var base64 = await ImageToBase64(photo);
+                if (base64 == null)
+                {
+                    TempData["Error"] = "Photo 30KB se chhoti honi chahiye! Online compress karo (tinypng.com) phir upload karo.";
+                    return RedirectToAction(nameof(Profile));
+                }
                 await _sheets.SaveProfilePhoto(base64);
                 TempData["Success"] = "Profile photo successfully update ho gayi!";
             }
@@ -143,7 +147,12 @@ namespace DairyProductApp.Controllers
                     return RedirectToAction(nameof(Settings));
                 }
 
-                var base64 = await CompressImageToBase64(qrImage, 300);
+                var base64 = await ImageToBase64(qrImage);
+                if (base64 == null)
+                {
+                    TempData["Error"] = "Image 30KB se chhoti honi chahiye! Phone se photo lene ki jagah screenshot lo ya online compress karo (tinypng.com).";
+                    return RedirectToAction(nameof(Settings));
+                }
                 await _sheets.SaveSetting("QrCode", base64);
                 TempData["Success"] = "QR Code upload ho gaya!";
             }
@@ -167,35 +176,22 @@ namespace DairyProductApp.Controllers
             return Json(new { photo = photo ?? "" });
         }
 
-        // Compress image to fit Google Sheets cell limit (~50K chars)
-        private async Task<string> CompressImageToBase64(IFormFile file, int maxSize)
+        // Convert image to base64 - reject if too large for Google Sheets
+        private async Task<string?> ImageToBase64(IFormFile file, int maxKB = 30)
         {
-            using var inputStream = new MemoryStream();
-            await file.CopyToAsync(inputStream);
-            inputStream.Position = 0;
+            using var ms = new MemoryStream();
+            await file.CopyToAsync(ms);
+            var bytes = ms.ToArray();
+            var ext = Path.GetExtension(file.FileName).ToLowerInvariant();
+            var mime = ext == ".png" ? "image/png" : "image/jpeg";
 
-            using var original = SkiaSharp.SKBitmap.Decode(inputStream);
-            if (original == null)
-                return "";
-
-            // Calculate new dimensions maintaining aspect ratio
-            int width = original.Width;
-            int height = original.Height;
-            if (width > maxSize || height > maxSize)
+            // Check if base64 will fit in Google Sheets cell (~50K char limit)
+            if (bytes.Length > maxKB * 1024)
             {
-                float ratio = Math.Min((float)maxSize / width, (float)maxSize / height);
-                width = (int)(width * ratio);
-                height = (int)(height * ratio);
+                return null; // Too large
             }
 
-            using var resized = original.Resize(new SkiaSharp.SKImageInfo(width, height), SkiaSharp.SKFilterQuality.Medium);
-            using var image = SkiaSharp.SKImage.FromBitmap(resized);
-
-            // Encode as JPEG with quality 60 to keep size small
-            using var data = image.Encode(SkiaSharp.SKEncodedImageFormat.Jpeg, 60);
-            var bytes = data.ToArray();
-
-            return $"data:image/jpeg;base64,{Convert.ToBase64String(bytes)}";
+            return $"data:{mime};base64,{Convert.ToBase64String(bytes)}";
         }
     }
 }
