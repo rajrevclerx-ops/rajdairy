@@ -3,146 +3,218 @@
     ViewData["Title"] = "Dashboard";
 }
 
-<!-- Page Header -->
-<div class="d-flex justify-content-between align-items-center mb-4 page-header">
-    <div>
-        <h3 class="fw-bold mb-1"><i class="bi bi-speedometer2 me-2 text-primary"></i>Dashboard</h3>
-        <p class="text-muted mb-0 small">Welcome back, Admin! Raj Dairy ka complete overview</p>
-    </div>
-    <div class="d-flex gap-2">
-        <a asp-controller="MilkCollection" asp-action="Create" class="btn btn-primary btn-sm">
-            <i class="bi bi-plus-circle me-1"></i>New Collection
-        </a>
+<!-- Welcome Banner -->
+<div class="welcome-banner animate-fadeInUp">
+    <div class="d-flex justify-content-between align-items-center position-relative" style="z-index:1;">
+        <div>
+            <h2 class="mb-1">Namaste, Admin!</h2>
+            <p class="mb-0">Raj Dairy ka complete overview - Aaj ka din shubh ho</p>
+        </div>
+        <div class="d-flex gap-2">
+            <a asp-controller="MilkCollection" asp-action="Create" class="btn btn-primary btn-lg">
+                <i class="bi bi-plus-circle me-1"></i>New Collection
+            </a>
+            <a asp-controller="Order" asp-action="Create" class="btn btn-outline-light btn-lg">
+                <i class="bi bi-bag-plus me-1"></i>New Order
+            </a>
+        </div>
     </div>
 </div>
 
-<!-- Stats Cards -->
+<!-- Main Stats Row -->
 <div class="row g-3 mb-4">
-    <div class="col-md-6 col-xl-2">
-        <div class="card border-0 shadow-sm h-100" style="border-left: 4px solid #3498db !important;">
-            <div class="card-body">
-                <div class="d-flex align-items-center justify-content-between">
+    <div class="col-md-6 col-xl-3">
+        <div class="card stat-card-gradient blue shadow-sm h-100">
+            <div class="card-body p-3">
+                <div class="d-flex align-items-center justify-content-between position-relative" style="z-index:1;">
                     <div>
-                        <p class="text-muted small mb-1">Today's Milk</p>
-                        <h4 class="fw-bold mb-0">@Model.TodayMilkCollection.ToString("F1") <small class="fs-6">L</small></h4>
+                        <p class="small mb-1 text-white-50">Today's Milk</p>
+                        <h3 class="fw-bold mb-0">@Model.TodayMilkCollection.ToString("F1") <small class="fs-6 fw-normal">L</small></h3>
+                        <small class="text-white-50 mt-1 d-block">
+                            <i class="bi bi-currency-rupee"></i>@Model.TodayRevenue.ToString("N0") revenue
+                        </small>
                     </div>
-                    <div class="stat-icon bg-primary bg-opacity-10 text-primary">
+                    <div class="stat-icon" style="background:rgba(255,255,255,0.15);color:white;">
                         <i class="bi bi-cup-hot-fill"></i>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-    <div class="col-md-6 col-xl-2">
-        <div class="card border-0 shadow-sm h-100" style="border-left: 4px solid #27ae60 !important;">
-            <div class="card-body">
-                <div class="d-flex align-items-center justify-content-between">
+    <div class="col-md-6 col-xl-3">
+        <div class="card stat-card-gradient green shadow-sm h-100">
+            <div class="card-body p-3">
+                <div class="d-flex align-items-center justify-content-between position-relative" style="z-index:1;">
                     <div>
-                        <p class="text-muted small mb-1">Total Farmers</p>
-                        <h4 class="fw-bold mb-0">@Model.TotalFarmers</h4>
+                        <p class="small mb-1 text-white-50">Active Partners</p>
+                        <h3 class="fw-bold mb-0">@Model.TotalPartners</h3>
+                        <small class="text-white-50 mt-1 d-block">
+                            <i class="bi bi-calendar-check"></i> @Model.ActiveSubscriptions subscriptions
+                        </small>
                     </div>
-                    <div class="stat-icon bg-success bg-opacity-10 text-success">
+                    <div class="stat-icon" style="background:rgba(255,255,255,0.15);color:white;">
                         <i class="bi bi-people-fill"></i>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-    <div class="col-md-6 col-xl-2">
-        <div class="card border-0 shadow-sm h-100" style="border-left: 4px solid #e67e22 !important;">
-            <div class="card-body">
-                <div class="d-flex align-items-center justify-content-between">
+    <div class="col-md-6 col-xl-3">
+        <div class="card stat-card-gradient purple shadow-sm h-100">
+            <div class="card-body p-3">
+                <div class="d-flex align-items-center justify-content-between position-relative" style="z-index:1;">
                     <div>
-                        <p class="text-muted small mb-1">Ghee Stock</p>
-                        <h4 class="fw-bold mb-0">@Model.TotalGheeStock.ToString("F1") <small class="fs-6">Kg</small></h4>
+                        <p class="small mb-1 text-white-50">Today's Orders</p>
+                        <h3 class="fw-bold mb-0">@Model.TodayOrders</h3>
+                        <small class="text-white-50 mt-1 d-block">
+                            <i class="bi bi-clock"></i> @Model.PendingOrders pending
+                        </small>
                     </div>
-                    <div class="stat-icon bg-warning bg-opacity-10 text-warning">
+                    <div class="stat-icon" style="background:rgba(255,255,255,0.15);color:white;">
+                        <i class="bi bi-bag-check-fill"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6 col-xl-3">
+        <div class="card stat-card-gradient orange shadow-sm h-100">
+            <div class="card-body p-3">
+                <div class="d-flex align-items-center justify-content-between position-relative" style="z-index:1;">
+                    <div>
+                        <p class="small mb-1 text-white-50">Ghee Stock</p>
+                        <h3 class="fw-bold mb-0">@Model.TotalGheeStock.ToString("F1") <small class="fs-6 fw-normal">Kg</small></h3>
+                        <small class="text-white-50 mt-1 d-block">
+                            <i class="bi bi-box-seam"></i> @Model.TotalProducts products
+                        </small>
+                    </div>
+                    <div class="stat-icon" style="background:rgba(255,255,255,0.15);color:white;">
                         <i class="bi bi-fire"></i>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-    <div class="col-md-6 col-xl-2">
-        <div class="card border-0 shadow-sm h-100" style="border-left: 4px solid #8e44ad !important;">
-            <div class="card-body">
-                <div class="d-flex align-items-center justify-content-between">
-                    <div>
-                        <p class="text-muted small mb-1">Products</p>
-                        <h4 class="fw-bold mb-0">@Model.TotalProducts</h4>
-                    </div>
-                    <div class="stat-icon" style="background:rgba(142,68,173,0.1);color:#8e44ad;">
-                        <i class="bi bi-box-seam-fill"></i>
-                    </div>
-                </div>
+</div>
+
+<!-- Secondary Stats -->
+<div class="row g-3 mb-4">
+    <div class="col-md-4 col-xl-2">
+        <div class="card border-0 shadow-sm h-100 stat-card">
+            <div class="card-body p-3 text-center">
+                <div class="stat-icon mx-auto mb-2 bg-primary bg-opacity-10 text-primary"><i class="bi bi-currency-rupee"></i></div>
+                <h5 class="fw-bold mb-0">@Model.TotalRevenue.ToString("N0")</h5>
+                <small class="text-muted">Total Revenue</small>
             </div>
         </div>
     </div>
-    <div class="col-md-6 col-xl-2">
-        <div class="card border-0 shadow-sm h-100" style="border-left: 4px solid #e74c3c !important;">
-            <div class="card-body">
-                <div class="d-flex align-items-center justify-content-between">
-                    <div>
-                        <p class="text-muted small mb-1">Avg Fat</p>
-                        <h4 class="fw-bold mb-0">@Model.AvgFat.ToString("F1")%</h4>
-                    </div>
-                    <div class="stat-icon bg-danger bg-opacity-10 text-danger">
-                        <i class="bi bi-percent"></i>
-                    </div>
-                </div>
+    <div class="col-md-4 col-xl-2">
+        <div class="card border-0 shadow-sm h-100 stat-card">
+            <div class="card-body p-3 text-center">
+                <div class="stat-icon mx-auto mb-2 bg-success bg-opacity-10 text-success"><i class="bi bi-people"></i></div>
+                <h5 class="fw-bold mb-0">@Model.TotalFarmers</h5>
+                <small class="text-muted">Total Farmers</small>
             </div>
         </div>
     </div>
-    <div class="col-md-6 col-xl-2">
-        <div class="card border-0 shadow-sm h-100" style="border-left: 4px solid #1abc9c !important;">
+    <div class="col-md-4 col-xl-2">
+        <div class="card border-0 shadow-sm h-100 stat-card">
+            <div class="card-body p-3 text-center">
+                <div class="stat-icon mx-auto mb-2 bg-danger bg-opacity-10 text-danger"><i class="bi bi-percent"></i></div>
+                <h5 class="fw-bold mb-0">@Model.AvgFat.ToString("F1")%</h5>
+                <small class="text-muted">Avg Fat</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4 col-xl-2">
+        <div class="card border-0 shadow-sm h-100 stat-card">
+            <div class="card-body p-3 text-center">
+                <div class="stat-icon mx-auto mb-2" style="background:rgba(26,188,156,0.1);color:#1abc9c;"><i class="bi bi-graph-up"></i></div>
+                <h5 class="fw-bold mb-0">@Model.AvgSNF.ToString("F1")%</h5>
+                <small class="text-muted">Avg SNF</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4 col-xl-2">
+        <div class="card border-0 shadow-sm h-100 stat-card">
+            <div class="card-body p-3 text-center">
+                <div class="stat-icon mx-auto mb-2 bg-warning bg-opacity-10 text-warning"><i class="bi bi-exclamation-triangle"></i></div>
+                <h5 class="fw-bold mb-0">@Model.PendingPayments.ToString("N0")</h5>
+                <small class="text-muted">Pending Pay</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4 col-xl-2">
+        <div class="card border-0 shadow-sm h-100 stat-card">
+            <div class="card-body p-3 text-center">
+                <div class="stat-icon mx-auto mb-2 bg-info bg-opacity-10 text-info"><i class="bi bi-calendar-check"></i></div>
+                <h5 class="fw-bold mb-0">@Model.ActiveSubscriptions</h5>
+                <small class="text-muted">Subscriptions</small>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Charts Row -->
+<div class="row g-3 mb-4">
+    <div class="col-xl-8">
+        <div class="card chart-card shadow-sm border-0">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h6 class="mb-0 fw-bold"><i class="bi bi-bar-chart-fill text-primary me-2"></i>Milk Collection - Last 7 Days</h6>
+                <a asp-controller="Analytics" asp-action="Index" class="btn btn-sm btn-outline-primary">
+                    <i class="bi bi-graph-up me-1"></i>Full Analytics
+                </a>
+            </div>
             <div class="card-body">
-                <div class="d-flex align-items-center justify-content-between">
-                    <div>
-                        <p class="text-muted small mb-1">Avg SNF</p>
-                        <h4 class="fw-bold mb-0">@Model.AvgSNF.ToString("F1")%</h4>
-                    </div>
-                    <div class="stat-icon" style="background:rgba(26,188,156,0.1);color:#1abc9c;">
-                        <i class="bi bi-graph-up"></i>
-                    </div>
-                </div>
+                <canvas id="milkChart" height="280"></canvas>
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-4">
+        <div class="card chart-card shadow-sm border-0 h-100">
+            <div class="card-header">
+                <h6 class="mb-0 fw-bold"><i class="bi bi-pie-chart-fill text-secondary me-2"></i>Milk Type Distribution</h6>
+            </div>
+            <div class="card-body d-flex align-items-center justify-content-center">
+                <canvas id="milkTypeChart" height="250"></canvas>
             </div>
         </div>
     </div>
 </div>
 
 <!-- Quick Actions -->
-<div class="row g-3 mb-4">
-    <div class="col-12">
-        <h6 class="fw-bold text-muted text-uppercase small"><i class="bi bi-lightning-fill text-warning me-1"></i>Quick Actions</h6>
-    </div>
-    <div class="col-md-3">
-        <a asp-controller="MilkCollection" asp-action="Create" class="btn btn-primary w-100 py-3 shadow-sm">
-            <i class="bi bi-plus-circle fs-4 d-block mb-1"></i>
-            New Milk Collection
+<div class="mb-4">
+    <h6 class="fw-bold text-muted text-uppercase small mb-3"><i class="bi bi-lightning-fill text-warning me-1"></i>Quick Actions</h6>
+    <div class="quick-action-grid">
+        <a asp-controller="MilkCollection" asp-action="Create" class="quick-action-item" style="background:linear-gradient(135deg,#2563eb,#3b82f6);">
+            <i class="bi bi-plus-circle"></i>
+            <span>New Collection</span>
         </a>
-    </div>
-    <div class="col-md-3">
-        <a asp-controller="DairyProduct" asp-action="Create" class="btn btn-success w-100 py-3 shadow-sm">
-            <i class="bi bi-box-seam fs-4 d-block mb-1"></i>
-            Add Product
+        <a asp-controller="Order" asp-action="Create" class="quick-action-item" style="background:linear-gradient(135deg,#7c3aed,#8b5cf6);">
+            <i class="bi bi-bag-plus"></i>
+            <span>New Order</span>
         </a>
-    </div>
-    <div class="col-md-3">
-        <a asp-controller="GheeProduct" asp-action="Create" class="btn btn-warning w-100 py-3 shadow-sm text-white">
-            <i class="bi bi-fire fs-4 d-block mb-1"></i>
-            New Ghee Batch
+        <a asp-controller="DairyProduct" asp-action="Create" class="quick-action-item" style="background:linear-gradient(135deg,#059669,#10b981);">
+            <i class="bi bi-box-seam"></i>
+            <span>Add Product</span>
         </a>
-    </div>
-    <div class="col-md-3">
-        <a asp-controller="MilkRate" asp-action="Index" class="btn btn-info w-100 py-3 shadow-sm text-white">
-            <i class="bi bi-currency-rupee fs-4 d-block mb-1"></i>
-            Rate Chart
+        <a asp-controller="GheeProduct" asp-action="Create" class="quick-action-item" style="background:linear-gradient(135deg,#ea580c,#f97316);">
+            <i class="bi bi-fire"></i>
+            <span>New Ghee Batch</span>
+        </a>
+        <a asp-controller="Subscription" asp-action="Create" class="quick-action-item" style="background:linear-gradient(135deg,#db2777,#ec4899);">
+            <i class="bi bi-calendar-plus"></i>
+            <span>New Subscription</span>
+        </a>
+        <a asp-controller="MilkRate" asp-action="Index" class="quick-action-item" style="background:linear-gradient(135deg,#0891b2,#06b6d4);">
+            <i class="bi bi-currency-rupee"></i>
+            <span>Rate Chart</span>
         </a>
     </div>
 </div>
 
 <!-- Recent Data Tables -->
-<div class="row g-3">
+<div class="row g-3 mb-4">
     <div class="col-xl-7">
         <div class="card border-0 shadow-sm">
             <div class="card-header bg-white border-0 d-flex justify-content-between align-items-center">
@@ -169,7 +241,7 @@
                                 {
                                     <tr>
                                         <td class="fw-semibold">@item.FarmerName</td>
-                                        <td><span class="badge bg-info">@item.MilkType</span></td>
+                                        <td><span class="badge badge-soft-info">@item.MilkType</span></td>
                                         <td>@item.Quantity.ToString("F1")</td>
                                         <td>@item.FatPercentage.ToString("F1")%</td>
                                         <td>@item.SNFPercentage.ToString("F1")%</td>
@@ -179,7 +251,7 @@
                             }
                             else
                             {
-                                <tr><td colspan="6" class="text-center text-muted py-4"><i class="bi bi-inbox fs-3 d-block mb-2"></i>Koi recent collection nahi hai</td></tr>
+                                <tr><td colspan="6" class="empty-state"><i class="bi bi-inbox fs-3 d-block mb-2"></i>Koi recent collection nahi hai</td></tr>
                             }
                         </tbody>
                     </table>
@@ -188,6 +260,58 @@
         </div>
     </div>
     <div class="col-xl-5">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white border-0 d-flex justify-content-between align-items-center">
+                <h6 class="mb-0 fw-bold"><i class="bi bi-bag-check text-purple me-2" style="color:#7c3aed;"></i>Recent Orders</h6>
+                <a asp-controller="Order" asp-action="Index" class="btn btn-sm btn-outline-secondary">View All</a>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Order</th>
+                                <th>Partner</th>
+                                <th>Product</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (Model.RecentOrders.Any())
+                            {
+                                @foreach (var item in Model.RecentOrders)
+                                {
+                                    var statusClass = item.Status switch {
+                                        DairyProductApp.Models.OrderStatus.Pending => "badge-soft-warning",
+                                        DairyProductApp.Models.OrderStatus.Confirmed => "badge-soft-primary",
+                                        DairyProductApp.Models.OrderStatus.OutForDelivery => "badge-soft-info",
+                                        DairyProductApp.Models.OrderStatus.Delivered => "badge-soft-success",
+                                        DairyProductApp.Models.OrderStatus.Cancelled => "badge-soft-danger",
+                                        _ => "badge-soft-secondary"
+                                    };
+                                    <tr>
+                                        <td class="fw-semibold small">@item.OrderNumber</td>
+                                        <td>@item.PartnerName</td>
+                                        <td>@item.ProductName</td>
+                                        <td><span class="badge @statusClass">@item.Status</span></td>
+                                    </tr>
+                                }
+                            }
+                            else
+                            {
+                                <tr><td colspan="4" class="empty-state"><i class="bi bi-inbox fs-3 d-block mb-2"></i>Koi recent order nahi hai</td></tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Ghee Production -->
+<div class="row g-3">
+    <div class="col-12">
         <div class="card border-0 shadow-sm">
             <div class="card-header bg-white border-0 d-flex justify-content-between align-items-center">
                 <h6 class="mb-0 fw-bold"><i class="bi bi-fire text-warning me-2"></i>Recent Ghee Production</h6>
@@ -200,7 +324,9 @@
                             <tr>
                                 <th>Batch</th>
                                 <th>Type</th>
-                                <th>Qty (Kg)</th>
+                                <th>Milk Used (L)</th>
+                                <th>Ghee (Kg)</th>
+                                <th>Quality</th>
                                 <th>Value</th>
                             </tr>
                         </thead>
@@ -211,15 +337,17 @@
                                 {
                                     <tr>
                                         <td class="fw-semibold">@item.BatchNumber</td>
-                                        <td><span class="badge bg-warning text-dark">@item.GheeType</span></td>
+                                        <td><span class="badge badge-soft-warning">@item.GheeType</span></td>
+                                        <td>@item.MilkUsedLiters.ToString("F1")</td>
                                         <td>@item.GheeProducedKg.ToString("F1")</td>
+                                        <td><span class="badge badge-soft-success">@item.Quality</span></td>
                                         <td class="fw-bold text-success">&#8377;@item.TotalValue.ToString("F0")</td>
                                     </tr>
                                 }
                             }
                             else
                             {
-                                <tr><td colspan="4" class="text-center text-muted py-4"><i class="bi bi-inbox fs-3 d-block mb-2"></i>Koi ghee production nahi hai</td></tr>
+                                <tr><td colspan="6" class="empty-state"><i class="bi bi-inbox fs-3 d-block mb-2"></i>Koi ghee production nahi hai</td></tr>
                             }
                         </tbody>
                     </table>
@@ -228,3 +356,101 @@
         </div>
     </div>
 </div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script>
+        // Milk Collection Chart
+        const milkCtx = document.getElementById('milkChart').getContext('2d');
+        const gradient1 = milkCtx.createLinearGradient(0, 0, 0, 280);
+        gradient1.addColorStop(0, 'rgba(37,99,235,0.25)');
+        gradient1.addColorStop(1, 'rgba(37,99,235,0.02)');
+
+        const gradient2 = milkCtx.createLinearGradient(0, 0, 0, 280);
+        gradient2.addColorStop(0, 'rgba(16,185,129,0.25)');
+        gradient2.addColorStop(1, 'rgba(16,185,129,0.02)');
+
+        new Chart(milkCtx, {
+            type: 'line',
+            data: {
+                labels: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.ChartLabels)),
+                datasets: [{
+                    label: 'Milk (Liters)',
+                    data: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.DailyMilkData)),
+                    borderColor: '#2563eb',
+                    backgroundColor: gradient1,
+                    borderWidth: 3,
+                    fill: true,
+                    tension: 0.4,
+                    pointRadius: 5,
+                    pointBackgroundColor: '#2563eb',
+                    pointBorderColor: '#fff',
+                    pointBorderWidth: 2,
+                    pointHoverRadius: 8
+                }, {
+                    label: 'Revenue (₹)',
+                    data: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.DailyRevenueData)),
+                    borderColor: '#10b981',
+                    backgroundColor: gradient2,
+                    borderWidth: 3,
+                    fill: true,
+                    tension: 0.4,
+                    pointRadius: 5,
+                    pointBackgroundColor: '#10b981',
+                    pointBorderColor: '#fff',
+                    pointBorderWidth: 2,
+                    pointHoverRadius: 8,
+                    yAxisID: 'y1'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                interaction: { intersect: false, mode: 'index' },
+                plugins: {
+                    legend: { position: 'top', labels: { usePointStyle: true, padding: 20, font: { family: 'Inter', weight: '600' } } },
+                    tooltip: {
+                        backgroundColor: '#0f172a',
+                        titleFont: { family: 'Inter', weight: '600' },
+                        bodyFont: { family: 'Inter' },
+                        padding: 12,
+                        cornerRadius: 10,
+                        displayColors: true
+                    }
+                },
+                scales: {
+                    y: { beginAtZero: true, grid: { color: 'rgba(0,0,0,0.04)' }, ticks: { font: { family: 'Inter' } } },
+                    y1: { beginAtZero: true, position: 'right', grid: { display: false }, ticks: { font: { family: 'Inter' } } },
+                    x: { grid: { display: false }, ticks: { font: { family: 'Inter', weight: '500' } } }
+                }
+            }
+        });
+
+        // Milk Type Distribution Chart
+        new Chart(document.getElementById('milkTypeChart').getContext('2d'), {
+            type: 'doughnut',
+            data: {
+                labels: ['Cow Milk', 'Buffalo Milk', 'Mixed Milk'],
+                datasets: [{
+                    data: [@Model.CowMilkPercent.ToString("F1"), @Model.BuffaloMilkPercent.ToString("F1"), @Model.MixedMilkPercent.ToString("F1")],
+                    backgroundColor: ['#3b82f6', '#8b5cf6', '#06b6d4'],
+                    borderWidth: 0,
+                    hoverOffset: 10
+                }]
+            },
+            options: {
+                responsive: true,
+                cutout: '65%',
+                plugins: {
+                    legend: { position: 'bottom', labels: { usePointStyle: true, padding: 15, font: { family: 'Inter', weight: '600', size: 12 } } },
+                    tooltip: {
+                        backgroundColor: '#0f172a',
+                        cornerRadius: 10,
+                        padding: 10,
+                        callbacks: { label: (ctx) => ctx.label + ': ' + ctx.parsed.toFixed(1) + '%' }
+                    }
+                }
+            }
+        });
+    </script>
+}

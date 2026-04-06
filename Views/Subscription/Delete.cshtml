@@ -1,0 +1,38 @@
+@model DairyProductApp.Models.Subscription
+@{
+    ViewData["Title"] = "Delete Subscription";
+}
+
+<div class="row justify-content-center mt-4">
+    <div class="col-lg-6">
+        <div class="card border-0 shadow-sm border-danger">
+            <div class="card-body p-4 text-center">
+                <div class="mb-3">
+                    <i class="bi bi-exclamation-triangle-fill text-danger" style="font-size:3rem;"></i>
+                </div>
+                <h4 class="fw-bold">Subscription Delete Karein?</h4>
+                <p class="text-muted">@Model.PartnerName ki <strong>@Model.Product</strong> subscription permanently delete ho jayegi.</p>
+
+                <div class="card bg-light border-0 mb-4">
+                    <div class="card-body">
+                        <p class="mb-1"><strong>Partner:</strong> @Model.PartnerName</p>
+                        <p class="mb-1"><strong>Product:</strong> @Model.Product</p>
+                        <p class="mb-1"><strong>Qty:</strong> @Model.DailyQuantity @Model.Unit / day</p>
+                        <p class="mb-0"><strong>Rate:</strong> &#8377;@Model.RatePerUnit per @Model.Unit</p>
+                    </div>
+                </div>
+
+                <form asp-action="Delete" method="post">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" asp-for="Id" />
+                    <div class="d-flex gap-2 justify-content-center">
+                        <button type="submit" class="btn btn-danger btn-lg">
+                            <i class="bi bi-trash me-1"></i>Haan, Delete Karo
+                        </button>
+                        <a asp-action="Index" class="btn btn-outline-secondary btn-lg">Cancel</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

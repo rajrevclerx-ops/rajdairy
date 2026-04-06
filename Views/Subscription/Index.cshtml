@@ -1,0 +1,177 @@
+@model List<DairyProductApp.Models.Subscription>
+@{
+    ViewData["Title"] = "Subscriptions";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4 page-header">
+    <div>
+        <h3 class="fw-bold mb-1"><i class="bi bi-calendar-check me-2 text-primary"></i>Subscriptions</h3>
+        <p class="text-muted mb-0 small">Daily delivery subscriptions manage karein - Country Delight style</p>
+    </div>
+    <a asp-action="Create" class="btn btn-primary">
+        <i class="bi bi-plus-circle me-1"></i>New Subscription
+    </a>
+</div>
+
+<!-- Stats -->
+<div class="row g-3 mb-4">
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body p-3 d-flex align-items-center gap-3">
+                <div class="stat-icon bg-success bg-opacity-10 text-success"><i class="bi bi-check-circle-fill"></i></div>
+                <div>
+                    <p class="text-muted small mb-0">Active</p>
+                    <h4 class="fw-bold mb-0">@Model.Count(s => s.Status == DairyProductApp.Models.SubscriptionStatus.Active)</h4>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body p-3 d-flex align-items-center gap-3">
+                <div class="stat-icon bg-warning bg-opacity-10 text-warning"><i class="bi bi-pause-circle-fill"></i></div>
+                <div>
+                    <p class="text-muted small mb-0">Paused</p>
+                    <h4 class="fw-bold mb-0">@Model.Count(s => s.Status == DairyProductApp.Models.SubscriptionStatus.Paused)</h4>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body p-3 d-flex align-items-center gap-3">
+                <div class="stat-icon bg-primary bg-opacity-10 text-primary"><i class="bi bi-calendar3"></i></div>
+                <div>
+                    <p class="text-muted small mb-0">Total</p>
+                    <h4 class="fw-bold mb-0">@Model.Count</h4>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body p-3 d-flex align-items-center gap-3">
+                <div class="stat-icon bg-info bg-opacity-10 text-info"><i class="bi bi-currency-rupee"></i></div>
+                <div>
+                    <p class="text-muted small mb-0">Monthly Est.</p>
+                    <h4 class="fw-bold mb-0">@Model.Where(s => s.Status == DairyProductApp.Models.SubscriptionStatus.Active).Sum(s => s.MonthlyEstimate).ToString("N0")</h4>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Filters -->
+<div class="card border-0 shadow-sm mb-4">
+    <div class="card-body p-3">
+        <form method="get" class="row g-2 align-items-end">
+            <div class="col-md-4">
+                <div class="search-bar">
+                    <i class="bi bi-search search-icon"></i>
+                    <input type="text" name="search" class="form-control" placeholder="Partner naam search karein..." value="@ViewBag.Search" />
+                </div>
+            </div>
+            <div class="col-md-3">
+                <select name="status" class="form-select">
+                    <option value="">All Status</option>
+                    <option value="Active" selected="@(ViewBag.Status == "Active")">Active</option>
+                    <option value="Paused" selected="@(ViewBag.Status == "Paused")">Paused</option>
+                    <option value="Cancelled" selected="@(ViewBag.Status == "Cancelled")">Cancelled</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <button type="submit" class="btn btn-primary w-100"><i class="bi bi-funnel me-1"></i>Filter</button>
+            </div>
+            <div class="col-md-2">
+                <a asp-action="Index" class="btn btn-outline-secondary w-100"><i class="bi bi-x-circle me-1"></i>Clear</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Subscription Cards -->
+@if (Model.Any())
+{
+    <div class="row g-3">
+        @foreach (var sub in Model)
+        {
+            var statusColor = sub.Status switch {
+                DairyProductApp.Models.SubscriptionStatus.Active => "success",
+                DairyProductApp.Models.SubscriptionStatus.Paused => "warning",
+                DairyProductApp.Models.SubscriptionStatus.Cancelled => "danger",
+                DairyProductApp.Models.SubscriptionStatus.Expired => "secondary",
+                _ => "secondary"
+            };
+            <div class="col-md-6 col-xl-4">
+                <div class="card subscription-card @(sub.Status == DairyProductApp.Models.SubscriptionStatus.Active ? "active" : sub.Status == DairyProductApp.Models.SubscriptionStatus.Paused ? "paused" : "")">
+                    <div class="sub-header bg-light">
+                        <div>
+                            <h6 class="fw-bold mb-0">@sub.PartnerName</h6>
+                            <small class="text-muted">@sub.Frequency - @sub.DeliverySlot</small>
+                        </div>
+                        <span class="badge badge-status badge-soft-@statusColor">@sub.Status</span>
+                    </div>
+                    <div class="card-body">
+                        <div class="row g-2 mb-3">
+                            <div class="col-6">
+                                <small class="text-muted d-block">Product</small>
+                                <span class="fw-semibold">@sub.Product</span>
+                            </div>
+                            <div class="col-6">
+                                <small class="text-muted d-block">Daily Qty</small>
+                                <span class="fw-semibold">@sub.DailyQuantity @sub.Unit</span>
+                            </div>
+                            <div class="col-6">
+                                <small class="text-muted d-block">Rate</small>
+                                <span class="fw-semibold text-primary">&#8377;@sub.RatePerUnit/@sub.Unit</span>
+                            </div>
+                            <div class="col-6">
+                                <small class="text-muted d-block">Monthly Est.</small>
+                                <span class="fw-bold text-success">&#8377;@sub.MonthlyEstimate.ToString("N0")</span>
+                            </div>
+                        </div>
+                        <div class="d-flex gap-2">
+                            <a asp-action="Edit" asp-route-id="@sub.Id" class="btn btn-sm btn-outline-primary flex-grow-1">
+                                <i class="bi bi-pencil me-1"></i>Edit
+                            </a>
+                            @if (sub.Status == DairyProductApp.Models.SubscriptionStatus.Active)
+                            {
+                                <form asp-action="ToggleStatus" method="post" class="flex-grow-1">
+                                    <input type="hidden" name="id" value="@sub.Id" />
+                                    <input type="hidden" name="newStatus" value="Paused" />
+                                    <button type="submit" class="btn btn-sm btn-outline-warning w-100">
+                                        <i class="bi bi-pause me-1"></i>Pause
+                                    </button>
+                                </form>
+                            }
+                            else if (sub.Status == DairyProductApp.Models.SubscriptionStatus.Paused)
+                            {
+                                <form asp-action="ToggleStatus" method="post" class="flex-grow-1">
+                                    <input type="hidden" name="id" value="@sub.Id" />
+                                    <input type="hidden" name="newStatus" value="Active" />
+                                    <button type="submit" class="btn btn-sm btn-outline-success w-100">
+                                        <i class="bi bi-play me-1"></i>Resume
+                                    </button>
+                                </form>
+                            }
+                            <a asp-action="Delete" asp-route-id="@sub.Id" class="btn btn-sm btn-outline-danger">
+                                <i class="bi bi-trash"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+}
+else
+{
+    <div class="card border-0 shadow-sm">
+        <div class="card-body empty-state">
+            <i class="bi bi-calendar-x"></i>
+            <h6>Koi subscription nahi mila</h6>
+            <p class="text-muted">Naya subscription add karne ke liye button click karein</p>
+            <a asp-action="Create" class="btn btn-primary"><i class="bi bi-plus-circle me-1"></i>Add Subscription</a>
+        </div>
+    </div>
+}

@@ -20,6 +20,9 @@ namespace DairyProductApp.Services
         private const string SettingsSheet = "Settings";
         private const string PartnerSheet = "Partners";
         private const string TransactionSheet = "Transactions";
+        private const string SubscriptionSheet = "Subscriptions";
+        private const string OrderSheet = "Orders";
+        private const string NotificationSheet = "Notifications";
 
         public GoogleSheetsService(IConfiguration configuration)
         {
@@ -79,7 +82,10 @@ namespace DairyProductApp.Services
                 [GheeProductSheet] = new List<object> { "Id", "BatchNumber", "GheeType", "MilkUsedLiters", "GheeProducedKg", "YieldRate", "PricePerKg", "TotalValue", "StockKg", "ProductionDate", "ExpiryDate", "Quality", "Description", "CreatedAt" },
                 [SettingsSheet] = new List<object> { "Key", "Value" },
                 [PartnerSheet] = new List<object> { "Id", "Name", "Mobile", "Address", "Type", "AccessCode", "IsActive", "CreatedAt" },
-                [TransactionSheet] = new List<object> { "Id", "PartnerId", "PartnerName", "Type", "Item", "Description", "Quantity", "Unit", "Rate", "TotalAmount", "PaymentStatus", "TransactionDate", "CreatedAt", "Remarks" }
+                [TransactionSheet] = new List<object> { "Id", "PartnerId", "PartnerName", "Type", "Item", "Description", "Quantity", "Unit", "Rate", "TotalAmount", "PaymentStatus", "TransactionDate", "CreatedAt", "Remarks" },
+                [SubscriptionSheet] = new List<object> { "Id", "PartnerId", "PartnerName", "Product", "DailyQuantity", "Unit", "RatePerUnit", "StartDate", "EndDate", "DeliverySlot", "DeliveryAddress", "Status", "Frequency", "CreatedAt", "Notes" },
+                [OrderSheet] = new List<object> { "Id", "OrderNumber", "PartnerId", "PartnerName", "PartnerMobile", "ProductName", "Quantity", "Unit", "Rate", "TotalAmount", "OrderDate", "DeliveryDate", "DeliverySlot", "Status", "PaymentStatus", "DeliveryAddress", "CreatedAt", "Notes" },
+                [NotificationSheet] = new List<object> { "Id", "Title", "Message", "Type", "Icon", "Link", "IsRead", "CreatedAt" }
             };
 
             // Create missing sheets
@@ -625,6 +631,230 @@ namespace DairyProductApp.Services
             var rows = await GetAllRows(TransactionSheet);
             var index = rows.ToList().FindIndex(r => SafeGet(r, 0) == id.ToString());
             if (index >= 0) await DeleteRow(TransactionSheet, index);
+        }
+
+        // ============ SUBSCRIPTIONS ============
+        public async Task<List<Subscription>> GetAllSubscriptions()
+        {
+            var rows = await GetAllRows(SubscriptionSheet);
+            return rows.Select(r => new Subscription
+            {
+                Id = int.TryParse(SafeGet(r, 0), out var id) ? id : 0,
+                PartnerId = int.TryParse(SafeGet(r, 1), out var pid) ? pid : 0,
+                PartnerName = SafeGet(r, 2),
+                Product = Enum.TryParse<SubscriptionProduct>(SafeGet(r, 3), out var sp) ? sp : SubscriptionProduct.CowMilk,
+                DailyQuantity = decimal.TryParse(SafeGet(r, 4), out var dq) ? dq : 0,
+                Unit = SafeGet(r, 5),
+                RatePerUnit = decimal.TryParse(SafeGet(r, 6), out var rpu) ? rpu : 0,
+                StartDate = DateTime.TryParse(SafeGet(r, 7), out var sd) ? sd : DateTime.Today,
+                EndDate = DateTime.TryParse(SafeGet(r, 8), out var ed) ? (DateTime?)ed : null,
+                DeliverySlot = Enum.TryParse<DeliverySlot>(SafeGet(r, 9), out var ds) ? ds : DeliverySlot.Morning,
+                DeliveryAddress = SafeGet(r, 10),
+                Status = Enum.TryParse<SubscriptionStatus>(SafeGet(r, 11), out var ss) ? ss : SubscriptionStatus.Active,
+                Frequency = Enum.TryParse<DeliveryFrequency>(SafeGet(r, 12), out var df) ? df : DeliveryFrequency.Daily,
+                CreatedAt = DateTime.TryParse(SafeGet(r, 13), out var ca) ? ca : DateTime.Now,
+                Notes = SafeGet(r, 14)
+            }).ToList();
+        }
+
+        public async Task<Subscription?> GetSubscriptionById(int id)
+        {
+            var all = await GetAllSubscriptions();
+            return all.FirstOrDefault(s => s.Id == id);
+        }
+
+        public async Task AddSubscription(Subscription s)
+        {
+            s.Id = await GetNextId(SubscriptionSheet);
+            var row = new List<object>
+            {
+                s.Id, s.PartnerId, s.PartnerName, s.Product.ToString(), s.DailyQuantity,
+                s.Unit, s.RatePerUnit, s.StartDate.ToString("yyyy-MM-dd"),
+                s.EndDate?.ToString("yyyy-MM-dd") ?? "", s.DeliverySlot.ToString(),
+                s.DeliveryAddress ?? "", s.Status.ToString(), s.Frequency.ToString(),
+                s.CreatedAt.ToString("yyyy-MM-dd HH:mm:ss"), s.Notes ?? ""
+            };
+            await AppendRow(SubscriptionSheet, row);
+        }
+
+        public async Task UpdateSubscription(Subscription s)
+        {
+            var rows = await GetAllRows(SubscriptionSheet);
+            var index = rows.ToList().FindIndex(r => SafeGet(r, 0) == s.Id.ToString());
+            if (index < 0) return;
+            var row = new List<object>
+            {
+                s.Id, s.PartnerId, s.PartnerName, s.Product.ToString(), s.DailyQuantity,
+                s.Unit, s.RatePerUnit, s.StartDate.ToString("yyyy-MM-dd"),
+                s.EndDate?.ToString("yyyy-MM-dd") ?? "", s.DeliverySlot.ToString(),
+                s.DeliveryAddress ?? "", s.Status.ToString(), s.Frequency.ToString(),
+                s.CreatedAt.ToString("yyyy-MM-dd HH:mm:ss"), s.Notes ?? ""
+            };
+            await UpdateRow(SubscriptionSheet, index, row);
+        }
+
+        public async Task DeleteSubscription(int id)
+        {
+            var rows = await GetAllRows(SubscriptionSheet);
+            var index = rows.ToList().FindIndex(r => SafeGet(r, 0) == id.ToString());
+            if (index >= 0) await DeleteRow(SubscriptionSheet, index);
+        }
+
+        // ============ ORDERS ============
+        public async Task<List<Order>> GetAllOrders()
+        {
+            var rows = await GetAllRows(OrderSheet);
+            return rows.Select(r => new Order
+            {
+                Id = int.TryParse(SafeGet(r, 0), out var id) ? id : 0,
+                OrderNumber = SafeGet(r, 1),
+                PartnerId = int.TryParse(SafeGet(r, 2), out var pid) ? pid : 0,
+                PartnerName = SafeGet(r, 3),
+                PartnerMobile = SafeGet(r, 4),
+                ProductName = SafeGet(r, 5),
+                Quantity = decimal.TryParse(SafeGet(r, 6), out var qty) ? qty : 0,
+                Unit = SafeGet(r, 7),
+                Rate = decimal.TryParse(SafeGet(r, 8), out var rate) ? rate : 0,
+                TotalAmount = decimal.TryParse(SafeGet(r, 9), out var amt) ? amt : 0,
+                OrderDate = DateTime.TryParse(SafeGet(r, 10), out var od) ? od : DateTime.Today,
+                DeliveryDate = DateTime.TryParse(SafeGet(r, 11), out var dd) ? dd : DateTime.Today,
+                DeliverySlot = Enum.TryParse<DeliverySlot>(SafeGet(r, 12), out var ds) ? ds : DeliverySlot.Morning,
+                Status = Enum.TryParse<OrderStatus>(SafeGet(r, 13), out var os) ? os : OrderStatus.Pending,
+                PaymentStatus = Enum.TryParse<PaymentStatus>(SafeGet(r, 14), out var ps) ? ps : PaymentStatus.Pending,
+                DeliveryAddress = SafeGet(r, 15),
+                CreatedAt = DateTime.TryParse(SafeGet(r, 16), out var ca) ? ca : DateTime.Now,
+                Notes = SafeGet(r, 17)
+            }).ToList();
+        }
+
+        public async Task<Order?> GetOrderById(int id)
+        {
+            var all = await GetAllOrders();
+            return all.FirstOrDefault(o => o.Id == id);
+        }
+
+        public async Task AddOrder(Order o)
+        {
+            o.Id = await GetNextId(OrderSheet);
+            o.OrderNumber = "ORD" + DateTime.Now.ToString("yyyyMMdd") + o.Id.ToString("D4");
+            var row = new List<object>
+            {
+                o.Id, o.OrderNumber, o.PartnerId, o.PartnerName, o.PartnerMobile,
+                o.ProductName, o.Quantity, o.Unit, o.Rate, o.TotalAmount,
+                o.OrderDate.ToString("yyyy-MM-dd"), o.DeliveryDate.ToString("yyyy-MM-dd"),
+                o.DeliverySlot.ToString(), o.Status.ToString(), o.PaymentStatus.ToString(),
+                o.DeliveryAddress ?? "", o.CreatedAt.ToString("yyyy-MM-dd HH:mm:ss"), o.Notes ?? ""
+            };
+            await AppendRow(OrderSheet, row);
+        }
+
+        public async Task UpdateOrder(Order o)
+        {
+            var rows = await GetAllRows(OrderSheet);
+            var index = rows.ToList().FindIndex(r => SafeGet(r, 0) == o.Id.ToString());
+            if (index < 0) return;
+            var row = new List<object>
+            {
+                o.Id, o.OrderNumber, o.PartnerId, o.PartnerName, o.PartnerMobile,
+                o.ProductName, o.Quantity, o.Unit, o.Rate, o.TotalAmount,
+                o.OrderDate.ToString("yyyy-MM-dd"), o.DeliveryDate.ToString("yyyy-MM-dd"),
+                o.DeliverySlot.ToString(), o.Status.ToString(), o.PaymentStatus.ToString(),
+                o.DeliveryAddress ?? "", o.CreatedAt.ToString("yyyy-MM-dd HH:mm:ss"), o.Notes ?? ""
+            };
+            await UpdateRow(OrderSheet, index, row);
+        }
+
+        public async Task DeleteOrder(int id)
+        {
+            var rows = await GetAllRows(OrderSheet);
+            var index = rows.ToList().FindIndex(r => SafeGet(r, 0) == id.ToString());
+            if (index >= 0) await DeleteRow(OrderSheet, index);
+        }
+
+        // ============ NOTIFICATIONS ============
+        public async Task<List<Notification>> GetAllNotifications()
+        {
+            var rows = await GetAllRows(NotificationSheet);
+            return rows.Select(r => new Notification
+            {
+                Id = int.TryParse(SafeGet(r, 0), out var id) ? id : 0,
+                Title = SafeGet(r, 1),
+                Message = SafeGet(r, 2),
+                Type = Enum.TryParse<NotificationType>(SafeGet(r, 3), out var nt) ? nt : NotificationType.Info,
+                Icon = SafeGet(r, 4),
+                Link = SafeGet(r, 5),
+                IsRead = SafeGet(r, 6).ToLower() == "true",
+                CreatedAt = DateTime.TryParse(SafeGet(r, 7), out var ca) ? ca : DateTime.Now
+            }).OrderByDescending(n => n.CreatedAt).ToList();
+        }
+
+        public async Task AddNotification(Notification n)
+        {
+            n.Id = await GetNextId(NotificationSheet);
+            var row = new List<object>
+            {
+                n.Id, n.Title, n.Message, n.Type.ToString(),
+                n.Icon ?? "", n.Link ?? "", n.IsRead.ToString(),
+                n.CreatedAt.ToString("yyyy-MM-dd HH:mm:ss")
+            };
+            await AppendRow(NotificationSheet, row);
+        }
+
+        public async Task MarkNotificationRead(int id)
+        {
+            var rows = await GetAllRows(NotificationSheet);
+            var index = rows.ToList().FindIndex(r => SafeGet(r, 0) == id.ToString());
+            if (index < 0) return;
+            var row = rows[index].ToList();
+            while (row.Count < 8) row.Add("");
+            row[6] = "True";
+            await UpdateRow(NotificationSheet, index, row.Cast<object>().ToList());
+        }
+
+        public async Task MarkAllNotificationsRead()
+        {
+            var rows = await GetAllRows(NotificationSheet);
+            for (int i = 0; i < rows.Count; i++)
+            {
+                var row = rows[i].ToList();
+                while (row.Count < 8) row.Add("");
+                if (row[6]?.ToString()?.ToLower() != "true")
+                {
+                    row[6] = "True";
+                    await UpdateRow(NotificationSheet, i, row.Cast<object>().ToList());
+                }
+            }
+        }
+
+        public async Task DeleteNotification(int id)
+        {
+            var rows = await GetAllRows(NotificationSheet);
+            var index = rows.ToList().FindIndex(r => SafeGet(r, 0) == id.ToString());
+            if (index >= 0) await DeleteRow(NotificationSheet, index);
+        }
+
+        // Helper: Create notification when events happen
+        public async Task CreateSystemNotification(string title, string message, NotificationType type, string? link = null)
+        {
+            var icon = type switch
+            {
+                NotificationType.Order => "bi-bag-check",
+                NotificationType.Payment => "bi-cash-coin",
+                NotificationType.Subscription => "bi-calendar-check",
+                NotificationType.Stock => "bi-box-seam",
+                NotificationType.Warning => "bi-exclamation-triangle",
+                NotificationType.Success => "bi-check-circle",
+                NotificationType.Danger => "bi-x-circle",
+                _ => "bi-info-circle"
+            };
+            await AddNotification(new Notification
+            {
+                Title = title,
+                Message = message,
+                Type = type,
+                Icon = icon,
+                Link = link
+            });
         }
     }
 }

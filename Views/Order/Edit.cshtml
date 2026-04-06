@@ -1,0 +1,105 @@
+@model DairyProductApp.Models.Order
+@{
+    ViewData["Title"] = "Edit Order";
+    var partners = ViewBag.Partners as List<DairyProductApp.Models.Partner> ?? new();
+    var products = ViewBag.Products as List<DairyProductApp.Models.DairyProduct> ?? new();
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4 page-header">
+    <div>
+        <h3 class="fw-bold mb-1"><i class="bi bi-pencil-square me-2 text-primary"></i>Edit Order</h3>
+        <p class="text-muted mb-0 small">Order #@Model.OrderNumber update karein</p>
+    </div>
+    <a asp-action="Index" class="btn btn-outline-secondary"><i class="bi bi-arrow-left me-1"></i>Back</a>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body p-4">
+                <form asp-action="Edit" method="post">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" asp-for="Id" />
+                    <input type="hidden" asp-for="OrderNumber" />
+                    <input type="hidden" asp-for="OrderDate" />
+                    <input type="hidden" asp-for="CreatedAt" />
+                    <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label asp-for="PartnerId" class="form-label">Partner</label>
+                            <select asp-for="PartnerId" class="form-select">
+                                @foreach (var p in partners.Where(p => p.IsActive))
+                                {
+                                    <option value="@p.Id">@p.Name</option>
+                                }
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="ProductName" class="form-label">Product</label>
+                            <input asp-for="ProductName" class="form-control" />
+                        </div>
+                        <div class="col-md-3">
+                            <label asp-for="Quantity" class="form-label">Quantity</label>
+                            <input asp-for="Quantity" class="form-control" id="orderQty" />
+                        </div>
+                        <div class="col-md-3">
+                            <label asp-for="Unit" class="form-label">Unit</label>
+                            <select asp-for="Unit" class="form-select">
+                                <option>Liter</option><option>Kg</option><option>Gram</option><option>Packet</option><option>Piece</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label asp-for="Rate" class="form-label">Rate</label>
+                            <input asp-for="Rate" class="form-control" id="orderRate" />
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">Total</label>
+                            <input type="text" class="form-control fw-bold text-success" id="orderTotal" readonly />
+                        </div>
+                        <div class="col-md-4">
+                            <label asp-for="DeliveryDate" class="form-label">Delivery Date</label>
+                            <input asp-for="DeliveryDate" type="date" class="form-control" />
+                        </div>
+                        <div class="col-md-4">
+                            <label asp-for="Status" class="form-label">Order Status</label>
+                            <select asp-for="Status" asp-items="Html.GetEnumSelectList<DairyProductApp.Models.OrderStatus>()" class="form-select"></select>
+                        </div>
+                        <div class="col-md-4">
+                            <label asp-for="PaymentStatus" class="form-label">Payment Status</label>
+                            <select asp-for="PaymentStatus" asp-items="Html.GetEnumSelectList<DairyProductApp.Models.PaymentStatus>()" class="form-select"></select>
+                        </div>
+                        <div class="col-12">
+                            <label asp-for="DeliveryAddress" class="form-label">Delivery Address</label>
+                            <textarea asp-for="DeliveryAddress" class="form-control" rows="2"></textarea>
+                        </div>
+                        <div class="col-12">
+                            <label asp-for="Notes" class="form-label">Notes</label>
+                            <textarea asp-for="Notes" class="form-control" rows="2"></textarea>
+                        </div>
+                    </div>
+
+                    <div class="d-flex gap-2 mt-4">
+                        <button type="submit" class="btn btn-primary btn-lg flex-grow-1">
+                            <i class="bi bi-check-circle me-1"></i>Update Order
+                        </button>
+                        <a asp-action="Index" class="btn btn-outline-secondary btn-lg">Cancel</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{ await Html.RenderPartialAsync("_ValidationScriptsPartial"); }
+    <script>
+        function calcTotal() {
+            var qty = parseFloat($('#orderQty').val()) || 0;
+            var rate = parseFloat($('#orderRate').val()) || 0;
+            $('#orderTotal').val('₹ ' + (qty * rate).toFixed(0));
+        }
+        $('#orderQty, #orderRate').on('input', calcTotal);
+        calcTotal();
+    </script>
+}

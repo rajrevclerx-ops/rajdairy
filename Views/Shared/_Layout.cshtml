@@ -11,7 +11,7 @@
     <link rel="stylesheet" href="~/DairyProductApp.styles.css" asp-append-version="true" />
     <!-- PWA -->
     <link rel="manifest" href="/manifest.json" />
-    <meta name="theme-color" content="#1a5276" />
+    <meta name="theme-color" content="#0f172a" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <meta name="apple-mobile-web-app-title" content="Raj Dairy" />
@@ -28,15 +28,41 @@
                 <a class="navbar-brand fw-bold d-flex align-items-center mb-0" asp-controller="Home" asp-action="Index">
                     <i class="bi bi-droplet-fill me-2 fs-4"></i>
                     <span>Raj Dairy</span>
+                    <span class="badge bg-primary bg-opacity-25 text-white ms-2" style="font-size:0.55rem;letter-spacing:1px;padding:3px 8px;border-radius:50px;">PRO</span>
                 </a>
             </div>
-            <div class="d-flex align-items-center gap-3">
-                <span class="text-white-50 small d-none d-md-inline">
+            <div class="d-flex align-items-center gap-2">
+                <span class="text-white-50 small d-none d-md-inline me-2">
                     <i class="bi bi-calendar3 me-1"></i>@DateTime.Now.ToString("dd MMM yyyy, dddd")
                 </span>
+
+                <!-- Notification Bell -->
                 <div class="dropdown">
-                    <a class="btn btn-outline-light btn-sm dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
-                        <i class="bi bi-person-circle me-1"></i>Admin
+                    <button class="notification-bell" type="button" data-bs-toggle="dropdown" data-bs-auto-close="outside" id="notifBell">
+                        <i class="bi bi-bell-fill"></i>
+                        <span class="notification-badge" id="notifCount" style="display:none;">0</span>
+                    </button>
+                    <div class="dropdown-menu dropdown-menu-end notification-dropdown p-0">
+                        <div class="dropdown-header d-flex justify-content-between align-items-center">
+                            <h6 class="fw-bold mb-0">Notifications</h6>
+                            <a asp-controller="Notification" asp-action="Index" class="text-primary small text-decoration-none">View All</a>
+                        </div>
+                        <div id="notifList">
+                            <div class="text-center py-4 text-muted small">
+                                <i class="bi bi-bell-slash d-block mb-1" style="font-size:1.5rem;"></i>
+                                Loading...
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Admin Dropdown -->
+                <div class="dropdown">
+                    <a class="btn btn-outline-light btn-sm dropdown-toggle d-flex align-items-center gap-1" href="#" role="button" data-bs-toggle="dropdown" style="border-radius:50px;padding:4px 14px;">
+                        <div id="navAvatar" style="width:24px;height:24px;border-radius:50%;background:linear-gradient(135deg,#2563eb,#7c3aed);display:flex;align-items:center;justify-content:center;">
+                            <i class="bi bi-person-fill" style="font-size:0.7rem;"></i>
+                        </div>
+                        <span class="d-none d-md-inline">Admin</span>
                     </a>
                     <ul class="dropdown-menu dropdown-menu-end">
                         <li><a class="dropdown-item" asp-controller="Admin" asp-action="Profile"><i class="bi bi-person me-2"></i>Profile</a></li>
@@ -74,6 +100,35 @@
                     <a class="nav-link" asp-controller="Home" asp-action="Index">
                         <i class="bi bi-speedometer2"></i>
                         <span>Dashboard</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" asp-controller="Analytics" asp-action="Index">
+                        <i class="bi bi-graph-up-arrow"></i>
+                        <span>Analytics</span>
+                        <span class="nav-badge bg-primary text-white">NEW</span>
+                    </a>
+                </li>
+
+                <li class="nav-item sidebar-heading">
+                    <span>ORDERS & SUBSCRIPTIONS</span>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" asp-controller="Order" asp-action="Index">
+                        <i class="bi bi-bag-check-fill"></i>
+                        <span>Orders</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" asp-controller="Order" asp-action="Create">
+                        <i class="bi bi-bag-plus"></i>
+                        <span>New Order</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" asp-controller="Subscription" asp-action="Index">
+                        <i class="bi bi-calendar-check"></i>
+                        <span>Subscriptions</span>
                     </a>
                 </li>
 
@@ -157,6 +212,12 @@
                     <span>ADMIN</span>
                 </li>
                 <li class="nav-item">
+                    <a class="nav-link" asp-controller="Notification" asp-action="Index">
+                        <i class="bi bi-bell"></i>
+                        <span>Notifications</span>
+                    </a>
+                </li>
+                <li class="nav-item">
                     <a class="nav-link" asp-controller="Admin" asp-action="Profile">
                         <i class="bi bi-person-circle"></i>
                         <span>Profile</span>
@@ -172,7 +233,7 @@
 
             <div class="sidebar-footer">
                 <div class="small text-white-50 text-center py-2">
-                    <i class="bi bi-droplet-fill me-1"></i>Raj Dairy v1.0
+                    <i class="bi bi-droplet-fill me-1"></i>Raj Dairy v2.0 Pro
                 </div>
             </div>
         </nav>
@@ -201,7 +262,9 @@
             <footer class="content-footer">
                 <div class="d-flex justify-content-between align-items-center">
                     <span class="text-muted small">&copy; @DateTime.Now.Year Raj Dairy - All Rights Reserved</span>
-                    <span class="text-muted small"><i class="bi bi-droplet-fill text-primary me-1"></i>Admin Panel v1.0</span>
+                    <span class="text-muted small">
+                        <i class="bi bi-droplet-fill text-primary me-1"></i>Admin Panel v2.0 Pro
+                    </span>
                 </div>
             </footer>
         </div>
@@ -221,7 +284,10 @@
             $.get('@Url.Action("GetPhoto", "Admin")', function (data) {
                 if (data.photo) {
                     $('#sidebarAvatar').replaceWith(
-                        '<img src="' + data.photo + '" alt="Admin" class="rounded-circle shadow" style="width:65px;height:65px;object-fit:cover;border:3px solid rgba(255,255,255,0.3);" />'
+                        '<img src="' + data.photo + '" alt="Admin" class="rounded-3 shadow" style="width:64px;height:64px;object-fit:cover;border:3px solid rgba(255,255,255,0.15);" />'
+                    );
+                    $('#navAvatar').replaceWith(
+                        '<img src="' + data.photo + '" alt="" style="width:24px;height:24px;border-radius:50%;object-fit:cover;" />'
                     );
                 }
             });
@@ -241,6 +307,58 @@
             if (currentPath === '/' || currentPath === '/home' || currentPath === '/home/index') {
                 $('.sidebar-nav .nav-link').first().addClass('active');
             }
+        });
+
+        // Load notifications
+        function loadNotifications() {
+            $.get('@Url.Action("GetUnreadCount", "Notification")', function (data) {
+                if (data.unreadCount > 0) {
+                    $('#notifCount').text(data.unreadCount).show();
+                    $('#notifBell').addClass('has-unread');
+                } else {
+                    $('#notifCount').hide();
+                    $('#notifBell').removeClass('has-unread');
+                }
+
+                var html = '';
+                if (data.notifications && data.notifications.length > 0) {
+                    data.notifications.forEach(function (n) {
+                        var typeColors = {
+                            'Success': 'bg-success bg-opacity-10 text-success',
+                            'Warning': 'bg-warning bg-opacity-10 text-warning',
+                            'Danger': 'bg-danger bg-opacity-10 text-danger',
+                            'Order': 'bg-primary bg-opacity-10 text-primary',
+                            'Payment': 'bg-success bg-opacity-10 text-success',
+                            'Subscription': 'bg-info bg-opacity-10 text-info',
+                            'Stock': 'bg-warning bg-opacity-10 text-warning',
+                            'Info': 'bg-primary bg-opacity-10 text-primary'
+                        };
+                        var colorClass = typeColors[n.type] || typeColors['Info'];
+                        html += '<div class="notification-item ' + (n.isRead ? '' : 'unread') + '">';
+                        html += '<div class="notification-icon ' + colorClass + '"><i class="bi ' + (n.icon || 'bi-info-circle') + '"></i></div>';
+                        html += '<div class="flex-grow-1">';
+                        html += '<h6 class="fw-bold mb-0" style="font-size:0.82rem;">' + n.title + '</h6>';
+                        html += '<p class="text-muted mb-0" style="font-size:0.75rem;">' + n.message + '</p>';
+                        html += '<small class="text-muted">' + n.time + '</small>';
+                        html += '</div></div>';
+                    });
+                    html += '<div class="text-center py-2 border-top">';
+                    html += '<a href="@Url.Action("Index", "Notification")" class="text-primary small text-decoration-none fw-semibold">Sab Notifications Dekhein</a>';
+                    html += '</div>';
+                } else {
+                    html = '<div class="text-center py-4 text-muted small">';
+                    html += '<i class="bi bi-bell-slash d-block mb-1" style="font-size:1.5rem;"></i>Koi notification nahi hai</div>';
+                }
+                $('#notifList').html(html);
+            }).fail(function() {
+                $('#notifList').html('<div class="text-center py-3 text-muted small">Notifications load nahi ho payi</div>');
+            });
+        }
+
+        // Load notifications on page load and refresh every 30 seconds
+        $(function () {
+            loadNotifications();
+            setInterval(loadNotifications, 30000);
         });
 
         // Register PWA Service Worker

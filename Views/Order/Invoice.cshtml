@@ -1,0 +1,114 @@
+@model DairyProductApp.Models.Order
+@{
+    ViewData["Title"] = "Invoice";
+    Layout = "_Layout";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4 no-print">
+    <a asp-action="Index" class="btn btn-outline-secondary"><i class="bi bi-arrow-left me-1"></i>Back to Orders</a>
+    <button onclick="window.print()" class="btn btn-primary"><i class="bi bi-printer me-1"></i>Print Invoice</button>
+</div>
+
+<div class="invoice-container">
+    <!-- Header -->
+    <div class="invoice-header">
+        <div class="invoice-logo">
+            <h2><i class="bi bi-droplet-fill me-2"></i>Raj Dairy</h2>
+            <p class="text-muted mb-0">Premium Dairy Products</p>
+            <small class="text-muted">Fresh from Farm to Home</small>
+        </div>
+        <div class="invoice-details">
+            <h4 class="fw-bold text-uppercase" style="color:var(--primary);">Invoice</h4>
+            <p class="mb-1"><strong>Invoice #:</strong> INV-@Model.OrderNumber</p>
+            <p class="mb-1"><strong>Date:</strong> @Model.OrderDate.ToString("dd MMM yyyy")</p>
+            <p class="mb-0"><strong>Status:</strong>
+                <span class="badge @(Model.PaymentStatus == DairyProductApp.Models.PaymentStatus.Paid ? "bg-success" : "bg-warning")">
+                    @Model.PaymentStatus
+                </span>
+            </p>
+        </div>
+    </div>
+
+    <!-- Customer Info -->
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <h6 class="fw-bold text-uppercase text-muted small mb-2">Bill To:</h6>
+            <h5 class="fw-bold mb-1">@Model.PartnerName</h5>
+            <p class="mb-1"><i class="bi bi-telephone me-1"></i>@Model.PartnerMobile</p>
+            @if (!string.IsNullOrEmpty(Model.DeliveryAddress))
+            {
+                <p class="mb-0"><i class="bi bi-geo-alt me-1"></i>@Model.DeliveryAddress</p>
+            }
+        </div>
+        <div class="col-md-6 text-md-end">
+            <h6 class="fw-bold text-uppercase text-muted small mb-2">Delivery Details:</h6>
+            <p class="mb-1"><strong>Delivery Date:</strong> @Model.DeliveryDate.ToString("dd MMM yyyy")</p>
+            <p class="mb-1"><strong>Slot:</strong> @Model.DeliverySlot</p>
+            <p class="mb-0"><strong>Order Status:</strong>
+                <span class="badge @(Model.Status == DairyProductApp.Models.OrderStatus.Delivered ? "bg-success" : "bg-primary")">@Model.Status</span>
+            </p>
+        </div>
+    </div>
+
+    <!-- Items Table -->
+    <div class="table-responsive mb-4">
+        <table class="table invoice-table">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Product</th>
+                    <th class="text-center">Quantity</th>
+                    <th class="text-center">Unit</th>
+                    <th class="text-end">Rate (&#8377;)</th>
+                    <th class="text-end">Amount (&#8377;)</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>1</td>
+                    <td class="fw-semibold">@Model.ProductName</td>
+                    <td class="text-center">@Model.Quantity</td>
+                    <td class="text-center">@Model.Unit</td>
+                    <td class="text-end">@Model.Rate.ToString("N2")</td>
+                    <td class="text-end fw-bold">@Model.TotalAmount.ToString("N2")</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Total -->
+    <div class="row">
+        <div class="col-md-6">
+            @if (!string.IsNullOrEmpty(Model.Notes))
+            {
+                <div class="mb-3">
+                    <h6 class="fw-bold small">Notes:</h6>
+                    <p class="text-muted small">@Model.Notes</p>
+                </div>
+            }
+        </div>
+        <div class="col-md-6">
+            <div class="invoice-total">
+                <div class="d-flex justify-content-between mb-2">
+                    <span>Subtotal:</span>
+                    <span class="fw-semibold">&#8377;@Model.TotalAmount.ToString("N2")</span>
+                </div>
+                <div class="d-flex justify-content-between mb-2">
+                    <span>Tax (0%):</span>
+                    <span>&#8377;0.00</span>
+                </div>
+                <hr />
+                <div class="d-flex justify-content-between">
+                    <span class="fw-bold fs-5">Grand Total:</span>
+                    <span class="fw-bold fs-5 text-primary">&#8377;@Model.TotalAmount.ToString("N2")</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="text-center mt-5 pt-4" style="border-top:2px dashed var(--border-color);">
+        <p class="text-muted small mb-1">Thank you for your business!</p>
+        <p class="text-muted small mb-0"><strong>Raj Dairy</strong> - Premium Dairy Products | Fresh from Farm to Home</p>
+    </div>
+</div>

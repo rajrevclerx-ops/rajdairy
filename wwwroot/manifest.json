@@ -1,11 +1,11 @@
 {
-  "name": "Raj Dairy - Dairy Management",
+  "name": "Raj Dairy Pro - Dairy Management",
   "short_name": "Raj Dairy",
-  "description": "Complete dairy management app - milk collection, ghee production, partner hisab-kitab",
+  "description": "Professional dairy management - orders, subscriptions, analytics, milk collection, ghee production, partner hisab-kitab",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#1a3a5c",
-  "theme_color": "#1a5276",
+  "background_color": "#0f172a",
+  "theme_color": "#0f172a",
   "orientation": "any",
   "scope": "/",
   "categories": ["business", "productivity"],
@@ -32,18 +32,28 @@
   "screenshots": [],
   "shortcuts": [
     {
+      "name": "New Order",
+      "url": "/Order/Create",
+      "icons": [{"src": "/icons/icon.svg", "sizes": "any"}]
+    },
+    {
       "name": "New Milk Collection",
       "url": "/MilkCollection/Create",
       "icons": [{"src": "/icons/icon.svg", "sizes": "any"}]
     },
     {
-      "name": "Partner Hisab",
-      "url": "/Partner",
+      "name": "Subscriptions",
+      "url": "/Subscription",
       "icons": [{"src": "/icons/icon.svg", "sizes": "any"}]
     },
     {
-      "name": "Partner Login",
-      "url": "/Public/Login",
+      "name": "Analytics",
+      "url": "/Analytics",
+      "icons": [{"src": "/icons/icon.svg", "sizes": "any"}]
+    },
+    {
+      "name": "Partner Hisab",
+      "url": "/Partner",
       "icons": [{"src": "/icons/icon.svg", "sizes": "any"}]
     }
   ]

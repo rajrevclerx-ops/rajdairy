@@ -1,0 +1,117 @@
+@model DairyProductApp.Models.Order
+@{
+    ViewData["Title"] = "New Order";
+    var partners = ViewBag.Partners as List<DairyProductApp.Models.Partner> ?? new();
+    var products = ViewBag.Products as List<DairyProductApp.Models.DairyProduct> ?? new();
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4 page-header">
+    <div>
+        <h3 class="fw-bold mb-1"><i class="bi bi-bag-plus me-2" style="color:#7c3aed;"></i>New Order</h3>
+        <p class="text-muted mb-0 small">Partner ke liye naya order create karein</p>
+    </div>
+    <a asp-action="Index" class="btn btn-outline-secondary"><i class="bi bi-arrow-left me-1"></i>Back</a>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body p-4">
+                <form asp-action="Create" method="post">
+                    @Html.AntiForgeryToken()
+                    <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label asp-for="PartnerId" class="form-label">Partner</label>
+                            <select asp-for="PartnerId" class="form-select">
+                                <option value="">-- Select Partner --</option>
+                                @foreach (var p in partners.Where(p => p.IsActive))
+                                {
+                                    <option value="@p.Id">@p.Name (@p.Mobile)</option>
+                                }
+                            </select>
+                            <span asp-validation-for="PartnerId" class="text-danger small"></span>
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="ProductName" class="form-label">Product</label>
+                            <select asp-for="ProductName" class="form-select">
+                                <option value="">-- Select Product --</option>
+                                @foreach (var p in products.Where(p => p.IsActive))
+                                {
+                                    <option value="@p.ProductName">@p.ProductName (@p.Category) - &#8377;@p.Price</option>
+                                }
+                                <option value="Cow Milk">Cow Milk</option>
+                                <option value="Buffalo Milk">Buffalo Milk</option>
+                                <option value="Mixed Milk">Mixed Milk</option>
+                                <option value="Desi Ghee">Desi Ghee</option>
+                                <option value="Paneer">Paneer</option>
+                                <option value="Curd">Curd (Dahi)</option>
+                                <option value="Butter">Butter (Makhan)</option>
+                                <option value="Cream">Cream (Malai)</option>
+                                <option value="Buttermilk">Buttermilk (Chaach)</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label asp-for="Quantity" class="form-label">Quantity</label>
+                            <input asp-for="Quantity" class="form-control" placeholder="e.g. 5" id="orderQty" />
+                        </div>
+                        <div class="col-md-3">
+                            <label asp-for="Unit" class="form-label">Unit</label>
+                            <select asp-for="Unit" class="form-select">
+                                <option>Liter</option><option>Kg</option><option>Gram</option><option>Packet</option><option>Piece</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label asp-for="Rate" class="form-label">Rate (&#8377;)</label>
+                            <input asp-for="Rate" class="form-control" placeholder="e.g. 60" id="orderRate" />
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">Total (&#8377;)</label>
+                            <input type="text" class="form-control fw-bold text-success" id="orderTotal" readonly />
+                        </div>
+                        <div class="col-md-4">
+                            <label asp-for="DeliveryDate" class="form-label">Delivery Date</label>
+                            <input asp-for="DeliveryDate" type="date" class="form-control" />
+                        </div>
+                        <div class="col-md-4">
+                            <label asp-for="DeliverySlot" class="form-label">Delivery Slot</label>
+                            <select asp-for="DeliverySlot" asp-items="Html.GetEnumSelectList<DairyProductApp.Models.DeliverySlot>()" class="form-select"></select>
+                        </div>
+                        <div class="col-md-4">
+                            <label asp-for="PaymentStatus" class="form-label">Payment Status</label>
+                            <select asp-for="PaymentStatus" asp-items="Html.GetEnumSelectList<DairyProductApp.Models.PaymentStatus>()" class="form-select"></select>
+                        </div>
+                        <div class="col-12">
+                            <label asp-for="DeliveryAddress" class="form-label">Delivery Address</label>
+                            <textarea asp-for="DeliveryAddress" class="form-control" rows="2" placeholder="Delivery address..."></textarea>
+                        </div>
+                        <div class="col-12">
+                            <label asp-for="Notes" class="form-label">Notes</label>
+                            <textarea asp-for="Notes" class="form-control" rows="2" placeholder="Extra notes..."></textarea>
+                        </div>
+                    </div>
+
+                    <div class="d-flex gap-2 mt-4">
+                        <button type="submit" class="btn btn-primary btn-lg flex-grow-1">
+                            <i class="bi bi-bag-check me-1"></i>Place Order
+                        </button>
+                        <a asp-action="Index" class="btn btn-outline-secondary btn-lg">Cancel</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{ await Html.RenderPartialAsync("_ValidationScriptsPartial"); }
+    <script>
+        function calcTotal() {
+            var qty = parseFloat($('#orderQty').val()) || 0;
+            var rate = parseFloat($('#orderRate').val()) || 0;
+            $('#orderTotal').val('₹ ' + (qty * rate).toFixed(0));
+        }
+        $('#orderQty, #orderRate').on('input', calcTotal);
+    </script>
+}
