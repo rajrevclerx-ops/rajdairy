@@ -23,6 +23,7 @@ namespace DairyProductApp.Services
         private const string SubscriptionSheet = "Subscriptions";
         private const string OrderSheet = "Orders";
         private const string NotificationSheet = "Notifications";
+        private const string ExpenseSheet = "Expenses";
 
         public GoogleSheetsService(IConfiguration configuration)
         {
@@ -85,7 +86,8 @@ namespace DairyProductApp.Services
                 [TransactionSheet] = new List<object> { "Id", "PartnerId", "PartnerName", "Type", "Item", "Description", "Quantity", "Unit", "Rate", "TotalAmount", "PaymentStatus", "TransactionDate", "CreatedAt", "Remarks" },
                 [SubscriptionSheet] = new List<object> { "Id", "PartnerId", "PartnerName", "Product", "DailyQuantity", "Unit", "RatePerUnit", "StartDate", "EndDate", "DeliverySlot", "DeliveryAddress", "Status", "Frequency", "CreatedAt", "Notes" },
                 [OrderSheet] = new List<object> { "Id", "OrderNumber", "PartnerId", "PartnerName", "PartnerMobile", "ProductName", "Quantity", "Unit", "Rate", "TotalAmount", "OrderDate", "DeliveryDate", "DeliverySlot", "Status", "PaymentStatus", "DeliveryAddress", "CreatedAt", "Notes" },
-                [NotificationSheet] = new List<object> { "Id", "Title", "Message", "Type", "Icon", "Link", "IsRead", "CreatedAt" }
+                [NotificationSheet] = new List<object> { "Id", "Title", "Message", "Type", "Icon", "Link", "IsRead", "CreatedAt" },
+                [ExpenseSheet] = new List<object> { "Id", "Category", "Description", "Amount", "ExpenseDate", "Mode", "Remarks", "CreatedAt" }
             };
 
             // Create missing sheets
@@ -831,6 +833,62 @@ namespace DairyProductApp.Services
             var rows = await GetAllRows(NotificationSheet);
             var index = rows.ToList().FindIndex(r => SafeGet(r, 0) == id.ToString());
             if (index >= 0) await DeleteRow(NotificationSheet, index);
+        }
+
+        // ============ EXPENSES ============
+        public async Task<List<Expense>> GetAllExpenses()
+        {
+            var rows = await GetAllRows(ExpenseSheet);
+            return rows.Select(r => new Expense
+            {
+                Id = int.TryParse(SafeGet(r, 0), out var id) ? id : 0,
+                Category = Enum.TryParse<ExpenseCategory>(SafeGet(r, 1), out var cat) ? cat : ExpenseCategory.Other,
+                Description = SafeGet(r, 2),
+                Amount = decimal.TryParse(SafeGet(r, 3), out var amt) ? amt : 0,
+                ExpenseDate = DateTime.TryParse(SafeGet(r, 4), out var ed) ? ed : DateTime.Today,
+                Mode = Enum.TryParse<PaymentMode>(SafeGet(r, 5), out var pm) ? pm : PaymentMode.Cash,
+                Remarks = SafeGet(r, 6),
+                CreatedAt = DateTime.TryParse(SafeGet(r, 7), out var ca) ? ca : DateTime.Now
+            }).ToList();
+        }
+
+        public async Task<Expense?> GetExpenseById(int id)
+        {
+            var all = await GetAllExpenses();
+            return all.FirstOrDefault(e => e.Id == id);
+        }
+
+        public async Task AddExpense(Expense e)
+        {
+            e.Id = await GetNextId(ExpenseSheet);
+            var row = new List<object>
+            {
+                e.Id, e.Category.ToString(), e.Description, e.Amount,
+                e.ExpenseDate.ToString("yyyy-MM-dd"), e.Mode.ToString(),
+                e.Remarks ?? "", e.CreatedAt.ToString("yyyy-MM-dd HH:mm:ss")
+            };
+            await AppendRow(ExpenseSheet, row);
+        }
+
+        public async Task UpdateExpense(Expense e)
+        {
+            var rows = await GetAllRows(ExpenseSheet);
+            var index = rows.ToList().FindIndex(r => SafeGet(r, 0) == e.Id.ToString());
+            if (index < 0) return;
+            var row = new List<object>
+            {
+                e.Id, e.Category.ToString(), e.Description, e.Amount,
+                e.ExpenseDate.ToString("yyyy-MM-dd"), e.Mode.ToString(),
+                e.Remarks ?? "", e.CreatedAt.ToString("yyyy-MM-dd HH:mm:ss")
+            };
+            await UpdateRow(ExpenseSheet, index, row);
+        }
+
+        public async Task DeleteExpense(int id)
+        {
+            var rows = await GetAllRows(ExpenseSheet);
+            var index = rows.ToList().FindIndex(r => SafeGet(r, 0) == id.ToString());
+            if (index >= 0) await DeleteRow(ExpenseSheet, index);
         }
 
         // Helper: Create notification when events happen

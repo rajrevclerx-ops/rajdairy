@@ -118,3 +118,32 @@
         </div>
     </div>
 </div>
+
+<!-- WhatsApp Share & Partner Portal Link -->
+<div class="row g-3 mt-3">
+    <div class="col-md-6">
+        @{
+            var waText = System.Net.WebUtility.UrlEncode(
+                $"📋 *Raj Dairy - Hisab*\n" +
+                $"👤 {Model.Partner.Name}\n\n" +
+                $"💰 Diya: ₹{Model.TotalGiven:N0}\n" +
+                $"💸 Liya: ₹{Model.TotalReceived:N0}\n" +
+                $"⏳ Pending: ₹{Model.TotalPending:N0}\n" +
+                $"📊 Balance: ₹{Math.Abs(Model.Balance):N0} {(Model.Balance >= 0 ? "(Dena)" : "(Lena)")}\n\n" +
+                $"🔗 Apna hisab dekhein:\nhttps://rajdairy.onrender.com/Public/Login\nCode: {Model.Partner.AccessCode}\n\n- Raj Dairy"
+            );
+        }
+        <a href="https://wa.me/@(Model.Partner.Mobile.StartsWith("+") ? Model.Partner.Mobile.Substring(1) : "91" + Model.Partner.Mobile)?text=@waText" target="_blank" class="btn btn-success w-100 btn-lg">
+            <i class="bi bi-whatsapp me-2"></i>WhatsApp pe Hisab Bhejo
+        </a>
+    </div>
+    <div class="col-md-6">
+        <div class="card border-0 bg-primary bg-opacity-10">
+            <div class="card-body py-3 text-center">
+                <small class="text-muted">Partner Portal Link (share karo):</small>
+                <div class="fw-bold text-primary mt-1">rajdairy.onrender.com/Public/Login</div>
+                <div>Access Code: <code class="fs-5">@Model.Partner.AccessCode</code></div>
+            </div>
+        </div>
+    </div>
+</div>

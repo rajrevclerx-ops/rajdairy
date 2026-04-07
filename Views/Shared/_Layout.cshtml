@@ -57,6 +57,11 @@
                 </div>
 
                 <!-- Admin Dropdown -->
+                <!-- Dark Mode Toggle -->
+                <button class="btn btn-outline-light btn-sm" id="darkModeToggle" title="Dark Mode" style="border-radius:50%;width:34px;height:34px;padding:0;">
+                    <i class="bi bi-moon-fill" id="darkModeIcon"></i>
+                </button>
+
                 <div class="dropdown">
                     <a class="btn btn-outline-light btn-sm dropdown-toggle d-flex align-items-center gap-1" href="#" role="button" data-bs-toggle="dropdown" style="border-radius:50px;padding:4px 14px;">
                         <div id="navAvatar" style="width:24px;height:24px;border-radius:50%;background:linear-gradient(135deg,#2563eb,#7c3aed);display:flex;align-items:center;justify-content:center;">
@@ -205,6 +210,28 @@
                     <a class="nav-link" asp-controller="Transaction" asp-action="Index">
                         <i class="bi bi-journal-text"></i>
                         <span>All Transactions</span>
+                    </a>
+                </li>
+
+                <li class="nav-item sidebar-heading">
+                    <span>FINANCE & REPORTS</span>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" asp-controller="Expense" asp-action="Index">
+                        <i class="bi bi-wallet2"></i>
+                        <span>Expenses</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" asp-controller="Expense" asp-action="ProfitLoss">
+                        <i class="bi bi-graph-up-arrow"></i>
+                        <span>Profit & Loss</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" asp-controller="Report" asp-action="Daily">
+                        <i class="bi bi-calendar-day"></i>
+                        <span>Daily Report</span>
                     </a>
                 </li>
 
@@ -365,6 +392,27 @@
         if ('serviceWorker' in navigator) {
             navigator.serviceWorker.register('/sw.js');
         }
+
+        // Dark Mode
+        $(function () {
+            var isDark = localStorage.getItem('rajdairy-dark') === 'true';
+            if (isDark) enableDark();
+
+            $('#darkModeToggle').click(function () {
+                isDark = !isDark;
+                localStorage.setItem('rajdairy-dark', isDark);
+                if (isDark) enableDark(); else disableDark();
+            });
+
+            function enableDark() {
+                $('body').addClass('dark-mode');
+                $('#darkModeIcon').removeClass('bi-moon-fill').addClass('bi-sun-fill');
+            }
+            function disableDark() {
+                $('body').removeClass('dark-mode');
+                $('#darkModeIcon').removeClass('bi-sun-fill').addClass('bi-moon-fill');
+            }
+        });
     </script>
 </body>
 </html>

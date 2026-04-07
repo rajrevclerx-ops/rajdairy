@@ -1,0 +1,121 @@
+@model DairyProductApp.Models.ProfitLossViewModel
+@{ ViewData["Title"] = "Profit & Loss"; }
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h3 class="fw-bold mb-0"><i class="bi bi-graph-up-arrow me-2 text-success"></i>Profit & Loss Report</h3>
+        <p class="text-muted mb-0 small">@Model.FromDate.ToString("dd MMM") - @Model.ToDate.ToString("dd MMM yyyy")</p>
+    </div>
+    <div class="d-flex gap-2">
+        <a asp-controller="Report" asp-action="Daily" class="btn btn-outline-primary"><i class="bi bi-calendar-day me-1"></i>Daily Report</a>
+        <a asp-controller="Expense" asp-action="Index" class="btn btn-outline-secondary"><i class="bi bi-arrow-left me-1"></i>Expenses</a>
+    </div>
+</div>
+
+<!-- Date Filter -->
+<div class="card border-0 shadow-sm mb-4">
+    <div class="card-body py-2">
+        <form method="get" class="row g-2 align-items-center">
+            <div class="col-auto"><input type="date" name="from" class="form-control form-control-sm" value="@Model.FromDate.ToString("yyyy-MM-dd")"></div>
+            <div class="col-auto">to</div>
+            <div class="col-auto"><input type="date" name="to" class="form-control form-control-sm" value="@Model.ToDate.ToString("yyyy-MM-dd")"></div>
+            <div class="col-auto"><button class="btn btn-sm btn-primary"><i class="bi bi-filter"></i> Filter</button></div>
+        </form>
+    </div>
+</div>
+
+<!-- P&L Summary -->
+<div class="row g-3 mb-4">
+    <div class="col-md-4">
+        <div class="card border-0 shadow-sm" style="border-top:4px solid #27ae60 !important;">
+            <div class="card-body text-center">
+                <i class="bi bi-arrow-down-circle text-success fs-3"></i>
+                <h6 class="text-muted mt-2">Total Income</h6>
+                <h3 class="fw-bold text-success">&#8377;@Model.TotalIncome.ToString("N0")</h3>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card border-0 shadow-sm" style="border-top:4px solid #e74c3c !important;">
+            <div class="card-body text-center">
+                <i class="bi bi-arrow-up-circle text-danger fs-3"></i>
+                <h6 class="text-muted mt-2">Total Expenses</h6>
+                <h3 class="fw-bold text-danger">&#8377;@Model.TotalExpenses.ToString("N0")</h3>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card border-0 shadow-sm" style="border-top:4px solid @(Model.NetProfit >= 0 ? "#27ae60" : "#e74c3c") !important;">
+            <div class="card-body text-center">
+                <i class="bi @(Model.NetProfit >= 0 ? "bi-trophy" : "bi-exclamation-triangle") @(Model.NetProfit >= 0 ? "text-success" : "text-danger") fs-3"></i>
+                <h6 class="text-muted mt-2">Net @(Model.NetProfit >= 0 ? "Profit" : "Loss")</h6>
+                <h3 class="fw-bold @(Model.NetProfit >= 0 ? "text-success" : "text-danger")">&#8377;@Math.Abs(Model.NetProfit).ToString("N0")</h3>
+                <small class="text-muted">Margin: @Model.ProfitMargin.ToString("F1")%</small>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-3">
+    <!-- Income Breakdown -->
+    <div class="col-lg-6">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white border-0"><h6 class="fw-bold mb-0 text-success"><i class="bi bi-arrow-down-circle me-2"></i>Income Breakdown</h6></div>
+            <div class="card-body">
+                <div class="d-flex justify-content-between mb-2"><span>Milk Sales</span><span class="fw-bold text-success">&#8377;@Model.MilkSalesIncome.ToString("N0")</span></div>
+                <div class="d-flex justify-content-between mb-2"><span>Ghee Sales</span><span class="fw-bold text-success">&#8377;@Model.GheeSalesIncome.ToString("N0")</span></div>
+                <div class="d-flex justify-content-between mb-2"><span>Product Sales</span><span class="fw-bold text-success">&#8377;@Model.ProductSalesIncome.ToString("N0")</span></div>
+                <div class="d-flex justify-content-between"><span>Other Income</span><span class="fw-bold text-success">&#8377;@Model.OtherIncome.ToString("N0")</span></div>
+                <hr>
+                <div class="d-flex justify-content-between"><span class="fw-bold">Total</span><span class="fw-bold text-success fs-5">&#8377;@Model.TotalIncome.ToString("N0")</span></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Expense Breakdown -->
+    <div class="col-lg-6">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white border-0"><h6 class="fw-bold mb-0 text-danger"><i class="bi bi-arrow-up-circle me-2"></i>Expense Breakdown</h6></div>
+            <div class="card-body">
+                @if (Model.ExpensesByCategory.Any())
+                {
+                    @foreach (var cat in Model.ExpensesByCategory)
+                    {
+                        <div class="mb-2">
+                            <div class="d-flex justify-content-between small">
+                                <span>@cat.Category</span>
+                                <span class="fw-bold">&#8377;@cat.Amount.ToString("N0") <span class="text-muted">(@cat.Percentage.ToString("F0")%)</span></span>
+                            </div>
+                            <div class="progress" style="height:6px;">
+                                <div class="progress-bar bg-danger" style="width:@cat.Percentage%"></div>
+                            </div>
+                        </div>
+                    }
+                    <hr>
+                    <div class="d-flex justify-content-between"><span class="fw-bold">Total</span><span class="fw-bold text-danger fs-5">&#8377;@Model.TotalExpenses.ToString("N0")</span></div>
+                }
+                else
+                {
+                    <p class="text-muted text-center">Koi expense nahi hai</p>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- WhatsApp Share -->
+<div class="text-center mt-4">
+    @{
+        var whatsappText = System.Net.WebUtility.UrlEncode(
+            $"📊 *Raj Dairy - P&L Report*\n" +
+            $"📅 {Model.FromDate:dd MMM} - {Model.ToDate:dd MMM yyyy}\n\n" +
+            $"💰 Income: ₹{Model.TotalIncome:N0}\n" +
+            $"💸 Expenses: ₹{Model.TotalExpenses:N0}\n" +
+            $"✅ Net {(Model.NetProfit >= 0 ? "Profit" : "Loss")}: ₹{Math.Abs(Model.NetProfit):N0}\n" +
+            $"📈 Margin: {Model.ProfitMargin:F1}%\n\n- Raj Dairy Pro"
+        );
+    }
+    <a href="https://wa.me/?text=@whatsappText" target="_blank" class="btn btn-success btn-lg">
+        <i class="bi bi-whatsapp me-2"></i>Share on WhatsApp
+    </a>
+</div>

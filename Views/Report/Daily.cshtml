@@ -1,0 +1,103 @@
+@model DairyProductApp.Models.DailyReportViewModel
+@{ ViewData["Title"] = "Daily Report"; }
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h3 class="fw-bold mb-0"><i class="bi bi-calendar-day me-2 text-primary"></i>Daily Report</h3>
+        <p class="text-muted mb-0 small">@Model.ReportDate.ToString("dd MMMM yyyy, dddd")</p>
+    </div>
+    <div class="d-flex gap-2">
+        <form method="get" class="d-flex gap-2">
+            <input type="date" name="date" class="form-control form-control-sm" value="@Model.ReportDate.ToString("yyyy-MM-dd")">
+            <button class="btn btn-sm btn-primary"><i class="bi bi-search"></i></button>
+        </form>
+    </div>
+</div>
+
+<!-- Summary Cards -->
+<div class="row g-3 mb-4">
+    <div class="col-6 col-md-3">
+        <div class="card border-0 shadow-sm text-center" style="border-top:3px solid #3498db !important;">
+            <div class="card-body py-3">
+                <i class="bi bi-cup-hot-fill text-primary fs-4"></i>
+                <h4 class="fw-bold mb-0 mt-1">@Model.TotalMilkCollected.ToString("F1") L</h4>
+                <small class="text-muted">Milk Collected</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="card border-0 shadow-sm text-center" style="border-top:3px solid #27ae60 !important;">
+            <div class="card-body py-3">
+                <i class="bi bi-currency-rupee text-success fs-4"></i>
+                <h4 class="fw-bold mb-0 mt-1">&#8377;@(Model.MilkRevenue + Model.OrderRevenue).ToString("N0")</h4>
+                <small class="text-muted">Total Revenue</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="card border-0 shadow-sm text-center" style="border-top:3px solid #e74c3c !important;">
+            <div class="card-body py-3">
+                <i class="bi bi-wallet2 text-danger fs-4"></i>
+                <h4 class="fw-bold mb-0 mt-1">&#8377;@Model.TotalExpenses.ToString("N0")</h4>
+                <small class="text-muted">Expenses</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="card border-0 shadow-sm text-center" style="border-top:3px solid @(Model.NetDayProfit >= 0 ? "#27ae60" : "#e74c3c") !important;">
+            <div class="card-body py-3">
+                <i class="bi @(Model.NetDayProfit >= 0 ? "bi-trophy text-success" : "bi-exclamation-triangle text-danger") fs-4"></i>
+                <h4 class="fw-bold mb-0 mt-1 @(Model.NetDayProfit >= 0 ? "text-success" : "text-danger")">&#8377;@Math.Abs(Model.NetDayProfit).ToString("N0")</h4>
+                <small class="text-muted">Net @(Model.NetDayProfit >= 0 ? "Profit" : "Loss")</small>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Details Row -->
+<div class="row g-3 mb-4">
+    <div class="col-md-6">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-header bg-white border-0"><h6 class="fw-bold mb-0"><i class="bi bi-info-circle text-primary me-2"></i>Day Details</h6></div>
+            <div class="card-body">
+                <div class="d-flex justify-content-between mb-2"><span class="text-muted">Farmers</span><span class="fw-bold">@Model.TotalFarmers</span></div>
+                <div class="d-flex justify-content-between mb-2"><span class="text-muted">Avg Fat</span><span class="fw-bold">@Model.AvgFat.ToString("F1")%</span></div>
+                <div class="d-flex justify-content-between mb-2"><span class="text-muted">Avg SNF</span><span class="fw-bold">@Model.AvgSNF.ToString("F1")%</span></div>
+                <div class="d-flex justify-content-between mb-2"><span class="text-muted">Orders</span><span class="fw-bold">@Model.TotalOrders</span></div>
+                <div class="d-flex justify-content-between"><span class="text-muted">New Subscriptions</span><span class="fw-bold">@Model.NewSubscriptions</span></div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-header bg-white border-0"><h6 class="fw-bold mb-0"><i class="bi bi-wallet2 text-danger me-2"></i>Today's Expenses</h6></div>
+            <div class="card-body">
+                @if (Model.Expenses.Any())
+                {
+                    @foreach (var e in Model.Expenses)
+                    {
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>@e.Description <span class="badge bg-secondary small">@e.Category</span></span>
+                            <span class="fw-bold text-danger">&#8377;@e.Amount.ToString("N0")</span>
+                        </div>
+                    }
+                }
+                else
+                {
+                    <p class="text-muted text-center mb-0">Koi expense nahi</p>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- WhatsApp Share -->
+<div class="text-center">
+    @{ var waText = System.Net.WebUtility.UrlEncode(Model.GetWhatsAppText()); }
+    <a href="https://wa.me/?text=@waText" target="_blank" class="btn btn-success btn-lg">
+        <i class="bi bi-whatsapp me-2"></i>Share Daily Report on WhatsApp
+    </a>
+    <a asp-controller="Expense" asp-action="ProfitLoss" class="btn btn-outline-primary btn-lg ms-2">
+        <i class="bi bi-graph-up-arrow me-1"></i>Full P&L Report
+    </a>
+</div>
