@@ -1,0 +1,209 @@
+@{
+    ViewData["Title"] = "Monthly Summary";
+    var partner = ViewBag.Partner as DairyProductApp.Models.Partner;
+    var collections = ViewBag.Collections as List<DairyProductApp.Models.MilkCollection> ?? new();
+    int month = (int)ViewBag.Month;
+    int year = (int)ViewBag.Year;
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <div>
+        <h3 class="fw-bold mb-0"><i class="bi bi-calendar-month me-2 text-primary"></i>Monthly Statement</h3>
+        <p class="text-muted mb-0 small">@partner?.Name - @ViewBag.MonthName</p>
+    </div>
+    <div class="d-flex gap-2">
+        @{ var mobile = partner?.Mobile ?? ""; if (!mobile.StartsWith("+")) mobile = "91" + mobile; }
+        <a href="https://wa.me/@mobile?text=@ViewBag.WhatsAppText" target="_blank" class="btn btn-success btn-sm">
+            <i class="bi bi-whatsapp me-1"></i>WhatsApp Statement
+        </a>
+        <button onclick="window.print()" class="btn btn-outline-primary btn-sm"><i class="bi bi-printer me-1"></i>Print</button>
+        <a asp-action="Ledger" asp-route-id="@partner?.Id" class="btn btn-outline-secondary btn-sm"><i class="bi bi-arrow-left me-1"></i>Back</a>
+    </div>
+</div>
+
+<!-- Month Selector -->
+<div class="card border-0 shadow-sm mb-3">
+    <div class="card-body py-2">
+        <form method="get" class="d-flex gap-2 align-items-center">
+            <input type="hidden" name="id" value="@partner?.Id" />
+            <select name="month" class="form-select form-select-sm" style="width:auto;">
+                @for (int m = 1; m <= 12; m++)
+                {
+                    <option value="@m" selected="@(m == month)">@(new DateTime(2026, m, 1).ToString("MMMM"))</option>
+                }
+            </select>
+            <select name="year" class="form-select form-select-sm" style="width:auto;">
+                @for (int y = 2025; y <= 2027; y++)
+                {
+                    <option value="@y" selected="@(y == year)">@y</option>
+                }
+            </select>
+            <button class="btn btn-sm btn-primary"><i class="bi bi-search"></i></button>
+        </form>
+    </div>
+</div>
+
+<!-- Summary Cards -->
+<div class="row g-3 mb-4" id="printArea">
+    <!-- Print Header (hidden on screen) -->
+    <div class="col-12 d-none d-print-block text-center mb-3">
+        <h3 class="fw-bold">Raj Dairy - Monthly Statement</h3>
+        <p>@partner?.Name | @ViewBag.MonthName</p>
+        <hr>
+    </div>
+
+    <div class="col-6 col-md-3">
+        <div class="card border-0 shadow-sm text-center" style="border-top:3px solid #3b82f6 !important;">
+            <div class="card-body py-3">
+                <i class="bi bi-cup-hot-fill text-primary fs-4"></i>
+                <h4 class="fw-bold mb-0 mt-1">@(((decimal)ViewBag.TotalMilk).ToString("F1")) L</h4>
+                <small class="text-muted">Total Milk</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="card border-0 shadow-sm text-center" style="border-top:3px solid #22c55e !important;">
+            <div class="card-body py-3">
+                <i class="bi bi-currency-rupee text-success fs-4"></i>
+                <h4 class="fw-bold mb-0 mt-1">&#8377;@(((decimal)ViewBag.TotalMilkAmount).ToString("N0"))</h4>
+                <small class="text-muted">Total Amount</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="card border-0 shadow-sm text-center" style="border-top:3px solid #f59e0b !important;">
+            <div class="card-body py-3">
+                <i class="bi bi-cash-coin text-warning fs-4"></i>
+                <h4 class="fw-bold mb-0 mt-1">&#8377;@(((decimal)ViewBag.TotalPayments).ToString("N0"))</h4>
+                <small class="text-muted">Paid</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        @{ var balDue = (decimal)ViewBag.BalanceDue; }
+        <div class="card border-0 shadow-sm text-center" style="border-top:3px solid @(balDue > 0 ? "#ef4444" : "#22c55e") !important;">
+            <div class="card-body py-3">
+                <i class="bi bi-wallet2 @(balDue > 0 ? "text-danger" : "text-success") fs-4"></i>
+                <h4 class="fw-bold mb-0 mt-1 @(balDue > 0 ? "text-danger" : "text-success")">&#8377;@Math.Abs(balDue).ToString("N0")</h4>
+                <small class="text-muted">@(balDue > 0 ? "Dena Baaki" : "Settled")</small>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quality Stats -->
+    <div class="col-md-6">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body">
+                <h6 class="fw-bold mb-3"><i class="bi bi-bar-chart text-info me-2"></i>Quality Summary</h6>
+                <div class="d-flex justify-content-between mb-2">
+                    <span class="text-muted">Collection Days</span>
+                    <span class="fw-bold">@ViewBag.TotalDays days</span>
+                </div>
+                <div class="d-flex justify-content-between mb-2">
+                    <span class="text-muted">Average Fat %</span>
+                    <span class="fw-bold">@(((decimal)ViewBag.AvgFat).ToString("F1"))%</span>
+                </div>
+                <div class="d-flex justify-content-between mb-2">
+                    <span class="text-muted">Average SNF %</span>
+                    <span class="fw-bold">@(((decimal)ViewBag.AvgSNF).ToString("F1"))%</span>
+                </div>
+                <div class="d-flex justify-content-between">
+                    <span class="text-muted">Avg Daily Milk</span>
+                    <span class="fw-bold">@((int)ViewBag.TotalDays > 0 ? ((decimal)ViewBag.TotalMilk / (int)ViewBag.TotalDays).ToString("F1") : "0") L/day</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body">
+                <h6 class="fw-bold mb-3"><i class="bi bi-calculator text-success me-2"></i>Payment Summary</h6>
+                <div class="d-flex justify-content-between mb-2">
+                    <span class="text-muted">Milk Amount</span>
+                    <span class="fw-bold text-success">&#8377;@(((decimal)ViewBag.TotalMilkAmount).ToString("N0"))</span>
+                </div>
+                <div class="d-flex justify-content-between mb-2">
+                    <span class="text-muted">Paid to Farmer</span>
+                    <span class="fw-bold text-primary">&#8377;@(((decimal)ViewBag.TotalPayments).ToString("N0"))</span>
+                </div>
+                <hr class="my-2">
+                <div class="d-flex justify-content-between">
+                    <span class="fw-bold">Balance Due</span>
+                    <span class="fw-bold fs-5 @(balDue > 0 ? "text-danger" : "text-success")">&#8377;@Math.Abs(balDue).ToString("N0")</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Daily Collection Table -->
+    <div class="col-12">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white border-0">
+                <h6 class="fw-bold mb-0"><i class="bi bi-table text-primary me-2"></i>Daily Collection - @ViewBag.MonthName</h6>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover table-sm align-middle mb-0" style="font-size:0.85rem;">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Date</th>
+                                <th>Shift</th>
+                                <th>Type</th>
+                                <th>Qty (L)</th>
+                                <th>Fat%</th>
+                                <th>SNF%</th>
+                                <th>Rate/L</th>
+                                <th>Amount</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (collections.Any())
+                            {
+                                @foreach (var c in collections)
+                                {
+                                    <tr>
+                                        <td>@c.CollectionDate.ToString("dd/MM")</td>
+                                        <td>
+                                            @if (c.Shift == DairyProductApp.Models.Shift.Morning)
+                                            { <span class="badge bg-warning text-dark" style="font-size:0.7rem;">AM</span> }
+                                            else
+                                            { <span class="badge bg-dark" style="font-size:0.7rem;">PM</span> }
+                                        </td>
+                                        <td><span class="badge bg-info" style="font-size:0.7rem;">@c.MilkType</span></td>
+                                        <td class="fw-bold">@c.Quantity.ToString("F1")</td>
+                                        <td>@c.FatPercentage.ToString("F1")</td>
+                                        <td>@c.SNFPercentage.ToString("F1")</td>
+                                        <td>&#8377;@c.RatePerLiter.ToString("F2")</td>
+                                        <td class="fw-bold text-success">&#8377;@c.TotalAmount.ToString("F0")</td>
+                                    </tr>
+                                }
+                                <tr class="table-dark fw-bold">
+                                    <td colspan="3">TOTAL</td>
+                                    <td>@collections.Sum(c => c.Quantity).ToString("F1") L</td>
+                                    <td>@(collections.Average(c => c.FatPercentage).ToString("F1"))</td>
+                                    <td>@(collections.Average(c => c.SNFPercentage).ToString("F1"))</td>
+                                    <td>-</td>
+                                    <td>&#8377;@collections.Sum(c => c.TotalAmount).ToString("N0")</td>
+                                </tr>
+                            }
+                            else
+                            {
+                                <tr><td colspan="8" class="text-center text-muted py-4">Is mahine mein koi collection nahi hai</td></tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    @@media print {
+        .btn, form, .card-body form, nav, .sidebar, .top-navbar, .content-footer { display: none !important; }
+        .main-content { margin: 0 !important; padding: 0 !important; width: 100% !important; }
+        .d-print-block { display: block !important; }
+        .shadow-sm { box-shadow: none !important; }
+        .card { border: 1px solid #ddd !important; }
+    }
+</style>

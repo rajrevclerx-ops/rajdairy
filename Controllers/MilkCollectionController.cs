@@ -67,6 +67,32 @@ namespace DairyProductApp.Controllers
 
                 await _sheets.AddMilkCollection(milkCollection);
 
+                // Auto-create Transaction in Partner Ledger (farmer ka hisab)
+                var allPartners = await _sheets.GetAllPartners();
+                var farmerPartner = allPartners.FirstOrDefault(p =>
+                    p.Name.Equals(milkCollection.FarmerName, StringComparison.OrdinalIgnoreCase));
+
+                if (farmerPartner != null)
+                {
+                    var txn = new Transaction
+                    {
+                        PartnerId = farmerPartner.Id,
+                        PartnerName = farmerPartner.Name,
+                        Type = TransactionType.Received, // Humne milk LIYA farmer se
+                        Item = TransactionItem.Milk,
+                        Description = $"{milkCollection.MilkType} Milk - {milkCollection.Shift} | Fat:{milkCollection.FatPercentage}% SNF:{milkCollection.SNFPercentage}%",
+                        Quantity = milkCollection.Quantity,
+                        Unit = "Liter",
+                        Rate = milkCollection.RatePerLiter,
+                        TotalAmount = milkCollection.TotalAmount,
+                        PaymentStatus = PaymentStatus.Pending,
+                        TransactionDate = milkCollection.CollectionDate,
+                        CreatedAt = DateTime.Now,
+                        Remarks = $"{milkCollection.Shift} shift milk collection"
+                    };
+                    await _sheets.AddTransaction(txn);
+                }
+
                 // Generate WhatsApp receipt URL
                 var receiptText = System.Net.WebUtility.UrlEncode(
                     $"🥛 *Raj Dairy - Milk Receipt*\n" +

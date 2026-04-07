@@ -52,6 +52,7 @@
                                 <td>
                                     <div class="btn-group btn-group-sm">
                                         <a asp-action="Ledger" asp-route-id="@p.Id" class="btn btn-outline-success" title="Hisab"><i class="bi bi-journal-text"></i></a>
+                                        <a asp-action="MonthlySummary" asp-route-id="@p.Id" class="btn btn-outline-info" title="Monthly Statement"><i class="bi bi-calendar-month"></i></a>
                                         <a asp-controller="Transaction" asp-action="Create" asp-route-partnerId="@p.Id" class="btn btn-outline-warning" title="New Transaction"><i class="bi bi-plus"></i></a>
                                         <a asp-action="Edit" asp-route-id="@p.Id" class="btn btn-outline-primary" title="Edit"><i class="bi bi-pencil"></i></a>
                                         <a asp-action="Delete" asp-route-id="@p.Id" class="btn btn-outline-danger" title="Delete"><i class="bi bi-trash"></i></a>
