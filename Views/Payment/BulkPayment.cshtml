@@ -1,0 +1,114 @@
+@model List<DairyProductApp.Controllers.FarmerBalanceViewModel>
+@{ ViewData["Title"] = "Farmer Payments"; }
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <div>
+        <h3 class="fw-bold mb-0"><i class="bi bi-cash-coin me-2 text-success"></i>Farmer Payments</h3>
+        <p class="text-muted mb-0 small">@ViewBag.MonthName - Sabhi farmers ka baaki hisab</p>
+    </div>
+    <div class="d-flex gap-2">
+        <a asp-action="ExportFarmerCSV" class="btn btn-outline-success btn-sm"><i class="bi bi-download me-1"></i>Excel Export</a>
+        <a asp-action="ExportMilkCSV" class="btn btn-outline-primary btn-sm"><i class="bi bi-download me-1"></i>Milk CSV</a>
+    </div>
+</div>
+
+<!-- Total Summary -->
+<div class="row g-3 mb-4">
+    <div class="col-md-4">
+        <div class="card border-0 shadow-sm text-center" style="border-top:3px solid #22c55e !important;">
+            <div class="card-body py-3">
+                <small class="text-muted">Total Milk Amount</small>
+                <h4 class="fw-bold text-success mb-0">&#8377;@Model.Sum(f => f.MilkAmount).ToString("N0")</h4>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card border-0 shadow-sm text-center" style="border-top:3px solid #3b82f6 !important;">
+            <div class="card-body py-3">
+                <small class="text-muted">Total Paid</small>
+                <h4 class="fw-bold text-primary mb-0">&#8377;@Model.Sum(f => f.PaidAmount).ToString("N0")</h4>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card border-0 shadow-sm text-center" style="border-top:3px solid #ef4444 !important;">
+            <div class="card-body py-3">
+                <small class="text-muted">Total Pending</small>
+                <h4 class="fw-bold text-danger mb-0">&#8377;@(((decimal)ViewBag.TotalDue).ToString("N0"))</h4>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Farmer List with Pay buttons -->
+<div class="card border-0 shadow-sm">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>Farmer</th>
+                        <th>Total Milk</th>
+                        <th>Milk Amount</th>
+                        <th>Paid</th>
+                        <th>Balance Due</th>
+                        <th>Quick Pay</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model.Any())
+                    {
+                        @foreach (var f in Model)
+                        {
+                            <tr>
+                                <td>
+                                    <span class="fw-bold">@f.PartnerName</span>
+                                    <small class="text-muted d-block">@f.Mobile</small>
+                                </td>
+                                <td>@f.TotalMilk.ToString("F1") L</td>
+                                <td class="fw-bold text-success">&#8377;@f.MilkAmount.ToString("N0")</td>
+                                <td class="text-primary">&#8377;@f.PaidAmount.ToString("N0")</td>
+                                <td>
+                                    @if (f.BalanceDue > 0)
+                                    {
+                                        <span class="fw-bold text-danger">&#8377;@f.BalanceDue.ToString("N0")</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-success">Settled</span>
+                                    }
+                                </td>
+                                <td>
+                                    @if (f.BalanceDue > 0)
+                                    {
+                                        <form asp-action="PayFarmer" method="post" class="d-flex gap-1">
+                                            @Html.AntiForgeryToken()
+                                            <input type="hidden" name="partnerId" value="@f.PartnerId" />
+                                            <input type="number" name="amount" value="@f.BalanceDue" step="1" class="form-control form-control-sm" style="width:100px;border-radius:8px;">
+                                            <select name="mode" class="form-select form-select-sm" style="width:80px;border-radius:8px;">
+                                                <option>Cash</option>
+                                                <option>UPI</option>
+                                                <option>Bank</option>
+                                            </select>
+                                            <button type="submit" class="btn btn-sm btn-success" style="border-radius:8px;" onclick="return confirm('₹' + this.form.amount.value + ' pay karein?');">
+                                                <i class="bi bi-check"></i>Pay
+                                            </button>
+                                        </form>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted small">-</span>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr><td colspan="6" class="text-center text-muted py-4">Koi pending payment nahi hai</td></tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

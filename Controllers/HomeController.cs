@@ -87,6 +87,33 @@ namespace DairyProductApp.Controllers
                 MixedMilkPercent = totalMilk > 0 ? (mixedMilk / totalMilk) * 100 : 0
             };
 
+            // Auto Stock Alerts
+            var lowGhee = allGhee.Where(g => g.StockKg > 0 && g.StockKg < 2).ToList();
+            var expiringProducts = allProducts.Where(p => p.IsActive && p.ExpiryDate <= today.AddDays(3) && p.ExpiryDate >= today).ToList();
+            var expiredProducts = allProducts.Where(p => p.IsActive && p.ExpiryDate < today).ToList();
+
+            foreach (var g in lowGhee)
+            {
+                await _sheets.CreateSystemNotification(
+                    $"Low Ghee Stock: {g.BatchNumber}",
+                    $"{g.GheeType} - Sirf {g.StockKg:F1} Kg bacha hai!",
+                    NotificationType.Warning, "/GheeProduct");
+            }
+            foreach (var p in expiringProducts)
+            {
+                await _sheets.CreateSystemNotification(
+                    $"Expiring Soon: {p.ProductName}",
+                    $"{p.ExpiryDate:dd MMM} ko expire hoga - {p.StockQuantity} {p.Unit} stock hai",
+                    NotificationType.Warning, "/DairyProduct");
+            }
+            foreach (var p in expiredProducts)
+            {
+                await _sheets.CreateSystemNotification(
+                    $"EXPIRED: {p.ProductName}",
+                    $"{p.ExpiryDate:dd MMM} ko expire ho gaya!",
+                    NotificationType.Danger, "/DairyProduct");
+            }
+
             return View(model);
         }
 
