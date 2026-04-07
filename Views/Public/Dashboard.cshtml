@@ -56,6 +56,7 @@
     <div class="px-3 py-2 bg-white shadow-sm mb-3 sticky-top" style="top:0;z-index:10;">
         <div class="d-flex gap-2 overflow-auto" style="scrollbar-width:none;">
             <a href="#summary" class="btn btn-sm btn-primary" style="border-radius:20px;white-space:nowrap;font-size:0.78rem;"><i class="bi bi-grid me-1"></i>Summary</a>
+            <a href="#milkcollection" class="btn btn-sm btn-outline-secondary" style="border-radius:20px;white-space:nowrap;font-size:0.78rem;"><i class="bi bi-cup-hot me-1"></i>Milk</a>
             <a href="#orders" class="btn btn-sm btn-outline-secondary" style="border-radius:20px;white-space:nowrap;font-size:0.78rem;"><i class="bi bi-bag me-1"></i>Orders</a>
             <a href="#hisab" class="btn btn-sm btn-outline-secondary" style="border-radius:20px;white-space:nowrap;font-size:0.78rem;"><i class="bi bi-journal me-1"></i>Hisab</a>
             <a href="#payment" class="btn btn-sm btn-outline-secondary" style="border-radius:20px;white-space:nowrap;font-size:0.78rem;"><i class="bi bi-credit-card me-1"></i>Pay</a>
@@ -99,6 +100,72 @@
                         </h4>
                     </div>
                 </div>
+            </div>
+        </div>
+
+        <!-- Milk Collection History -->
+        @{
+            var milkCollections = ViewBag.MilkCollections as List<DairyProductApp.Models.MilkCollection> ?? new();
+            decimal totalMilk = (decimal)(ViewBag.TotalMilk ?? 0m);
+            decimal totalMilkAmt = (decimal)(ViewBag.TotalMilkAmount ?? 0m);
+            decimal monthMilk = (decimal)(ViewBag.MonthMilk ?? 0m);
+            decimal monthMilkAmt = (decimal)(ViewBag.MonthMilkAmount ?? 0m);
+        }
+        <div id="milkcollection" class="card border-0 shadow-sm mb-4">
+            <div class="card-header bg-white border-0">
+                <h6 class="fw-bold mb-0"><i class="bi bi-cup-hot-fill me-2 text-primary"></i>Mera Milk Collection</h6>
+            </div>
+            <div class="card-body pt-0">
+                <!-- Month & Total Summary -->
+                <div class="row g-2 mb-3">
+                    <div class="col-6">
+                        <div class="rounded-3 p-2 text-center" style="background:#eff6ff;">
+                            <small class="text-muted d-block">This Month</small>
+                            <span class="fw-bold text-primary">@monthMilk.ToString("F1") L</span>
+                            <small class="text-success d-block fw-bold">&#8377;@monthMilkAmt.ToString("N0")</small>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="rounded-3 p-2 text-center" style="background:#f0fdf4;">
+                            <small class="text-muted d-block">All Time</small>
+                            <span class="fw-bold text-success">@totalMilk.ToString("F1") L</span>
+                            <small class="text-success d-block fw-bold">&#8377;@totalMilkAmt.ToString("N0")</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0" style="font-size:0.82rem;">
+                    <thead class="table-light">
+                        <tr><th>Date</th><th>Shift</th><th>Qty</th><th>Fat%</th><th>SNF%</th><th>Rate</th><th>Amount</th></tr>
+                    </thead>
+                    <tbody>
+                        @if (milkCollections.Any())
+                        {
+                            @foreach (var m in milkCollections.Take(30))
+                            {
+                                <tr>
+                                    <td>@m.CollectionDate.ToString("dd/MM")</td>
+                                    <td>
+                                        @if (m.Shift == DairyProductApp.Models.Shift.Morning)
+                                        { <span class="badge bg-warning text-dark" style="font-size:0.65rem;">AM</span> }
+                                        else
+                                        { <span class="badge bg-dark" style="font-size:0.65rem;">PM</span> }
+                                    </td>
+                                    <td class="fw-bold">@m.Quantity.ToString("F1") L</td>
+                                    <td>@m.FatPercentage.ToString("F1")</td>
+                                    <td>@m.SNFPercentage.ToString("F1")</td>
+                                    <td>&#8377;@m.RatePerLiter.ToString("F0")</td>
+                                    <td class="fw-bold text-success">&#8377;@m.TotalAmount.ToString("F0")</td>
+                                </tr>
+                            }
+                        }
+                        else
+                        {
+                            <tr><td colspan="7" class="text-center text-muted py-3">Abhi koi milk collection nahi hai</td></tr>
+                        }
+                    </tbody>
+                </table>
             </div>
         </div>
 

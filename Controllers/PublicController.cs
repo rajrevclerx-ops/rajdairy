@@ -57,6 +57,22 @@ namespace DairyProductApp.Controllers
                         - transactions.Where(t => t.Type == TransactionType.Received).Sum(t => t.TotalAmount)
             };
 
+            // Partner's milk collections
+            var allCollections = await _sheets.GetAllMilkCollections();
+            var myCollections = allCollections
+                .Where(m => m.FarmerName.Equals(partner.Name, StringComparison.OrdinalIgnoreCase))
+                .OrderByDescending(m => m.CollectionDate)
+                .ThenByDescending(m => m.CreatedAt)
+                .ToList();
+            ViewBag.MilkCollections = myCollections;
+            ViewBag.TotalMilk = myCollections.Sum(m => m.Quantity);
+            ViewBag.TotalMilkAmount = myCollections.Sum(m => m.TotalAmount);
+
+            // This month's milk
+            var thisMonth = myCollections.Where(m => m.CollectionDate.Month == DateTime.Today.Month && m.CollectionDate.Year == DateTime.Today.Year).ToList();
+            ViewBag.MonthMilk = thisMonth.Sum(m => m.Quantity);
+            ViewBag.MonthMilkAmount = thisMonth.Sum(m => m.TotalAmount);
+
             // Partner's orders
             var allOrders = await _sheets.GetAllOrders();
             ViewBag.Orders = allOrders
