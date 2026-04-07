@@ -13,7 +13,6 @@ namespace DairyProductApp.Controllers
             _sheets = sheets;
         }
 
-        // Partner login page
         public IActionResult Login()
         {
             return View();
@@ -38,7 +37,6 @@ namespace DairyProductApp.Controllers
             return RedirectToAction(nameof(Dashboard), new { code = partner.AccessCode });
         }
 
-        // Partner read-only dashboard
         public async Task<IActionResult> Dashboard(string code)
         {
             if (string.IsNullOrEmpty(code)) return RedirectToAction(nameof(Login));
@@ -59,12 +57,38 @@ namespace DairyProductApp.Controllers
                         - transactions.Where(t => t.Type == TransactionType.Received).Sum(t => t.TotalAmount)
             };
 
-            // Payment info for partner
+            // Partner's orders
+            var allOrders = await _sheets.GetAllOrders();
+            ViewBag.Orders = allOrders
+                .Where(o => o.PartnerId == partner.Id)
+                .OrderByDescending(o => o.OrderDate)
+                .ToList();
+
+            // Partner's subscriptions
+            var allSubs = await _sheets.GetAllSubscriptions();
+            ViewBag.Subscriptions = allSubs
+                .Where(s => s.PartnerId == partner.Id)
+                .ToList();
+
+            // Payment info
             ViewBag.UpiId = await _sheets.GetSetting("UpiId");
             ViewBag.UpiName = await _sheets.GetSetting("UpiName") ?? "Raj Dairy";
             ViewBag.QrCode = await _sheets.GetSetting("QrCode");
 
             return View(model);
+        }
+
+        // Public order tracking by order number (no login needed)
+        public async Task<IActionResult> TrackOrder(string orderNumber)
+        {
+            if (string.IsNullOrEmpty(orderNumber))
+                return View(model: null);
+
+            var allOrders = await _sheets.GetAllOrders();
+            var order = allOrders.FirstOrDefault(o =>
+                o.OrderNumber.Equals(orderNumber.Trim(), StringComparison.OrdinalIgnoreCase));
+
+            return View(model: order);
         }
     }
 }

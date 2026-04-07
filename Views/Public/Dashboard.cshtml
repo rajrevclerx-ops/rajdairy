@@ -137,6 +137,140 @@
             </div>
         </div>
 
+        <!-- My Orders -->
+        @{
+            var orders = ViewBag.Orders as List<DairyProductApp.Models.Order> ?? new List<DairyProductApp.Models.Order>();
+        }
+        <div class="card border-0 shadow-sm mt-4">
+            <div class="card-header bg-white border-0">
+                <h6 class="fw-bold mb-0"><i class="bi bi-bag-check me-2 text-success"></i>Mere Orders</h6>
+            </div>
+            <div class="card-body p-0">
+                @if (orders.Any())
+                {
+                    @foreach (var o in orders)
+                    {
+                        var statusColor = o.Status switch
+                        {
+                            DairyProductApp.Models.OrderStatus.Pending => "#f59e0b",
+                            DairyProductApp.Models.OrderStatus.Confirmed => "#3b82f6",
+                            DairyProductApp.Models.OrderStatus.OutForDelivery => "#8b5cf6",
+                            DairyProductApp.Models.OrderStatus.Delivered => "#22c55e",
+                            DairyProductApp.Models.OrderStatus.Cancelled => "#ef4444",
+                            _ => "#6b7280"
+                        };
+                        var statusIcon = o.Status switch
+                        {
+                            DairyProductApp.Models.OrderStatus.Pending => "bi-clock",
+                            DairyProductApp.Models.OrderStatus.Confirmed => "bi-check-circle",
+                            DairyProductApp.Models.OrderStatus.OutForDelivery => "bi-truck",
+                            DairyProductApp.Models.OrderStatus.Delivered => "bi-check2-all",
+                            DairyProductApp.Models.OrderStatus.Cancelled => "bi-x-circle",
+                            _ => "bi-circle"
+                        };
+                        var stepsDone = o.Status switch
+                        {
+                            DairyProductApp.Models.OrderStatus.Pending => 1,
+                            DairyProductApp.Models.OrderStatus.Confirmed => 2,
+                            DairyProductApp.Models.OrderStatus.OutForDelivery => 3,
+                            DairyProductApp.Models.OrderStatus.Delivered => 4,
+                            _ => 0
+                        };
+                        <div class="p-3 border-bottom">
+                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                <div>
+                                    <span class="fw-bold">@o.OrderNumber</span>
+                                    <small class="text-muted d-block">@o.OrderDate.ToString("dd MMM yyyy")</small>
+                                </div>
+                                <span class="badge" style="background-color:@statusColor;color:white;">
+                                    <i class="bi @statusIcon me-1"></i>@o.Status
+                                </span>
+                            </div>
+                            <div class="d-flex justify-content-between small mb-2">
+                                <span>@o.ProductName - @o.Quantity @o.Unit</span>
+                                <span class="fw-bold">&#8377;@o.TotalAmount.ToString("N0")</span>
+                            </div>
+                            <!-- Order Progress Tracker -->
+                            @if (o.Status != DairyProductApp.Models.OrderStatus.Cancelled)
+                            {
+                                <div class="d-flex align-items-center gap-1 mt-2" style="font-size:0.7rem;">
+                                    <div class="text-center" style="flex:1;">
+                                        <div class="rounded-circle mx-auto d-flex align-items-center justify-content-center"
+                                             style="width:28px;height:28px;background:@(stepsDone >= 1 ? "#22c55e" : "#e5e7eb");color:@(stepsDone >= 1 ? "white" : "#9ca3af");">
+                                            <i class="bi bi-clock"></i>
+                                        </div>
+                                        <div class="mt-1 @(stepsDone >= 1 ? "fw-bold" : "text-muted")">Pending</div>
+                                    </div>
+                                    <div style="flex:1;height:3px;background:@(stepsDone >= 2 ? "#22c55e" : "#e5e7eb");margin-top:-14px;"></div>
+                                    <div class="text-center" style="flex:1;">
+                                        <div class="rounded-circle mx-auto d-flex align-items-center justify-content-center"
+                                             style="width:28px;height:28px;background:@(stepsDone >= 2 ? "#22c55e" : "#e5e7eb");color:@(stepsDone >= 2 ? "white" : "#9ca3af");">
+                                            <i class="bi bi-check-circle"></i>
+                                        </div>
+                                        <div class="mt-1 @(stepsDone >= 2 ? "fw-bold" : "text-muted")">Confirmed</div>
+                                    </div>
+                                    <div style="flex:1;height:3px;background:@(stepsDone >= 3 ? "#22c55e" : "#e5e7eb");margin-top:-14px;"></div>
+                                    <div class="text-center" style="flex:1;">
+                                        <div class="rounded-circle mx-auto d-flex align-items-center justify-content-center"
+                                             style="width:28px;height:28px;background:@(stepsDone >= 3 ? "#22c55e" : "#e5e7eb");color:@(stepsDone >= 3 ? "white" : "#9ca3af");">
+                                            <i class="bi bi-truck"></i>
+                                        </div>
+                                        <div class="mt-1 @(stepsDone >= 3 ? "fw-bold" : "text-muted")">Delivery</div>
+                                    </div>
+                                    <div style="flex:1;height:3px;background:@(stepsDone >= 4 ? "#22c55e" : "#e5e7eb");margin-top:-14px;"></div>
+                                    <div class="text-center" style="flex:1;">
+                                        <div class="rounded-circle mx-auto d-flex align-items-center justify-content-center"
+                                             style="width:28px;height:28px;background:@(stepsDone >= 4 ? "#22c55e" : "#e5e7eb");color:@(stepsDone >= 4 ? "white" : "#9ca3af");">
+                                            <i class="bi bi-check2-all"></i>
+                                        </div>
+                                        <div class="mt-1 @(stepsDone >= 4 ? "fw-bold" : "text-muted")">Delivered</div>
+                                    </div>
+                                </div>
+                            }
+                            @if (!string.IsNullOrEmpty(o.DeliveryAddress))
+                            {
+                                <small class="text-muted d-block mt-2"><i class="bi bi-geo-alt me-1"></i>@o.DeliveryAddress</small>
+                            }
+                        </div>
+                    }
+                }
+                else
+                {
+                    <div class="text-center text-muted py-4">
+                        <i class="bi bi-bag fs-3 d-block mb-2"></i>Abhi koi order nahi hai
+                    </div>
+                }
+            </div>
+        </div>
+
+        <!-- My Subscriptions -->
+        @{
+            var subs = ViewBag.Subscriptions as List<DairyProductApp.Models.Subscription> ?? new List<DairyProductApp.Models.Subscription>();
+        }
+        @if (subs.Any())
+        {
+            <div class="card border-0 shadow-sm mt-4">
+                <div class="card-header bg-white border-0">
+                    <h6 class="fw-bold mb-0"><i class="bi bi-calendar-check me-2 text-info"></i>Meri Subscriptions</h6>
+                </div>
+                <div class="card-body p-0">
+                    @foreach (var s in subs)
+                    {
+                        var subColor = s.Status == DairyProductApp.Models.SubscriptionStatus.Active ? "success" :
+                                       s.Status == DairyProductApp.Models.SubscriptionStatus.Paused ? "warning" : "secondary";
+                        <div class="p-3 border-bottom d-flex justify-content-between align-items-center">
+                            <div>
+                                <span class="fw-bold">@s.Product</span>
+                                <small class="text-muted d-block">@s.DailyQuantity @s.Unit / @s.Frequency | @s.DeliverySlot</small>
+                                <small class="text-muted">Rate: &#8377;@s.RatePerUnit/@s.Unit | Since: @s.StartDate.ToString("dd MMM yy")</small>
+                            </div>
+                            <span class="badge bg-@subColor">@s.Status</span>
+                        </div>
+                    }
+                </div>
+            </div>
+        }
+
         <!-- Payment Section -->
         @{
             var upiId = ViewBag.UpiId as string;
