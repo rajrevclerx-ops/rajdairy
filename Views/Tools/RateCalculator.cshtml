@@ -1,0 +1,123 @@
+@{
+    ViewData["Title"] = "Rate Calculator";
+    var rates = ViewBag.Rates as List<DairyProductApp.Models.MilkRate> ?? new();
+}
+
+<div class="row justify-content-center">
+    <div class="col-lg-6">
+        <div class="text-center mb-4">
+            <h3 class="fw-bold"><i class="bi bi-calculator me-2 text-primary"></i>Rate Calculator</h3>
+            <p class="text-muted small">Fat aur SNF daalo - rate turant milega</p>
+        </div>
+
+        <div class="card border-0 shadow-sm" style="border-radius:16px;">
+            <div class="card-body p-4">
+                <!-- Milk Type -->
+                <div class="mb-3">
+                    <label class="form-label fw-bold small">Milk Type</label>
+                    <div class="d-flex gap-2">
+                        <input type="radio" name="calcType" value="Cow" id="calcCow" class="btn-check" checked>
+                        <label for="calcCow" class="btn btn-outline-info flex-fill" style="border-radius:10px;">Cow</label>
+                        <input type="radio" name="calcType" value="Buffalo" id="calcBuffalo" class="btn-check">
+                        <label for="calcBuffalo" class="btn btn-outline-primary flex-fill" style="border-radius:10px;">Buffalo</label>
+                        <input type="radio" name="calcType" value="Mixed" id="calcMixed" class="btn-check">
+                        <label for="calcMixed" class="btn btn-outline-secondary flex-fill" style="border-radius:10px;">Mixed</label>
+                    </div>
+                </div>
+
+                <!-- Fat & SNF -->
+                <div class="row g-2 mb-3">
+                    <div class="col-6">
+                        <label class="form-label fw-bold small text-center d-block">Fat %</label>
+                        <input type="number" step="0.1" id="calcFat" class="form-control form-control-lg text-center fw-bold"
+                               style="border-radius:12px;border:2px solid #ef4444;font-size:1.5rem;" placeholder="0.0">
+                    </div>
+                    <div class="col-6">
+                        <label class="form-label fw-bold small text-center d-block">SNF %</label>
+                        <input type="number" step="0.1" id="calcSnf" class="form-control form-control-lg text-center fw-bold"
+                               style="border-radius:12px;border:2px solid #22c55e;font-size:1.5rem;" placeholder="0.0">
+                    </div>
+                </div>
+
+                <!-- Quantity (optional) -->
+                <div class="mb-3">
+                    <label class="form-label fw-bold small">Quantity (optional - total calculate ke liye)</label>
+                    <div class="input-group">
+                        <input type="number" step="0.1" id="calcQty" class="form-control" style="border-radius:10px 0 0 10px;" placeholder="Liter">
+                        <span class="input-group-text" style="border-radius:0 10px 10px 0;">L</span>
+                    </div>
+                </div>
+
+                <!-- Result -->
+                <div class="card border-0 p-4 text-center" id="calcResult" style="background:linear-gradient(135deg,#0f172a,#1e293b);border-radius:14px;color:white;">
+                    <div class="row">
+                        <div class="col-6">
+                            <small style="opacity:0.5;">Rate Per Liter</small>
+                            <h3 class="fw-bold mb-0" id="calcRate">&#8377;0.00</h3>
+                        </div>
+                        <div class="col-6">
+                            <small style="opacity:0.5;">Total Amount</small>
+                            <h3 class="fw-bold mb-0" id="calcTotal">&#8377;0.00</h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Rate Chart Reference -->
+        <div class="card border-0 shadow-sm mt-3" style="border-radius:16px;">
+            <div class="card-header bg-white border-0" style="border-radius:16px 16px 0 0;">
+                <h6 class="fw-bold mb-0"><i class="bi bi-table me-2 text-info"></i>Current Rate Chart</h6>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-sm mb-0" style="font-size:0.82rem;">
+                        <thead class="table-light">
+                            <tr><th>Type</th><th>Fat Range</th><th>SNF Range</th><th>Rate/L</th></tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var r in rates)
+                            {
+                                <tr>
+                                    <td><span class="badge bg-info" style="font-size:0.7rem;">@r.MilkType</span></td>
+                                    <td>@r.MinFat.ToString("F1") - @r.MaxFat.ToString("F1")%</td>
+                                    <td>@r.MinSNF.ToString("F1") - @r.MaxSNF.ToString("F1")%</td>
+                                    <td class="fw-bold text-success">&#8377;@r.RatePerLiter.ToString("F2")</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+    function calcRate() {
+        var type = $('input[name="calcType"]:checked').val();
+        var fat = parseFloat($('#calcFat').val()) || 0;
+        var snf = parseFloat($('#calcSnf').val()) || 0;
+        var qty = parseFloat($('#calcQty').val()) || 0;
+
+        if (fat > 0 && snf > 0) {
+            $.get('@Url.Action("GetRate", "MilkCollection")', { milkType: type, fat: fat, snf: snf }, function(data) {
+                var rate = data.ratePerLiter || 0;
+                $('#calcRate').html('&#8377;' + rate.toFixed(2));
+                var total = qty > 0 ? (qty * rate) : 0;
+                $('#calcTotal').html('&#8377;' + total.toFixed(2));
+
+                if (rate > 0) {
+                    $('#calcResult').css('background', 'linear-gradient(135deg,#065f46,#047857)');
+                } else {
+                    $('#calcResult').css('background', 'linear-gradient(135deg,#7f1d1d,#991b1b)');
+                }
+            });
+        }
+    }
+
+    $('#calcFat, #calcSnf, #calcQty').on('change keyup', calcRate);
+    $('input[name="calcType"]').on('change', calcRate);
+</script>
+}

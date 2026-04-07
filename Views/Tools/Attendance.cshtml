@@ -1,0 +1,140 @@
+@model List<DairyProductApp.Controllers.FarmerAttendanceViewModel>
+@{ ViewData["Title"] = "Farmer Attendance"; }
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <div>
+        <h3 class="fw-bold mb-0"><i class="bi bi-clipboard-check me-2 text-primary"></i>Farmer Attendance</h3>
+        <p class="text-muted mb-0 small">@(((DateTime)ViewBag.Date).ToString("dd MMMM yyyy, dddd"))</p>
+    </div>
+    <form method="get" class="d-flex gap-2">
+        <input type="date" name="date" class="form-control form-control-sm" value="@ViewBag.DateStr" style="border-radius:8px;">
+        <button class="btn btn-sm btn-primary" style="border-radius:8px;"><i class="bi bi-search"></i></button>
+    </form>
+</div>
+
+<!-- Summary -->
+<div class="row g-3 mb-4">
+    <div class="col-6 col-md-3">
+        <div class="card border-0 shadow-sm text-center" style="border-top:3px solid #3b82f6 !important;">
+            <div class="card-body py-2">
+                <h4 class="fw-bold text-primary mb-0">@ViewBag.TotalFarmers</h4>
+                <small class="text-muted">Total Farmers</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="card border-0 shadow-sm text-center" style="border-top:3px solid #22c55e !important;">
+            <div class="card-body py-2">
+                <h4 class="fw-bold text-success mb-0">@ViewBag.PresentCount</h4>
+                <small class="text-muted">Present</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="card border-0 shadow-sm text-center" style="border-top:3px solid #ef4444 !important;">
+            <div class="card-body py-2">
+                <h4 class="fw-bold text-danger mb-0">@ViewBag.AbsentCount</h4>
+                <small class="text-muted">Absent</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="card border-0 shadow-sm text-center" style="border-top:3px solid #f59e0b !important;">
+            <div class="card-body py-2">
+                <h4 class="fw-bold text-warning mb-0">@(((decimal)ViewBag.TotalMilk).ToString("F0")) L</h4>
+                <small class="text-muted">Total Milk</small>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Attendance Table -->
+<div class="card border-0 shadow-sm">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0" style="font-size:0.85rem;">
+                <thead class="table-light">
+                    <tr>
+                        <th>Farmer</th>
+                        <th class="text-center">Morning</th>
+                        <th class="text-center">Evening</th>
+                        <th class="text-center">Total</th>
+                        <th class="text-center">Streak</th>
+                        <th class="text-center">Last 7 Days</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var a in Model)
+                    {
+                        var isPresent = a.MorningPresent || a.EveningPresent;
+                        <tr class="@(!isPresent ? "table-danger bg-opacity-10" : "")">
+                            <td>
+                                <span class="fw-bold">@a.FarmerName</span>
+                                <small class="text-muted d-block">@a.Mobile</small>
+                            </td>
+                            <td class="text-center">
+                                @if (a.MorningPresent)
+                                {
+                                    <span class="badge bg-success" style="border-radius:8px;">@a.MorningQty.ToString("F1") L</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-danger bg-opacity-25 text-danger" style="border-radius:8px;">Absent</span>
+                                }
+                            </td>
+                            <td class="text-center">
+                                @if (a.EveningPresent)
+                                {
+                                    <span class="badge bg-success" style="border-radius:8px;">@a.EveningQty.ToString("F1") L</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-danger bg-opacity-25 text-danger" style="border-radius:8px;">Absent</span>
+                                }
+                            </td>
+                            <td class="text-center fw-bold">
+                                @if (a.TotalQty > 0)
+                                {
+                                    <span>@a.TotalQty.ToString("F1") L</span>
+                                }
+                                else
+                                {
+                                    <span class="text-danger">0</span>
+                                }
+                            </td>
+                            <td class="text-center">
+                                @if (a.Streak > 0)
+                                {
+                                    <span class="badge bg-warning text-dark" style="border-radius:8px;">
+                                        <i class="bi bi-fire me-1"></i>@a.Streak days
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="text-muted">-</span>
+                                }
+                            </td>
+                            <td class="text-center">
+                                <div class="d-flex gap-1 justify-content-center">
+                                    @foreach (var day in a.Last7Days)
+                                    {
+                                        <div style="width:12px;height:12px;border-radius:3px;background:@(day ? "#22c55e" : "#fee2e2");" title="@(day ? "Present" : "Absent")"></div>
+                                    }
+                                </div>
+                            </td>
+                            <td>
+                                @if (!isPresent)
+                                {
+                                    <a asp-controller="MilkCollection" asp-action="QuickEntry" class="btn btn-sm btn-outline-primary" style="border-radius:8px;">
+                                        <i class="bi bi-plus"></i>Add
+                                    </a>
+                                }
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
