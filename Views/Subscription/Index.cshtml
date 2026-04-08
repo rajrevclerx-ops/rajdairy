@@ -137,6 +137,7 @@
                             @if (sub.Status == DairyProductApp.Models.SubscriptionStatus.Active)
                             {
                                 <form asp-action="ToggleStatus" method="post" class="flex-grow-1">
+                                    @Html.AntiForgeryToken()
                                     <input type="hidden" name="id" value="@sub.Id" />
                                     <input type="hidden" name="newStatus" value="Paused" />
                                     <button type="submit" class="btn btn-sm btn-outline-warning w-100">
@@ -147,6 +148,7 @@
                             else if (sub.Status == DairyProductApp.Models.SubscriptionStatus.Paused)
                             {
                                 <form asp-action="ToggleStatus" method="post" class="flex-grow-1">
+                                    @Html.AntiForgeryToken()
                                     <input type="hidden" name="id" value="@sub.Id" />
                                     <input type="hidden" name="newStatus" value="Active" />
                                     <button type="submit" class="btn btn-sm btn-outline-success w-100">

@@ -13,6 +13,7 @@
         <div class="card border-0 shadow-sm">
             <div class="card-body p-4">
                 <form asp-action="Edit" method="post">
+                    @Html.AntiForgeryToken()
                     <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
                     <input type="hidden" asp-for="Id" />
                     <div class="row g-3">

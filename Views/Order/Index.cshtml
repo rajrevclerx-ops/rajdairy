@@ -136,6 +136,7 @@
                                         @if (order.Status == DairyProductApp.Models.OrderStatus.Pending)
                                         {
                                             <form asp-action="UpdateStatus" method="post">
+                                                @Html.AntiForgeryToken()
                                                 <input type="hidden" name="id" value="@order.Id" />
                                                 <input type="hidden" name="newStatus" value="Confirmed" />
                                                 <button class="btn btn-sm btn-outline-primary" title="Confirm"><i class="bi bi-check2"></i></button>
@@ -144,6 +145,7 @@
                                         @if (order.Status == DairyProductApp.Models.OrderStatus.Confirmed)
                                         {
                                             <form asp-action="UpdateStatus" method="post">
+                                                @Html.AntiForgeryToken()
                                                 <input type="hidden" name="id" value="@order.Id" />
                                                 <input type="hidden" name="newStatus" value="OutForDelivery" />
                                                 <button class="btn btn-sm btn-outline-info" title="Dispatch"><i class="bi bi-truck"></i></button>
@@ -152,6 +154,7 @@
                                         @if (order.Status == DairyProductApp.Models.OrderStatus.OutForDelivery)
                                         {
                                             <form asp-action="UpdateStatus" method="post">
+                                                @Html.AntiForgeryToken()
                                                 <input type="hidden" name="id" value="@order.Id" />
                                                 <input type="hidden" name="newStatus" value="Delivered" />
                                                 <button class="btn btn-sm btn-outline-success" title="Mark Delivered"><i class="bi bi-check-circle"></i></button>

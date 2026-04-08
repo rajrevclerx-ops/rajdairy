@@ -1,0 +1,98 @@
+@model DairyProductApp.Models.Order
+@{ ViewData["Title"] = "Order Details"; }
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h3 class="fw-bold text-primary mb-0"><i class="bi bi-bag-check me-2"></i>Order Details</h3>
+    <a asp-action="Index" class="btn btn-outline-secondary"><i class="bi bi-arrow-left me-1"></i>Back</a>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body p-4">
+                <div class="d-flex justify-content-between align-items-start mb-3">
+                    <div>
+                        <h4 class="fw-bold mb-1">@Model.OrderNumber</h4>
+                        <small class="text-muted">@Model.OrderDate.ToString("dd MMM yyyy")</small>
+                    </div>
+                    @{
+                        var statusColor = Model.Status switch
+                        {
+                            DairyProductApp.Models.OrderStatus.Pending => "warning",
+                            DairyProductApp.Models.OrderStatus.Confirmed => "primary",
+                            DairyProductApp.Models.OrderStatus.OutForDelivery => "info",
+                            DairyProductApp.Models.OrderStatus.Delivered => "success",
+                            DairyProductApp.Models.OrderStatus.Cancelled => "danger",
+                            _ => "secondary"
+                        };
+                    }
+                    <span class="badge bg-@statusColor fs-6 px-3 py-2">@Model.Status</span>
+                </div>
+
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <div class="card bg-light border-0">
+                            <div class="card-body">
+                                <h6 class="fw-bold mb-2"><i class="bi bi-person me-1"></i>Customer</h6>
+                                <p class="mb-1 fw-semibold">@Model.PartnerName</p>
+                                <p class="mb-0 text-muted">@Model.PartnerMobile</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card bg-light border-0">
+                            <div class="card-body">
+                                <h6 class="fw-bold mb-2"><i class="bi bi-box-seam me-1"></i>Product</h6>
+                                <p class="mb-1 fw-semibold">@Model.ProductName</p>
+                                <p class="mb-0 text-muted">@Model.Quantity @Model.Unit &#64; &#8377;@Model.Rate</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card bg-success bg-opacity-10 border-0 text-center">
+                            <div class="card-body">
+                                <small class="text-muted">Total Amount</small>
+                                <h3 class="fw-bold text-success mb-0">&#8377;@Model.TotalAmount.ToString("N0")</h3>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card bg-primary bg-opacity-10 border-0 text-center">
+                            <div class="card-body">
+                                <small class="text-muted">Delivery Date</small>
+                                <h5 class="fw-bold text-primary mb-0">@Model.DeliveryDate.ToString("dd MMM yyyy")</h5>
+                                <small>@Model.DeliverySlot</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card bg-warning bg-opacity-10 border-0 text-center">
+                            <div class="card-body">
+                                <small class="text-muted">Payment</small>
+                                <h5 class="fw-bold text-warning mb-0">@Model.PaymentStatus</h5>
+                            </div>
+                        </div>
+                    </div>
+                    @if (!string.IsNullOrEmpty(Model.DeliveryAddress))
+                    {
+                        <div class="col-12">
+                            <p class="mb-0"><i class="bi bi-geo-alt me-1"></i><strong>Address:</strong> @Model.DeliveryAddress</p>
+                        </div>
+                    }
+                    @if (!string.IsNullOrEmpty(Model.Notes))
+                    {
+                        <div class="col-12">
+                            <p class="mb-0"><i class="bi bi-chat-text me-1"></i><strong>Notes:</strong> @Model.Notes</p>
+                        </div>
+                    }
+                </div>
+
+                <div class="mt-4 d-flex gap-2">
+                    <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary"><i class="bi bi-pencil me-1"></i>Edit</a>
+                    <a asp-action="Invoice" asp-route-id="@Model.Id" class="btn btn-outline-info"><i class="bi bi-receipt me-1"></i>Invoice</a>
+                    <a asp-action="Delete" asp-route-id="@Model.Id" class="btn btn-outline-danger"><i class="bi bi-trash me-1"></i>Delete</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
