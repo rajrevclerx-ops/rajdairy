@@ -88,6 +88,89 @@ namespace DairyProductApp.Controllers
 
             return View(attendance.OrderByDescending(a => a.TotalQty > 0).ThenByDescending(a => a.Streak).ToList());
         }
+
+        // Farmer Leaderboard
+        public async Task<IActionResult> Leaderboard(int? month)
+        {
+            month ??= DateTime.Today.Month;
+            var year = DateTime.Today.Year;
+
+            var collections = (await _sheets.GetAllMilkCollections())
+                .Where(m => m.CollectionDate.Month == month && m.CollectionDate.Year == year)
+                .ToList();
+
+            var leaderboard = collections
+                .GroupBy(m => m.FarmerName)
+                .Select(g => new FarmerRankViewModel
+                {
+                    FarmerName = g.Key,
+                    TotalMilk = g.Sum(m => m.Quantity),
+                    TotalAmount = g.Sum(m => m.TotalAmount),
+                    AvgFat = g.Average(m => m.FatPercentage),
+                    AvgSNF = g.Average(m => m.SNFPercentage),
+                    TotalDays = g.Select(m => m.CollectionDate).Distinct().Count(),
+                    TotalEntries = g.Count()
+                })
+                .OrderByDescending(f => f.TotalMilk)
+                .ToList();
+
+            ViewBag.Month = month;
+            ViewBag.MonthName = new DateTime(year, month.Value, 1).ToString("MMMM yyyy");
+
+            return View(leaderboard);
+        }
+
+        // Delivery Route - area-wise order grouping
+        public async Task<IActionResult> DeliveryRoute(DateTime? date)
+        {
+            date ??= DateTime.Today;
+            var allOrders = await _sheets.GetAllOrders();
+            var dayOrders = allOrders
+                .Where(o => o.DeliveryDate == date &&
+                    (o.Status == OrderStatus.Confirmed || o.Status == OrderStatus.OutForDelivery))
+                .OrderBy(o => o.DeliveryAddress)
+                .ToList();
+
+            // Group by area (first word of address)
+            var routes = dayOrders
+                .GroupBy(o => string.IsNullOrEmpty(o.DeliveryAddress) ? "No Address" :
+                    o.DeliveryAddress.Split(',')[0].Trim())
+                .Select(g => new DeliveryRouteViewModel
+                {
+                    Area = g.Key,
+                    Orders = g.ToList(),
+                    TotalOrders = g.Count(),
+                    TotalAmount = g.Sum(o => o.TotalAmount)
+                })
+                .OrderByDescending(r => r.TotalOrders)
+                .ToList();
+
+            ViewBag.Date = date.Value;
+            ViewBag.DateStr = date.Value.ToString("yyyy-MM-dd");
+            ViewBag.TotalOrders = dayOrders.Count;
+            ViewBag.TotalAmount = dayOrders.Sum(o => o.TotalAmount);
+
+            return View(routes);
+        }
+    }
+
+    public class FarmerRankViewModel
+    {
+        public string FarmerName { get; set; } = string.Empty;
+        public decimal TotalMilk { get; set; }
+        public decimal TotalAmount { get; set; }
+        public decimal AvgFat { get; set; }
+        public decimal AvgSNF { get; set; }
+        public int TotalDays { get; set; }
+        public int TotalEntries { get; set; }
+    }
+
+    public class DeliveryRouteViewModel
+    {
+        public string Area { get; set; } = string.Empty;
+        public List<Order> Orders { get; set; } = new();
+        public int TotalOrders { get; set; }
+        public decimal TotalAmount { get; set; }
     }
 
     public class FarmerAttendanceViewModel

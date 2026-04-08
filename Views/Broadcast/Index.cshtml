@@ -1,0 +1,210 @@
+@{
+    ViewData["Title"] = "WhatsApp Broadcast";
+    var partners = ViewBag.Partners as List<DairyProductApp.Models.Partner> ?? new();
+    var broadcastLinksJson = TempData["BroadcastLinks"] as string;
+    var broadcastMsg = TempData["BroadcastMessage"] as string;
+    var broadcastCount = TempData["BroadcastCount"] as string;
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <div>
+        <h3 class="fw-bold mb-0"><i class="bi bi-whatsapp me-2 text-success"></i>WhatsApp Broadcast</h3>
+        <p class="text-muted mb-0 small">Ek saath sabhi partners ko message bhejein</p>
+    </div>
+    <div class="d-flex gap-2">
+        <span class="badge bg-primary fs-6">@ViewBag.TotalPartners Partners</span>
+        <span class="badge bg-success fs-6">@ViewBag.Suppliers Suppliers</span>
+        <span class="badge bg-info fs-6">@ViewBag.Buyers Buyers</span>
+    </div>
+</div>
+
+<!-- Broadcast Result (after send) -->
+@if (broadcastLinksJson != null)
+{
+    var links = System.Text.Json.JsonSerializer.Deserialize<List<System.Text.Json.JsonElement>>(broadcastLinksJson);
+    <div class="card border-0 shadow-sm mb-4" style="border-left:4px solid #25d366 !important;">
+        <div class="card-header bg-white border-0">
+            <h6 class="fw-bold mb-0 text-success"><i class="bi bi-check-circle me-2"></i>@broadcastCount Partners ko message ready!</h6>
+            <small class="text-muted">Har naam pe click karke WhatsApp mein send karein</small>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive" style="max-height:400px;overflow-y:auto;">
+                <table class="table table-hover align-middle mb-0" style="font-size:0.88rem;">
+                    <thead class="table-light sticky-top">
+                        <tr><th>#</th><th>Name</th><th>Mobile</th><th>Action</th></tr>
+                    </thead>
+                    <tbody>
+                        @if (links != null)
+                        {
+                            int sn = 1;
+                            foreach (var link in links)
+                            {
+                                <tr>
+                                    <td>@(sn++)</td>
+                                    <td class="fw-semibold">@link.GetProperty("Name")</td>
+                                    <td>@link.GetProperty("Mobile")</td>
+                                    <td>
+                                        <a href="@link.GetProperty("Url")" target="_blank" class="btn btn-sm btn-success" style="border-radius:8px;">
+                                            <i class="bi bi-whatsapp me-1"></i>Send
+                                        </a>
+                                    </td>
+                                </tr>
+                            }
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+}
+
+<div class="row g-3">
+    <!-- Message Form -->
+    <div class="col-lg-7">
+        <div class="card border-0 shadow-sm" style="border-radius:16px;">
+            <div class="card-body p-4">
+                <form asp-action="Send" method="post">
+                    @Html.AntiForgeryToken()
+
+                    <!-- Quick Templates -->
+                    <div class="mb-3">
+                        <label class="form-label fw-bold"><i class="bi bi-lightning me-1 text-warning"></i>Quick Templates</label>
+                        <div class="d-flex gap-2 flex-wrap" id="templateBtns">
+                            <button type="button" class="btn btn-sm btn-outline-primary template-btn" data-idx="0" style="border-radius:20px;">Rate Change</button>
+                            <button type="button" class="btn btn-sm btn-outline-success template-btn" data-idx="1" style="border-radius:20px;">Payment Done</button>
+                            <button type="button" class="btn btn-sm btn-outline-danger template-btn" data-idx="2" style="border-radius:20px;">Holiday</button>
+                            <button type="button" class="btn btn-sm btn-outline-warning template-btn" data-idx="3" style="border-radius:20px;">Collection Time</button>
+                            <button type="button" class="btn btn-sm btn-outline-info template-btn" data-idx="4" style="border-radius:20px;">Festival</button>
+                            <button type="button" class="btn btn-sm btn-outline-secondary template-btn" data-idx="5" style="border-radius:20px;">New Product</button>
+                        </div>
+                    </div>
+
+                    <!-- Message -->
+                    <div class="mb-3">
+                        <label class="form-label fw-bold"><i class="bi bi-chat-text me-1"></i>Message</label>
+                        <textarea name="message" id="msgBox" class="form-control" rows="8" required
+                                  style="border-radius:12px;border:2px solid #e2e8f0;"
+                                  placeholder="Yahan message likhein...">@broadcastMsg</textarea>
+                        <small class="text-muted"><span id="charCount">0</span> characters</small>
+                    </div>
+
+                    <!-- Send To -->
+                    <div class="mb-3">
+                        <label class="form-label fw-bold"><i class="bi bi-people me-1"></i>Kisko bhejein?</label>
+                        <div class="d-flex gap-2 flex-wrap">
+                            <input type="radio" name="sendTo" value="all" id="sendAll" class="btn-check" checked>
+                            <label for="sendAll" class="btn btn-outline-primary" style="border-radius:10px;">
+                                <i class="bi bi-people-fill me-1"></i>Sabhi (@ViewBag.TotalPartners)
+                            </label>
+                            <input type="radio" name="sendTo" value="suppliers" id="sendSuppliers" class="btn-check">
+                            <label for="sendSuppliers" class="btn btn-outline-success" style="border-radius:10px;">
+                                <i class="bi bi-truck me-1"></i>Suppliers (@ViewBag.Suppliers)
+                            </label>
+                            <input type="radio" name="sendTo" value="buyers" id="sendBuyers" class="btn-check">
+                            <label for="sendBuyers" class="btn btn-outline-info" style="border-radius:10px;">
+                                <i class="bi bi-bag me-1"></i>Buyers (@ViewBag.Buyers)
+                            </label>
+                            <input type="radio" name="sendTo" value="selected" id="sendSelected" class="btn-check">
+                            <label for="sendSelected" class="btn btn-outline-warning" style="border-radius:10px;">
+                                <i class="bi bi-check2-square me-1"></i>Selected
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Partner Selection (hidden by default) -->
+                    <div id="partnerSelection" class="mb-3 d-none">
+                        <div class="card bg-light border-0 p-3" style="border-radius:12px;max-height:250px;overflow-y:auto;">
+                            @foreach (var p in partners)
+                            {
+                                <div class="form-check mb-1">
+                                    <input class="form-check-input" type="checkbox" name="selectedPartners" value="@p.Id" id="p_@p.Id">
+                                    <label class="form-check-label" for="p_@p.Id">
+                                        <span class="fw-semibold">@p.Name</span>
+                                        <small class="text-muted">(@p.Mobile) -
+                                            @if (p.Type == DairyProductApp.Models.PartnerType.Supplier) { <span class="text-success">Supplier</span> }
+                                            else if (p.Type == DairyProductApp.Models.PartnerType.Buyer) { <span class="text-info">Buyer</span> }
+                                            else { <span class="text-warning">Both</span> }
+                                        </small>
+                                    </label>
+                                </div>
+                            }
+                        </div>
+                        <div class="mt-2">
+                            <button type="button" class="btn btn-sm btn-outline-primary" onclick="$('input[name=selectedPartners]').prop('checked',true)">Select All</button>
+                            <button type="button" class="btn btn-sm btn-outline-secondary" onclick="$('input[name=selectedPartners]').prop('checked',false)">Clear All</button>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn btn-success btn-lg w-100" style="border-radius:12px;">
+                        <i class="bi bi-whatsapp me-2"></i>Generate Broadcast Links
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Preview -->
+    <div class="col-lg-5">
+        <div class="card border-0 shadow-sm" style="border-radius:16px;">
+            <div class="card-header bg-white border-0" style="border-radius:16px 16px 0 0;">
+                <h6 class="fw-bold mb-0"><i class="bi bi-eye me-2"></i>Message Preview</h6>
+            </div>
+            <div class="card-body">
+                <!-- WhatsApp style preview -->
+                <div style="background:#e5ddd5;border-radius:12px;padding:16px;min-height:200px;">
+                    <div style="background:white;border-radius:8px;padding:10px 14px;max-width:90%;box-shadow:0 1px 2px rgba(0,0,0,0.1);">
+                        <pre id="preview" style="white-space:pre-wrap;word-wrap:break-word;font-size:0.85rem;margin:0;font-family:inherit;">Message yahan dikhega...</pre>
+                        <div class="text-end"><small style="color:#8696a0;font-size:0.7rem;">Now ✓✓</small></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tips -->
+        <div class="card border-0 shadow-sm mt-3" style="border-radius:16px;">
+            <div class="card-body">
+                <h6 class="fw-bold mb-2"><i class="bi bi-lightbulb text-warning me-2"></i>Tips</h6>
+                <ul class="small text-muted mb-0" style="padding-left:1.2rem;">
+                    <li class="mb-1">*bold* ke liye star lagao: <code>*text*</code></li>
+                    <li class="mb-1">_italic_ ke liye underscore: <code>_text_</code></li>
+                    <li class="mb-1">Line break ke liye Enter press karo</li>
+                    <li>Emoji use karo for better engagement</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+    // Load templates
+    var templates = [];
+    $.get('@Url.Action("GetTemplates")', function(data) { templates = data; });
+
+    // Template click
+    $('.template-btn').click(function() {
+        var idx = $(this).data('idx');
+        if (templates[idx]) {
+            $('#msgBox').val(templates[idx].text);
+            updatePreview();
+        }
+    });
+
+    // Live preview
+    $('#msgBox').on('input', updatePreview);
+    function updatePreview() {
+        var text = $('#msgBox').val() || 'Message yahan dikhega...';
+        $('#preview').text(text);
+        $('#charCount').text($('#msgBox').val().length);
+    }
+
+    // Show/hide partner selection
+    $('input[name="sendTo"]').change(function() {
+        if ($(this).val() === 'selected') {
+            $('#partnerSelection').removeClass('d-none');
+        } else {
+            $('#partnerSelection').addClass('d-none');
+        }
+    });
+</script>
+}

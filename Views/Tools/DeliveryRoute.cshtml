@@ -1,0 +1,75 @@
+@model List<DairyProductApp.Controllers.DeliveryRouteViewModel>
+@{ ViewData["Title"] = "Delivery Route"; }
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <div>
+        <h3 class="fw-bold mb-0"><i class="bi bi-truck me-2 text-primary"></i>Delivery Route</h3>
+        <p class="text-muted mb-0 small">@(((DateTime)ViewBag.Date).ToString("dd MMMM yyyy")) - Area-wise orders</p>
+    </div>
+    <div class="d-flex gap-2 align-items-center">
+        <form method="get" class="d-flex gap-2">
+            <input type="date" name="date" class="form-control form-control-sm" value="@ViewBag.DateStr" style="border-radius:8px;">
+            <button class="btn btn-sm btn-primary" style="border-radius:8px;"><i class="bi bi-search"></i></button>
+        </form>
+        <span class="badge bg-primary fs-6">@ViewBag.TotalOrders Orders</span>
+        <span class="badge bg-success fs-6">&#8377;@(((decimal)ViewBag.TotalAmount).ToString("N0"))</span>
+    </div>
+</div>
+
+@if (Model.Any())
+{
+    @foreach (var route in Model)
+    {
+        <div class="card border-0 shadow-sm mb-3" style="border-radius:14px;border-left:4px solid #3b82f6 !important;">
+            <div class="card-header bg-white border-0 d-flex justify-content-between align-items-center" style="border-radius:14px 14px 0 0;">
+                <div>
+                    <h6 class="fw-bold mb-0"><i class="bi bi-geo-alt-fill text-danger me-1"></i>@route.Area</h6>
+                </div>
+                <div>
+                    <span class="badge bg-primary me-1">@route.TotalOrders orders</span>
+                    <span class="badge bg-success">&#8377;@route.TotalAmount.ToString("N0")</span>
+                </div>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-sm table-hover align-middle mb-0" style="font-size:0.85rem;">
+                        <thead class="table-light">
+                            <tr><th>Order</th><th>Customer</th><th>Product</th><th>Qty</th><th>Amount</th><th>Slot</th><th>Status</th><th>Phone</th></tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var o in route.Orders)
+                            {
+                                <tr>
+                                    <td class="fw-semibold">@o.OrderNumber</td>
+                                    <td>@o.PartnerName</td>
+                                    <td>@o.ProductName</td>
+                                    <td>@o.Quantity @o.Unit</td>
+                                    <td class="fw-bold text-success">&#8377;@o.TotalAmount.ToString("N0")</td>
+                                    <td><span class="badge bg-info">@o.DeliverySlot</span></td>
+                                    <td>
+                                        @{
+                                            var sc = o.Status == DairyProductApp.Models.OrderStatus.Confirmed ? "primary" : "info";
+                                        }
+                                        <span class="badge bg-@sc">@o.Status</span>
+                                    </td>
+                                    <td>
+                                        <a href="tel:@o.PartnerMobile" class="btn btn-sm btn-outline-success" style="border-radius:50%;width:30px;height:30px;padding:0;display:inline-flex;align-items:center;justify-content:center;">
+                                            <i class="bi bi-telephone"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    }
+}
+else
+{
+    <div class="text-center py-5">
+        <i class="bi bi-truck fs-1 text-muted d-block mb-2" style="opacity:0.3;"></i>
+        <p class="text-muted">Aaj ke liye koi delivery order nahi hai</p>
+    </div>
+}
