@@ -42,7 +42,7 @@
         <div class="card border-0 shadow-sm" style="border-left:4px solid #3498db !important;">
             <div class="card-body text-center">
                 <small class="text-muted">Balance</small>
-                <h4 class="fw-bold @(Model.Balance >= 0 ? "text-success" : "text-danger") mb-0">&#8377;@Math.Abs(Model.Balance).ToString("F0") @(Model.Balance >= 0 ? "(Dena)" : "(Lena)")</h4>
+                <h4 class="fw-bold @(Model.Balance >= 0 ? "text-success" : "text-danger") mb-0">&#8377;@(Math.Abs(Model.Balance).ToString("F0")) @(Model.Balance >= 0 ? "(Dena)" : "(Lena)")</h4>
             </div>
         </div>
     </div>

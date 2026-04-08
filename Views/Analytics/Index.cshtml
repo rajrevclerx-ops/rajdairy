@@ -21,7 +21,7 @@
                 <div class="mt-2">
                     <span class="stat-trend @(Model.MilkGrowthPercent >= 0 ? "up" : "down")">
                         <i class="bi @(Model.MilkGrowthPercent >= 0 ? "bi-arrow-up" : "bi-arrow-down")"></i>
-                        @Math.Abs(Model.MilkGrowthPercent).ToString("F1")%
+                        @(Math.Abs(Model.MilkGrowthPercent).ToString("F1"))%
                     </span>
                     <small class="text-muted ms-1">vs last month</small>
                 </div>
@@ -37,7 +37,7 @@
                 <div class="mt-2">
                     <span class="stat-trend @(Model.RevenueGrowthPercent >= 0 ? "up" : "down")">
                         <i class="bi @(Model.RevenueGrowthPercent >= 0 ? "bi-arrow-up" : "bi-arrow-down")"></i>
-                        @Math.Abs(Model.RevenueGrowthPercent).ToString("F1")%
+                        @(Math.Abs(Model.RevenueGrowthPercent).ToString("F1"))%
                     </span>
                     <small class="text-muted ms-1">vs last month</small>
                 </div>

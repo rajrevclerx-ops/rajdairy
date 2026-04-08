@@ -47,7 +47,7 @@
         <div class="card border-0 shadow-sm text-center" style="border-top:3px solid @(Model.NetDayProfit >= 0 ? "#27ae60" : "#e74c3c") !important;">
             <div class="card-body py-3">
                 <i class="bi @(Model.NetDayProfit >= 0 ? "bi-trophy text-success" : "bi-exclamation-triangle text-danger") fs-4"></i>
-                <h4 class="fw-bold mb-0 mt-1 @(Model.NetDayProfit >= 0 ? "text-success" : "text-danger")">&#8377;@Math.Abs(Model.NetDayProfit).ToString("N0")</h4>
+                <h4 class="fw-bold mb-0 mt-1 @(Model.NetDayProfit >= 0 ? "text-success" : "text-danger")">&#8377;@(Math.Abs(Model.NetDayProfit).ToString("N0"))</h4>
                 <small class="text-muted">Net @(Model.NetDayProfit >= 0 ? "Profit" : "Loss")</small>
             </div>
         </div>

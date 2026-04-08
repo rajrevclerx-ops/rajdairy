@@ -18,7 +18,7 @@
             <div class="card border-0 bg-success bg-opacity-10">
                 <div class="card-body py-2 text-center">
                     <small class="text-muted">Total Given</small>
-                    <h5 class="fw-bold text-success mb-0">&#8377;@Model.Where(t => t.Type == DairyProductApp.Models.TransactionType.Given).Sum(t => t.TotalAmount).ToString("F0")</h5>
+                    <h5 class="fw-bold text-success mb-0">&#8377;@(Model.Where(t => t.Type == DairyProductApp.Models.TransactionType.Given).Sum(t => t.TotalAmount).ToString("F0"))</h5>
                 </div>
             </div>
         </div>
@@ -26,7 +26,7 @@
             <div class="card border-0 bg-danger bg-opacity-10">
                 <div class="card-body py-2 text-center">
                     <small class="text-muted">Total Received</small>
-                    <h5 class="fw-bold text-danger mb-0">&#8377;@Model.Where(t => t.Type == DairyProductApp.Models.TransactionType.Received).Sum(t => t.TotalAmount).ToString("F0")</h5>
+                    <h5 class="fw-bold text-danger mb-0">&#8377;@(Model.Where(t => t.Type == DairyProductApp.Models.TransactionType.Received).Sum(t => t.TotalAmount).ToString("F0"))</h5>
                 </div>
             </div>
         </div>
@@ -34,7 +34,7 @@
             <div class="card border-0 bg-warning bg-opacity-10">
                 <div class="card-body py-2 text-center">
                     <small class="text-muted">Pending</small>
-                    <h5 class="fw-bold text-warning mb-0">&#8377;@Model.Where(t => t.PaymentStatus == DairyProductApp.Models.PaymentStatus.Pending).Sum(t => t.TotalAmount).ToString("F0")</h5>
+                    <h5 class="fw-bold text-warning mb-0">&#8377;@(Model.Where(t => t.PaymentStatus == DairyProductApp.Models.PaymentStatus.Pending).Sum(t => t.TotalAmount).ToString("F0"))</h5>
                 </div>
             </div>
         </div>

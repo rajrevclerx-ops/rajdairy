@@ -84,7 +84,7 @@
         <div class="card border-0 shadow-sm text-center" style="border-top:3px solid @(balDue > 0 ? "#ef4444" : "#22c55e") !important;">
             <div class="card-body py-3">
                 <i class="bi bi-wallet2 @(balDue > 0 ? "text-danger" : "text-success") fs-4"></i>
-                <h4 class="fw-bold mb-0 mt-1 @(balDue > 0 ? "text-danger" : "text-success")">&#8377;@Math.Abs(balDue).ToString("N0")</h4>
+                <h4 class="fw-bold mb-0 mt-1 @(balDue > 0 ? "text-danger" : "text-success")">&#8377;@(Math.Abs(balDue).ToString("N0"))</h4>
                 <small class="text-muted">@(balDue > 0 ? "Dena Baaki" : "Settled")</small>
             </div>
         </div>
@@ -129,7 +129,7 @@
                 <hr class="my-2">
                 <div class="d-flex justify-content-between">
                     <span class="fw-bold">Balance Due</span>
-                    <span class="fw-bold fs-5 @(balDue > 0 ? "text-danger" : "text-success")">&#8377;@Math.Abs(balDue).ToString("N0")</span>
+                    <span class="fw-bold fs-5 @(balDue > 0 ? "text-danger" : "text-success")">&#8377;@(Math.Abs(balDue).ToString("N0"))</span>
                 </div>
             </div>
         </div>
@@ -179,11 +179,11 @@
                                 }
                                 <tr class="table-dark fw-bold">
                                     <td colspan="3">TOTAL</td>
-                                    <td>@collections.Sum(c => c.Quantity).ToString("F1") L</td>
+                                    <td>@(collections.Sum(c => c.Quantity).ToString("F1")) L</td>
                                     <td>@(collections.Average(c => c.FatPercentage).ToString("F1"))</td>
                                     <td>@(collections.Average(c => c.SNFPercentage).ToString("F1"))</td>
                                     <td>-</td>
-                                    <td>&#8377;@collections.Sum(c => c.TotalAmount).ToString("N0")</td>
+                                    <td>&#8377;@(collections.Sum(c => c.TotalAmount).ToString("N0"))</td>
                                 </tr>
                             }
                             else

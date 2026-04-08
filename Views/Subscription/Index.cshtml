@@ -54,7 +54,7 @@
                 <div class="stat-icon bg-info bg-opacity-10 text-info"><i class="bi bi-currency-rupee"></i></div>
                 <div>
                     <p class="text-muted small mb-0">Monthly Est.</p>
-                    <h4 class="fw-bold mb-0">@Model.Where(s => s.Status == DairyProductApp.Models.SubscriptionStatus.Active).Sum(s => s.MonthlyEstimate).ToString("N0")</h4>
+                    <h4 class="fw-bold mb-0">@(Model.Where(s => s.Status == DairyProductApp.Models.SubscriptionStatus.Active).Sum(s => s.MonthlyEstimate).ToString("N0"))</h4>
                 </div>
             </div>
         </div>

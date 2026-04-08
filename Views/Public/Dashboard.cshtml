@@ -95,7 +95,7 @@
                     <div class="card-body text-center py-3">
                         <small class="text-muted">Balance</small>
                         <h4 class="fw-bold @(Model.Balance >= 0 ? "text-success" : "text-danger") mb-0">
-                            &#8377;@Math.Abs(Model.Balance).ToString("F0")
+                            &#8377;@(Math.Abs(Model.Balance).ToString("F0"))
                             <small class="fs-6">@(Model.Balance >= 0 ? "(Dena)" : "(Lena)")</small>
                         </h4>
                     </div>
@@ -386,15 +386,35 @@
                         @if (!string.IsNullOrEmpty(upiId))
                         {
                             <div class="col-md-6">
-                                <p class="small text-muted mb-2">Ya UPI se payment karein:</p>
+                                <p class="small text-muted mb-2">UPI se payment karein:</p>
                                 <div class="card bg-success bg-opacity-10 border-0 p-3">
-                                    <div class="fw-bold text-success fs-5">@upiName</div>
-                                    <div class="mt-2">
-                                        <code class="bg-white px-3 py-2 rounded fs-5">@upiId</code>
+                                    <div class="fw-bold text-success fs-5 mb-2">@upiName</div>
+                                    <code class="bg-white px-3 py-2 rounded fs-5 d-block mb-3">@upiId</code>
+
+                                    <!-- UPI Pay Buttons - Opens PhonePe/GPay/Paytm -->
+                                    <div class="d-grid gap-2">
+                                        <a href="upi://pay?pa=@upiId&pn=@(System.Net.WebUtility.UrlEncode(upiName ?? "Raj Dairy"))&cu=INR"
+                                           class="btn btn-success" style="border-radius:10px;">
+                                            <i class="bi bi-phone me-1"></i>Pay via UPI App (GPay / PhonePe / Paytm)
+                                        </a>
+                                        <div class="d-flex gap-2">
+                                            <a href="phonepe://pay?pa=@upiId&pn=@(System.Net.WebUtility.UrlEncode(upiName ?? "Raj Dairy"))&cu=INR"
+                                               class="btn btn-outline-success flex-fill" style="border-radius:10px;font-size:0.85rem;">
+                                                PhonePe
+                                            </a>
+                                            <a href="tez://upi/pay?pa=@upiId&pn=@(System.Net.WebUtility.UrlEncode(upiName ?? "Raj Dairy"))&cu=INR"
+                                               class="btn btn-outline-primary flex-fill" style="border-radius:10px;font-size:0.85rem;">
+                                                Google Pay
+                                            </a>
+                                            <a href="paytmmp://pay?pa=@upiId&pn=@(System.Net.WebUtility.UrlEncode(upiName ?? "Raj Dairy"))&cu=INR"
+                                               class="btn btn-outline-info flex-fill" style="border-radius:10px;font-size:0.85rem;">
+                                                Paytm
+                                            </a>
+                                        </div>
+                                        <button class="btn btn-outline-secondary btn-sm" style="border-radius:8px;" onclick="navigator.clipboard.writeText('@upiId');this.innerHTML='<i class=\'bi bi-check\'></i> UPI ID Copied!';">
+                                            <i class="bi bi-clipboard me-1"></i>Copy UPI ID
+                                        </button>
                                     </div>
-                                    <button class="btn btn-success btn-sm mt-2" onclick="navigator.clipboard.writeText('@upiId');this.innerHTML='<i class=\'bi bi-check\'></i> Copied!';">
-                                        <i class="bi bi-clipboard me-1"></i>Copy UPI ID
-                                    </button>
                                 </div>
                             </div>
                         }

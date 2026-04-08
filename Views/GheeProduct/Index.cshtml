@@ -51,7 +51,7 @@
             <div class="card border-0 bg-warning bg-opacity-10">
                 <div class="card-body py-2 text-center">
                     <small class="text-muted">Total Stock</small>
-                    <h5 class="fw-bold text-warning mb-0">@Model.Sum(g => g.StockKg).ToString("F1") Kg</h5>
+                    <h5 class="fw-bold text-warning mb-0">@(Model.Sum(g => g.StockKg).ToString("F1")) Kg</h5>
                 </div>
             </div>
         </div>
@@ -59,7 +59,7 @@
             <div class="card border-0 bg-success bg-opacity-10">
                 <div class="card-body py-2 text-center">
                     <small class="text-muted">Total Value</small>
-                    <h5 class="fw-bold text-success mb-0">&#8377;@Model.Sum(g => g.TotalValue).ToString("F0")</h5>
+                    <h5 class="fw-bold text-success mb-0">&#8377;@(Model.Sum(g => g.TotalValue).ToString("F0"))</h5>
                 </div>
             </div>
         </div>
@@ -67,7 +67,7 @@
             <div class="card border-0 bg-primary bg-opacity-10">
                 <div class="card-body py-2 text-center">
                     <small class="text-muted">Milk Used</small>
-                    <h5 class="fw-bold text-primary mb-0">@Model.Sum(g => g.MilkUsedLiters).ToString("F0") L</h5>
+                    <h5 class="fw-bold text-primary mb-0">@(Model.Sum(g => g.MilkUsedLiters).ToString("F0")) L</h5>
                 </div>
             </div>
         </div>

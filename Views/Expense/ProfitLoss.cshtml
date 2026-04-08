@@ -49,7 +49,7 @@
             <div class="card-body text-center">
                 <i class="bi @(Model.NetProfit >= 0 ? "bi-trophy" : "bi-exclamation-triangle") @(Model.NetProfit >= 0 ? "text-success" : "text-danger") fs-3"></i>
                 <h6 class="text-muted mt-2">Net @(Model.NetProfit >= 0 ? "Profit" : "Loss")</h6>
-                <h3 class="fw-bold @(Model.NetProfit >= 0 ? "text-success" : "text-danger")">&#8377;@Math.Abs(Model.NetProfit).ToString("N0")</h3>
+                <h3 class="fw-bold @(Model.NetProfit >= 0 ? "text-success" : "text-danger")">&#8377;@(Math.Abs(Model.NetProfit).ToString("N0"))</h3>
                 <small class="text-muted">Margin: @Model.ProfitMargin.ToString("F1")%</small>
             </div>
         </div>

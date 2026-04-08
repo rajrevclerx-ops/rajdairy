@@ -52,7 +52,7 @@
             <div class="card border-0 bg-primary bg-opacity-10">
                 <div class="card-body py-2 text-center">
                     <small class="text-muted">Total Quantity</small>
-                    <h5 class="fw-bold text-primary mb-0">@Model.Sum(m => m.Quantity).ToString("F1") L</h5>
+                    <h5 class="fw-bold text-primary mb-0">@(Model.Sum(m => m.Quantity).ToString("F1")) L</h5>
                 </div>
             </div>
         </div>
@@ -60,7 +60,7 @@
             <div class="card border-0 bg-success bg-opacity-10">
                 <div class="card-body py-2 text-center">
                     <small class="text-muted">Total Amount</small>
-                    <h5 class="fw-bold text-success mb-0">&#8377;@Model.Sum(m => m.TotalAmount).ToString("F0")</h5>
+                    <h5 class="fw-bold text-success mb-0">&#8377;@(Model.Sum(m => m.TotalAmount).ToString("F0"))</h5>
                 </div>
             </div>
         </div>
@@ -68,7 +68,7 @@
             <div class="card border-0 bg-warning bg-opacity-10">
                 <div class="card-body py-2 text-center">
                     <small class="text-muted">Avg Fat</small>
-                    <h5 class="fw-bold text-warning mb-0">@Model.Average(m => m.FatPercentage).ToString("F2")%</h5>
+                    <h5 class="fw-bold text-warning mb-0">@(Model.Average(m => m.FatPercentage).ToString("F2"))%</h5>
                 </div>
             </div>
         </div>
@@ -76,7 +76,7 @@
             <div class="card border-0 bg-info bg-opacity-10">
                 <div class="card-body py-2 text-center">
                     <small class="text-muted">Avg SNF</small>
-                    <h5 class="fw-bold text-info mb-0">@Model.Average(m => m.SNFPercentage).ToString("F2")%</h5>
+                    <h5 class="fw-bold text-info mb-0">@(Model.Average(m => m.SNFPercentage).ToString("F2"))%</h5>
                 </div>
             </div>
         </div>

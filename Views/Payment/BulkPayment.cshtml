@@ -18,7 +18,7 @@
         <div class="card border-0 shadow-sm text-center" style="border-top:3px solid #22c55e !important;">
             <div class="card-body py-3">
                 <small class="text-muted">Total Milk Amount</small>
-                <h4 class="fw-bold text-success mb-0">&#8377;@Model.Sum(f => f.MilkAmount).ToString("N0")</h4>
+                <h4 class="fw-bold text-success mb-0">&#8377;@(Model.Sum(f => f.MilkAmount).ToString("N0"))</h4>
             </div>
         </div>
     </div>
@@ -26,7 +26,7 @@
         <div class="card border-0 shadow-sm text-center" style="border-top:3px solid #3b82f6 !important;">
             <div class="card-body py-3">
                 <small class="text-muted">Total Paid</small>
-                <h4 class="fw-bold text-primary mb-0">&#8377;@Model.Sum(f => f.PaidAmount).ToString("N0")</h4>
+                <h4 class="fw-bold text-primary mb-0">&#8377;@(Model.Sum(f => f.PaidAmount).ToString("N0"))</h4>
             </div>
         </div>
     </div>
@@ -81,23 +81,30 @@
                                 <td>
                                     @if (f.BalanceDue > 0)
                                     {
-                                        <form asp-action="PayFarmer" method="post" class="d-flex gap-1">
-                                            @Html.AntiForgeryToken()
-                                            <input type="hidden" name="partnerId" value="@f.PartnerId" />
-                                            <input type="number" name="amount" value="@f.BalanceDue" step="1" class="form-control form-control-sm" style="width:100px;border-radius:8px;">
-                                            <select name="mode" class="form-select form-select-sm" style="width:80px;border-radius:8px;">
-                                                <option>Cash</option>
-                                                <option>UPI</option>
-                                                <option>Bank</option>
-                                            </select>
-                                            <button type="submit" class="btn btn-sm btn-success" style="border-radius:8px;" onclick="return confirm('₹' + this.form.amount.value + ' pay karein?');">
-                                                <i class="bi bi-check"></i>Pay
-                                            </button>
-                                        </form>
+                                        <div class="d-flex gap-1 flex-wrap">
+                                            <form asp-action="PayFarmer" method="post" class="d-flex gap-1">
+                                                @Html.AntiForgeryToken()
+                                                <input type="hidden" name="partnerId" value="@f.PartnerId" />
+                                                <input type="number" name="amount" id="amt_@f.PartnerId" value="@f.BalanceDue" step="1" class="form-control form-control-sm" style="width:90px;border-radius:8px;">
+                                                <select name="mode" class="form-select form-select-sm" style="width:70px;border-radius:8px;">
+                                                    <option>Cash</option>
+                                                    <option>UPI</option>
+                                                    <option>Bank</option>
+                                                </select>
+                                                <button type="submit" class="btn btn-sm btn-success" style="border-radius:8px;" onclick="return confirm('₹' + this.form.amount.value + ' pay karein?');">
+                                                    <i class="bi bi-check"></i>
+                                                </button>
+                                            </form>
+                                            <!-- UPI Direct Pay button -->
+                                            <a href="upi://pay?pa=@(f.Mobile)@@upi&pn=@(System.Net.WebUtility.UrlEncode(f.PartnerName))&am=@f.BalanceDue&cu=INR&tn=Raj+Dairy+Milk+Payment"
+                                               class="btn btn-sm btn-outline-primary" style="border-radius:8px;" title="UPI App se pay karein">
+                                                <i class="bi bi-phone"></i>
+                                            </a>
+                                        </div>
                                     }
                                     else
                                     {
-                                        <span class="text-muted small">-</span>
+                                        <span class="badge bg-success" style="border-radius:8px;"><i class="bi bi-check"></i> Settled</span>
                                     }
                                 </td>
                             </tr>
