@@ -15,9 +15,12 @@ namespace DairyProductApp.Controllers
             _sheets = sheets;
         }
 
+        private string Username => HttpContext.Session.GetString("AdminUsername") ?? "";
+        private string Role => HttpContext.Session.GetString("AdminRole") ?? "Admin";
+
         public async Task<IActionResult> Index(string? search, ProductCategory? category)
         {
-            var all = await _sheets.GetAllDairyProducts();
+            var all = await _sheets.GetDairyProductsByUser(Username, Role);
 
             if (!string.IsNullOrEmpty(search))
                 all = all.Where(p => p.ProductName.Contains(search, StringComparison.OrdinalIgnoreCase)).ToList();
@@ -43,6 +46,7 @@ namespace DairyProductApp.Controllers
             if (ModelState.IsValid)
             {
                 product.CreatedAt = DateTime.Now;
+                product.CreatedBy = Username;
                 await _sheets.AddDairyProduct(product);
                 TempData["Success"] = "Product successfully add ho gaya!";
                 return RedirectToAction(nameof(Index));

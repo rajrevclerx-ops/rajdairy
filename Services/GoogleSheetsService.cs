@@ -81,8 +81,8 @@ namespace DairyProductApp.Services
             {
                 [MilkCollectionSheet] = new List<object> { "Id", "FarmerName", "MobileNumber", "MilkType", "Quantity", "FatPercentage", "SNFPercentage", "RatePerLiter", "TotalAmount", "Shift", "CollectionDate", "CreatedAt", "Remarks" },
                 [MilkRateSheet] = new List<object> { "Id", "MilkType", "MinFat", "MaxFat", "MinSNF", "MaxSNF", "RatePerLiter", "EffectiveFrom", "IsActive" },
-                [DairyProductSheet] = new List<object> { "Id", "ProductName", "Category", "Quantity", "Unit", "Price", "ManufacturingDate", "ExpiryDate", "StockQuantity", "Description", "IsActive", "CreatedAt" },
-                [GheeProductSheet] = new List<object> { "Id", "BatchNumber", "GheeType", "MilkUsedLiters", "GheeProducedKg", "YieldRate", "PricePerKg", "TotalValue", "StockKg", "ProductionDate", "ExpiryDate", "Quality", "Description", "CreatedAt" },
+                [DairyProductSheet] = new List<object> { "Id", "ProductName", "Category", "Quantity", "Unit", "Price", "ManufacturingDate", "ExpiryDate", "StockQuantity", "Description", "IsActive", "CreatedAt", "CreatedBy" },
+                [GheeProductSheet] = new List<object> { "Id", "BatchNumber", "GheeType", "MilkUsedLiters", "GheeProducedKg", "YieldRate", "PricePerKg", "TotalValue", "StockKg", "ProductionDate", "ExpiryDate", "Quality", "Description", "CreatedAt", "CreatedBy" },
                 [SettingsSheet] = new List<object> { "Key", "Value" },
                 [PartnerSheet] = new List<object> { "Id", "Name", "Mobile", "Address", "Type", "AccessCode", "IsActive", "CreatedAt", "CreatedBy" },
                 [TransactionSheet] = new List<object> { "Id", "PartnerId", "PartnerName", "Type", "Item", "Description", "Quantity", "Unit", "Rate", "TotalAmount", "PaymentStatus", "TransactionDate", "CreatedAt", "Remarks" },
@@ -345,8 +345,16 @@ namespace DairyProductApp.Services
                 StockQuantity = decimal.TryParse(SafeGet(r, 8), out var stock) ? stock : 0,
                 Description = SafeGet(r, 9),
                 IsActive = SafeGet(r, 10).ToLower() != "false",
-                CreatedAt = DateTime.TryParse(SafeGet(r, 11), out var ca) ? ca : DateTime.Now
+                CreatedAt = DateTime.TryParse(SafeGet(r, 11), out var ca) ? ca : DateTime.Now,
+                CreatedBy = SafeGet(r, 12)
             }).ToList();
+        }
+
+        public async Task<List<DairyProduct>> GetDairyProductsByUser(string username, string role)
+        {
+            var all = await GetAllDairyProducts();
+            if (role == "SuperAdmin") return all;
+            return all.Where(p => p.CreatedBy.Equals(username, StringComparison.OrdinalIgnoreCase)).ToList();
         }
 
         public async Task<DairyProduct?> GetDairyProductById(int id)
@@ -363,7 +371,7 @@ namespace DairyProductApp.Services
                 p.Id, p.ProductName, p.Category.ToString(), p.Quantity, p.Unit.ToString(),
                 p.Price, p.ManufacturingDate.ToString("yyyy-MM-dd"), p.ExpiryDate.ToString("yyyy-MM-dd"),
                 p.StockQuantity, p.Description ?? "", p.IsActive.ToString(),
-                p.CreatedAt.ToString("yyyy-MM-dd HH:mm:ss")
+                p.CreatedAt.ToString("yyyy-MM-dd HH:mm:ss"), p.CreatedBy
             };
             await AppendRow(DairyProductSheet, row);
         }
@@ -379,7 +387,7 @@ namespace DairyProductApp.Services
                 p.Id, p.ProductName, p.Category.ToString(), p.Quantity, p.Unit.ToString(),
                 p.Price, p.ManufacturingDate.ToString("yyyy-MM-dd"), p.ExpiryDate.ToString("yyyy-MM-dd"),
                 p.StockQuantity, p.Description ?? "", p.IsActive.ToString(),
-                p.CreatedAt.ToString("yyyy-MM-dd HH:mm:ss")
+                p.CreatedAt.ToString("yyyy-MM-dd HH:mm:ss"), p.CreatedBy
             };
             await UpdateRow(DairyProductSheet, index, row);
         }
@@ -410,8 +418,16 @@ namespace DairyProductApp.Services
                 ExpiryDate = DateTime.TryParse(SafeGet(r, 10), out var ed) ? ed : DateTime.Today.AddMonths(12),
                 Quality = Enum.TryParse<QualityGrade>(SafeGet(r, 11), out var q) ? q : QualityGrade.Standard,
                 Description = SafeGet(r, 12),
-                CreatedAt = DateTime.TryParse(SafeGet(r, 13), out var ca) ? ca : DateTime.Now
+                CreatedAt = DateTime.TryParse(SafeGet(r, 13), out var ca) ? ca : DateTime.Now,
+                CreatedBy = SafeGet(r, 14)
             }).ToList();
+        }
+
+        public async Task<List<GheeProduct>> GetGheeProductsByUser(string username, string role)
+        {
+            var all = await GetAllGheeProducts();
+            if (role == "SuperAdmin") return all;
+            return all.Where(g => g.CreatedBy.Equals(username, StringComparison.OrdinalIgnoreCase)).ToList();
         }
 
         public async Task<GheeProduct?> GetGheeProductById(int id)
@@ -429,7 +445,7 @@ namespace DairyProductApp.Services
                 g.GheeProducedKg, g.YieldRate, g.PricePerKg, g.TotalValue, g.StockKg,
                 g.ProductionDate.ToString("yyyy-MM-dd"), g.ExpiryDate.ToString("yyyy-MM-dd"),
                 g.Quality.ToString(), g.Description ?? "",
-                g.CreatedAt.ToString("yyyy-MM-dd HH:mm:ss")
+                g.CreatedAt.ToString("yyyy-MM-dd HH:mm:ss"), g.CreatedBy
             };
             await AppendRow(GheeProductSheet, row);
         }
@@ -446,7 +462,7 @@ namespace DairyProductApp.Services
                 g.GheeProducedKg, g.YieldRate, g.PricePerKg, g.TotalValue, g.StockKg,
                 g.ProductionDate.ToString("yyyy-MM-dd"), g.ExpiryDate.ToString("yyyy-MM-dd"),
                 g.Quality.ToString(), g.Description ?? "",
-                g.CreatedAt.ToString("yyyy-MM-dd HH:mm:ss")
+                g.CreatedAt.ToString("yyyy-MM-dd HH:mm:ss"), g.CreatedBy
             };
             await UpdateRow(GheeProductSheet, index, row);
         }

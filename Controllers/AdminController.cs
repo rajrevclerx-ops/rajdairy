@@ -22,8 +22,8 @@ namespace DairyProductApp.Controllers
         public async Task<IActionResult> Profile()
         {
             var collections = await _filter.GetMilkCollections(Username, Role);
-            var products = await _sheets.GetAllDairyProducts();
-            var ghee = await _sheets.GetAllGheeProducts();
+            var products = await _sheets.GetDairyProductsByUser(Username, Role);
+            var ghee = await _sheets.GetGheeProductsByUser(Username, Role);
             var rates = await _sheets.GetAllMilkRates();
 
             ViewBag.TotalCollections = collections.Count;
@@ -91,7 +91,7 @@ namespace DairyProductApp.Controllers
         public async Task<IActionResult> Settings()
         {
             var rates = await _sheets.GetAllMilkRates();
-            var products = await _sheets.GetAllDairyProducts();
+            var products = await _sheets.GetDairyProductsByUser(Username, Role);
 
             ViewBag.ActiveRates = rates.Count(r => r.IsActive);
             ViewBag.InactiveRates = rates.Count(r => !r.IsActive);

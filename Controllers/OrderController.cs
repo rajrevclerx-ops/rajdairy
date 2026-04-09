@@ -46,7 +46,7 @@ namespace DairyProductApp.Controllers
         public async Task<IActionResult> Create()
         {
             ViewBag.Partners = await _sheets.GetPartnersByUser(HttpContext.Session.GetString("AdminUsername") ?? "", HttpContext.Session.GetString("AdminRole") ?? "Admin");
-            ViewBag.Products = await _sheets.GetAllDairyProducts();
+            ViewBag.Products = await _sheets.GetDairyProductsByUser(Username, Role);
             return View(new Order());
         }
 
@@ -74,7 +74,7 @@ namespace DairyProductApp.Controllers
                 return RedirectToAction("Index");
             }
             ViewBag.Partners = await _sheets.GetPartnersByUser(HttpContext.Session.GetString("AdminUsername") ?? "", HttpContext.Session.GetString("AdminRole") ?? "Admin");
-            ViewBag.Products = await _sheets.GetAllDairyProducts();
+            ViewBag.Products = await _sheets.GetDairyProductsByUser(Username, Role);
             return View(model);
         }
 
@@ -83,7 +83,7 @@ namespace DairyProductApp.Controllers
             var order = await _sheets.GetOrderById(id);
             if (order == null) return NotFound();
             ViewBag.Partners = await _sheets.GetPartnersByUser(HttpContext.Session.GetString("AdminUsername") ?? "", HttpContext.Session.GetString("AdminRole") ?? "Admin");
-            ViewBag.Products = await _sheets.GetAllDairyProducts();
+            ViewBag.Products = await _sheets.GetDairyProductsByUser(Username, Role);
             return View(order);
         }
 
@@ -106,7 +106,7 @@ namespace DairyProductApp.Controllers
                 return RedirectToAction("Index");
             }
             ViewBag.Partners = await _sheets.GetPartnersByUser(HttpContext.Session.GetString("AdminUsername") ?? "", HttpContext.Session.GetString("AdminRole") ?? "Admin");
-            ViewBag.Products = await _sheets.GetAllDairyProducts();
+            ViewBag.Products = await _sheets.GetDairyProductsByUser(Username, Role);
             return View(model);
         }
 

@@ -15,9 +15,12 @@ namespace DairyProductApp.Controllers
             _sheets = sheets;
         }
 
+        private string Username => HttpContext.Session.GetString("AdminUsername") ?? "";
+        private string Role => HttpContext.Session.GetString("AdminRole") ?? "Admin";
+
         public async Task<IActionResult> Index(GheeType? gheeType, QualityGrade? quality)
         {
-            var all = await _sheets.GetAllGheeProducts();
+            var all = await _sheets.GetGheeProductsByUser(Username, Role);
 
             if (gheeType.HasValue)
                 all = all.Where(g => g.GheeType == gheeType.Value).ToList();
@@ -49,6 +52,7 @@ namespace DairyProductApp.Controllers
                 gheeProduct.TotalValue = gheeProduct.GheeProducedKg * gheeProduct.PricePerKg;
                 gheeProduct.StockKg = gheeProduct.GheeProducedKg;
                 gheeProduct.CreatedAt = DateTime.Now;
+                gheeProduct.CreatedBy = Username;
 
                 await _sheets.AddGheeProduct(gheeProduct);
                 TempData["Success"] = "Ghee production record successfully add ho gaya!";

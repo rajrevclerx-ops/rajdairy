@@ -27,8 +27,8 @@ namespace DairyProductApp.Controllers
 
             var allCollections = await _filter.GetMilkCollections(Username, Role);
             var todayCollections = allCollections.Where(m => m.CollectionDate == today).ToList();
-            var allGhee = await _sheets.GetAllGheeProducts();
-            var allProducts = await _sheets.GetAllDairyProducts();
+            var allGhee = await _sheets.GetGheeProductsByUser(Username, Role);
+            var allProducts = await _sheets.GetDairyProductsByUser(Username, Role);
             var allPartners = await _sheets.GetPartnersByUser(Username, Role);
             var allSubscriptions = await _filter.GetSubscriptions(Username, Role);
             var allOrders = await _filter.GetOrders(Username, Role);

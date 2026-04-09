@@ -23,7 +23,7 @@ namespace DairyProductApp.Controllers
         public async Task<IActionResult> Index()
         {
             var allCollections = await _filter.GetMilkCollections(Username, Role);
-            var allGhee = await _sheets.GetAllGheeProducts();
+            var allGhee = await _sheets.GetGheeProductsByUser(Username, Role);
             var allTransactions = await _filter.GetTransactions(Username, Role);
             var today = DateTime.Today;
 
