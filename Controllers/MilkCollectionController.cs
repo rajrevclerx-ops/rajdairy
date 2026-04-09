@@ -9,15 +9,20 @@ namespace DairyProductApp.Controllers
     public class MilkCollectionController : Controller
     {
         private readonly GoogleSheetsService _sheets;
+        private readonly DataFilterService _filter;
 
-        public MilkCollectionController(GoogleSheetsService sheets)
+        public MilkCollectionController(GoogleSheetsService sheets, DataFilterService filter)
         {
             _sheets = sheets;
+            _filter = filter;
         }
+
+        private string Username => HttpContext.Session.GetString("AdminUsername") ?? "";
+        private string Role => HttpContext.Session.GetString("AdminRole") ?? "Admin";
 
         public async Task<IActionResult> Index(string? searchFarmer, MilkType? milkType, DateTime? fromDate, DateTime? toDate)
         {
-            var all = await _sheets.GetAllMilkCollections();
+            var all = await _filter.GetMilkCollections(Username, Role);
 
             if (!string.IsNullOrEmpty(searchFarmer))
                 all = all.Where(m => m.FarmerName.Contains(searchFarmer, StringComparison.OrdinalIgnoreCase)).ToList();
@@ -150,7 +155,7 @@ namespace DairyProductApp.Controllers
             if (partner == null) return Json(new { found = false });
 
             // Get last collection for this farmer to pre-fill milk type
-            var collections = await _sheets.GetAllMilkCollections();
+            var collections = await _filter.GetMilkCollections(Username, Role);
             var lastEntry = collections
                 .Where(c => c.FarmerName == partner.Name)
                 .OrderByDescending(c => c.CollectionDate)
@@ -259,7 +264,7 @@ namespace DairyProductApp.Controllers
         [HttpGet]
         public async Task<IActionResult> GetTodayStats()
         {
-            var all = await _sheets.GetAllMilkCollections();
+            var all = await _filter.GetMilkCollections(Username, Role);
             var today = all.Where(m => m.CollectionDate == DateTime.Today).ToList();
 
             return Json(new

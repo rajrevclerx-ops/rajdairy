@@ -10,15 +10,20 @@ namespace DairyProductApp.Controllers
     public class TransactionController : Controller
     {
         private readonly GoogleSheetsService _sheets;
+        private readonly DataFilterService _filter;
 
-        public TransactionController(GoogleSheetsService sheets)
+        private string Username => HttpContext.Session.GetString("AdminUsername") ?? "";
+        private string Role => HttpContext.Session.GetString("AdminRole") ?? "Admin";
+
+        public TransactionController(GoogleSheetsService sheets, DataFilterService filter)
         {
             _sheets = sheets;
+            _filter = filter;
         }
 
         public async Task<IActionResult> Index(int? partnerId)
         {
-            var transactions = await _sheets.GetAllTransactions();
+            var transactions = await _filter.GetTransactions(Username, Role);
             if (partnerId.HasValue)
             {
                 transactions = transactions.Where(t => t.PartnerId == partnerId.Value).ToList();

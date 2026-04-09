@@ -4,6 +4,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllersWithViews();
 builder.Services.AddSingleton<GoogleSheetsService>();
+builder.Services.AddSingleton<DataFilterService>();
 
 // Add session for admin login
 builder.Services.AddSession(options =>

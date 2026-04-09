@@ -9,15 +9,20 @@ namespace DairyProductApp.Controllers
     public class OrderController : Controller
     {
         private readonly GoogleSheetsService _sheets;
+        private readonly DataFilterService _filter;
 
-        public OrderController(GoogleSheetsService sheets)
+        private string Username => HttpContext.Session.GetString("AdminUsername") ?? "";
+        private string Role => HttpContext.Session.GetString("AdminRole") ?? "Admin";
+
+        public OrderController(GoogleSheetsService sheets, DataFilterService filter)
         {
             _sheets = sheets;
+            _filter = filter;
         }
 
         public async Task<IActionResult> Index(string? status, string? search, string? dateFrom, string? dateTo)
         {
-            var orders = await _sheets.GetAllOrders();
+            var orders = await _filter.GetOrders(Username, Role);
 
             if (!string.IsNullOrEmpty(status) && Enum.TryParse<OrderStatus>(status, out var s))
                 orders = orders.Where(x => x.Status == s).ToList();

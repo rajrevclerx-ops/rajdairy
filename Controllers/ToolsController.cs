@@ -9,10 +9,15 @@ namespace DairyProductApp.Controllers
     public class ToolsController : Controller
     {
         private readonly GoogleSheetsService _sheets;
+        private readonly DataFilterService _filter;
 
-        public ToolsController(GoogleSheetsService sheets)
+        private string Username => HttpContext.Session.GetString("AdminUsername") ?? "";
+        private string Role => HttpContext.Session.GetString("AdminRole") ?? "Admin";
+
+        public ToolsController(GoogleSheetsService sheets, DataFilterService filter)
         {
             _sheets = sheets;
+            _filter = filter;
         }
 
         // Rate Calculator - standalone tool for field use
@@ -28,7 +33,7 @@ namespace DairyProductApp.Controllers
         {
             date ??= DateTime.Today;
             var partners = (await _sheets.GetPartnersByUser(HttpContext.Session.GetString("AdminUsername") ?? "", HttpContext.Session.GetString("AdminRole") ?? "Admin")).Where(p => p.IsActive).ToList();
-            var collections = await _sheets.GetAllMilkCollections();
+            var collections = await _filter.GetMilkCollections(Username, Role);
             var dayCollections = collections.Where(m => m.CollectionDate == date).ToList();
 
             var attendance = new List<FarmerAttendanceViewModel>();
@@ -95,7 +100,7 @@ namespace DairyProductApp.Controllers
             month ??= DateTime.Today.Month;
             var year = DateTime.Today.Year;
 
-            var collections = (await _sheets.GetAllMilkCollections())
+            var collections = (await _filter.GetMilkCollections(Username, Role))
                 .Where(m => m.CollectionDate.Month == month && m.CollectionDate.Year == year)
                 .ToList();
 
@@ -124,7 +129,7 @@ namespace DairyProductApp.Controllers
         public async Task<IActionResult> DeliveryRoute(DateTime? date)
         {
             date ??= DateTime.Today;
-            var allOrders = await _sheets.GetAllOrders();
+            var allOrders = await _filter.GetOrders(Username, Role);
             var dayOrders = allOrders
                 .Where(o => o.DeliveryDate == date &&
                     (o.Status == OrderStatus.Confirmed || o.Status == OrderStatus.OutForDelivery))

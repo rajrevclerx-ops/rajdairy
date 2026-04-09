@@ -8,15 +8,20 @@ namespace DairyProductApp.Controllers
     public class AdminController : Controller
     {
         private readonly GoogleSheetsService _sheets;
+        private readonly DataFilterService _filter;
 
-        public AdminController(GoogleSheetsService sheets)
+        private string Username => HttpContext.Session.GetString("AdminUsername") ?? "";
+        private string Role => HttpContext.Session.GetString("AdminRole") ?? "Admin";
+
+        public AdminController(GoogleSheetsService sheets, DataFilterService filter)
         {
             _sheets = sheets;
+            _filter = filter;
         }
 
         public async Task<IActionResult> Profile()
         {
-            var collections = await _sheets.GetAllMilkCollections();
+            var collections = await _filter.GetMilkCollections(Username, Role);
             var products = await _sheets.GetAllDairyProducts();
             var ghee = await _sheets.GetAllGheeProducts();
             var rates = await _sheets.GetAllMilkRates();

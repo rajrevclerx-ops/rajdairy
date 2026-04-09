@@ -9,15 +9,20 @@ namespace DairyProductApp.Controllers
     public class SubscriptionController : Controller
     {
         private readonly GoogleSheetsService _sheets;
+        private readonly DataFilterService _filter;
 
-        public SubscriptionController(GoogleSheetsService sheets)
+        private string Username => HttpContext.Session.GetString("AdminUsername") ?? "";
+        private string Role => HttpContext.Session.GetString("AdminRole") ?? "Admin";
+
+        public SubscriptionController(GoogleSheetsService sheets, DataFilterService filter)
         {
             _sheets = sheets;
+            _filter = filter;
         }
 
         public async Task<IActionResult> Index(string? status, string? search)
         {
-            var subscriptions = await _sheets.GetAllSubscriptions();
+            var subscriptions = await _filter.GetSubscriptions(Username, Role);
 
             if (!string.IsNullOrEmpty(status) && Enum.TryParse<SubscriptionStatus>(status, out var s))
                 subscriptions = subscriptions.Where(x => x.Status == s).ToList();

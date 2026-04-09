@@ -10,24 +10,29 @@ namespace DairyProductApp.Controllers
     public class HomeController : Controller
     {
         private readonly GoogleSheetsService _sheets;
+        private readonly DataFilterService _filter;
 
-        public HomeController(GoogleSheetsService sheets)
+        public HomeController(GoogleSheetsService sheets, DataFilterService filter)
         {
             _sheets = sheets;
+            _filter = filter;
         }
+
+        private string Username => HttpContext.Session.GetString("AdminUsername") ?? "";
+        private string Role => HttpContext.Session.GetString("AdminRole") ?? "Admin";
 
         public async Task<IActionResult> Index()
         {
             var today = DateTime.Today;
 
-            var allCollections = await _sheets.GetAllMilkCollections();
+            var allCollections = await _filter.GetMilkCollections(Username, Role);
             var todayCollections = allCollections.Where(m => m.CollectionDate == today).ToList();
             var allGhee = await _sheets.GetAllGheeProducts();
             var allProducts = await _sheets.GetAllDairyProducts();
-            var allPartners = await _sheets.GetPartnersByUser(HttpContext.Session.GetString("AdminUsername") ?? "", HttpContext.Session.GetString("AdminRole") ?? "Admin");
-            var allSubscriptions = await _sheets.GetAllSubscriptions();
-            var allOrders = await _sheets.GetAllOrders();
-            var allTransactions = await _sheets.GetAllTransactions();
+            var allPartners = await _sheets.GetPartnersByUser(Username, Role);
+            var allSubscriptions = await _filter.GetSubscriptions(Username, Role);
+            var allOrders = await _filter.GetOrders(Username, Role);
+            var allTransactions = await _filter.GetTransactions(Username, Role);
 
             // Chart data - last 7 days
             var chartLabels = new List<string>();

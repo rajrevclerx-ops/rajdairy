@@ -9,10 +9,15 @@ namespace DairyProductApp.Controllers
     public class ExpenseController : Controller
     {
         private readonly GoogleSheetsService _sheets;
+        private readonly DataFilterService _filter;
 
-        public ExpenseController(GoogleSheetsService sheets)
+        private string Username => HttpContext.Session.GetString("AdminUsername") ?? "";
+        private string Role => HttpContext.Session.GetString("AdminRole") ?? "Admin";
+
+        public ExpenseController(GoogleSheetsService sheets, DataFilterService filter)
         {
             _sheets = sheets;
+            _filter = filter;
         }
 
         public async Task<IActionResult> Index(DateTime? from, DateTime? to)
@@ -87,11 +92,11 @@ namespace DairyProductApp.Controllers
             from ??= new DateTime(DateTime.Today.Year, DateTime.Today.Month, 1);
             to ??= DateTime.Today;
 
-            var collections = (await _sheets.GetAllMilkCollections())
+            var collections = (await _filter.GetMilkCollections(Username, Role))
                 .Where(m => m.CollectionDate >= from && m.CollectionDate <= to).ToList();
-            var orders = (await _sheets.GetAllOrders())
+            var orders = (await _filter.GetOrders(Username, Role))
                 .Where(o => o.OrderDate >= from && o.OrderDate <= to).ToList();
-            var transactions = (await _sheets.GetAllTransactions())
+            var transactions = (await _filter.GetTransactions(Username, Role))
                 .Where(t => t.TransactionDate >= from && t.TransactionDate <= to).ToList();
             var expenses = (await _sheets.GetAllExpenses())
                 .Where(e => e.ExpenseDate >= from && e.ExpenseDate <= to).ToList();

@@ -9,23 +9,28 @@ namespace DairyProductApp.Controllers
     public class ReportController : Controller
     {
         private readonly GoogleSheetsService _sheets;
+        private readonly DataFilterService _filter;
 
-        public ReportController(GoogleSheetsService sheets)
+        private string Username => HttpContext.Session.GetString("AdminUsername") ?? "";
+        private string Role => HttpContext.Session.GetString("AdminRole") ?? "Admin";
+
+        public ReportController(GoogleSheetsService sheets, DataFilterService filter)
         {
             _sheets = sheets;
+            _filter = filter;
         }
 
         public async Task<IActionResult> Daily(DateTime? date)
         {
             date ??= DateTime.Today;
 
-            var collections = (await _sheets.GetAllMilkCollections())
+            var collections = (await _filter.GetMilkCollections(Username, Role))
                 .Where(m => m.CollectionDate == date).ToList();
-            var orders = (await _sheets.GetAllOrders())
+            var orders = (await _filter.GetOrders(Username, Role))
                 .Where(o => o.OrderDate == date).ToList();
             var expenses = (await _sheets.GetAllExpenses())
                 .Where(e => e.ExpenseDate == date).ToList();
-            var subscriptions = (await _sheets.GetAllSubscriptions())
+            var subscriptions = (await _filter.GetSubscriptions(Username, Role))
                 .Where(s => s.CreatedAt.Date == date).ToList();
 
             var model = new DailyReportViewModel

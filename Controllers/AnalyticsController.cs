@@ -9,17 +9,22 @@ namespace DairyProductApp.Controllers
     public class AnalyticsController : Controller
     {
         private readonly GoogleSheetsService _sheets;
+        private readonly DataFilterService _filter;
 
-        public AnalyticsController(GoogleSheetsService sheets)
+        private string Username => HttpContext.Session.GetString("AdminUsername") ?? "";
+        private string Role => HttpContext.Session.GetString("AdminRole") ?? "Admin";
+
+        public AnalyticsController(GoogleSheetsService sheets, DataFilterService filter)
         {
             _sheets = sheets;
+            _filter = filter;
         }
 
         public async Task<IActionResult> Index()
         {
-            var allCollections = await _sheets.GetAllMilkCollections();
+            var allCollections = await _filter.GetMilkCollections(Username, Role);
             var allGhee = await _sheets.GetAllGheeProducts();
-            var allTransactions = await _sheets.GetAllTransactions();
+            var allTransactions = await _filter.GetTransactions(Username, Role);
             var today = DateTime.Today;
 
             // Last 6 months data

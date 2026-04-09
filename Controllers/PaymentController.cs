@@ -10,18 +10,23 @@ namespace DairyProductApp.Controllers
     public class PaymentController : Controller
     {
         private readonly GoogleSheetsService _sheets;
+        private readonly DataFilterService _filter;
 
-        public PaymentController(GoogleSheetsService sheets)
+        private string Username => HttpContext.Session.GetString("AdminUsername") ?? "";
+        private string Role => HttpContext.Session.GetString("AdminRole") ?? "Admin";
+
+        public PaymentController(GoogleSheetsService sheets, DataFilterService filter)
         {
             _sheets = sheets;
+            _filter = filter;
         }
 
         // Bulk Payment Page - shows all farmers with pending amounts
         public async Task<IActionResult> BulkPayment()
         {
             var partners = await _sheets.GetPartnersByUser(HttpContext.Session.GetString("AdminUsername") ?? "", HttpContext.Session.GetString("AdminRole") ?? "Admin");
-            var allCollections = await _sheets.GetAllMilkCollections();
-            var allTransactions = await _sheets.GetAllTransactions();
+            var allCollections = await _filter.GetMilkCollections(Username, Role);
+            var allTransactions = await _filter.GetTransactions(Username, Role);
 
             var currentMonth = DateTime.Today.Month;
             var currentYear = DateTime.Today.Year;
@@ -104,7 +109,7 @@ namespace DairyProductApp.Controllers
             month ??= DateTime.Today.Month;
             year ??= DateTime.Today.Year;
 
-            var collections = (await _sheets.GetAllMilkCollections())
+            var collections = (await _filter.GetMilkCollections(Username, Role))
                 .Where(m => m.CollectionDate.Month == month && m.CollectionDate.Year == year)
                 .OrderBy(m => m.CollectionDate)
                 .ThenBy(m => m.FarmerName)
@@ -126,8 +131,8 @@ namespace DairyProductApp.Controllers
         public async Task<IActionResult> ExportFarmerCSV()
         {
             var partners = await _sheets.GetPartnersByUser(HttpContext.Session.GetString("AdminUsername") ?? "", HttpContext.Session.GetString("AdminRole") ?? "Admin");
-            var allCollections = await _sheets.GetAllMilkCollections();
-            var allTransactions = await _sheets.GetAllTransactions();
+            var allCollections = await _filter.GetMilkCollections(Username, Role);
+            var allTransactions = await _filter.GetTransactions(Username, Role);
 
             var month = DateTime.Today.Month;
             var year = DateTime.Today.Year;
