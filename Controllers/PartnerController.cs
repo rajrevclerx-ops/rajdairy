@@ -17,7 +17,7 @@ namespace DairyProductApp.Controllers
 
         public async Task<IActionResult> Index()
         {
-            var partners = await _sheets.GetAllPartners();
+            var partners = await _sheets.GetPartnersByUser(HttpContext.Session.GetString("AdminUsername") ?? "", HttpContext.Session.GetString("AdminRole") ?? "Admin");
             return View(partners.OrderBy(p => p.Name).ToList());
         }
 
@@ -33,6 +33,7 @@ namespace DairyProductApp.Controllers
             if (ModelState.IsValid)
             {
                 partner.CreatedAt = DateTime.Now;
+                partner.CreatedBy = HttpContext.Session.GetString("AdminUsername") ?? "";
                 await _sheets.AddPartner(partner);
                 TempData["Success"] = $"Partner '{partner.Name}' add ho gaya! Access Code: {partner.AccessCode}";
                 return RedirectToAction(nameof(Index));

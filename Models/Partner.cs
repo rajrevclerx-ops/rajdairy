@@ -34,6 +34,9 @@ namespace DairyProductApp.Models
 
         [Display(Name = "Created At")]
         public DateTime CreatedAt { get; set; } = DateTime.Now;
+
+        [Display(Name = "Created By")]
+        public string CreatedBy { get; set; } = string.Empty;
     }
 
     public enum PartnerType

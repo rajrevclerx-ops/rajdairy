@@ -33,7 +33,7 @@ namespace DairyProductApp.Controllers
 
         public async Task<IActionResult> Create()
         {
-            ViewBag.Partners = await _sheets.GetAllPartners();
+            ViewBag.Partners = await _sheets.GetPartnersByUser(HttpContext.Session.GetString("AdminUsername") ?? "", HttpContext.Session.GetString("AdminRole") ?? "Admin");
             return View(new Subscription());
         }
 
@@ -55,7 +55,7 @@ namespace DairyProductApp.Controllers
                 TempData["Success"] = "Subscription successfully create ho gaya!";
                 return RedirectToAction("Index");
             }
-            ViewBag.Partners = await _sheets.GetAllPartners();
+            ViewBag.Partners = await _sheets.GetPartnersByUser(HttpContext.Session.GetString("AdminUsername") ?? "", HttpContext.Session.GetString("AdminRole") ?? "Admin");
             return View(model);
         }
 
@@ -63,7 +63,7 @@ namespace DairyProductApp.Controllers
         {
             var sub = await _sheets.GetSubscriptionById(id);
             if (sub == null) return NotFound();
-            ViewBag.Partners = await _sheets.GetAllPartners();
+            ViewBag.Partners = await _sheets.GetPartnersByUser(HttpContext.Session.GetString("AdminUsername") ?? "", HttpContext.Session.GetString("AdminRole") ?? "Admin");
             return View(sub);
         }
 
@@ -80,7 +80,7 @@ namespace DairyProductApp.Controllers
                 TempData["Success"] = "Subscription update ho gaya!";
                 return RedirectToAction("Index");
             }
-            ViewBag.Partners = await _sheets.GetAllPartners();
+            ViewBag.Partners = await _sheets.GetPartnersByUser(HttpContext.Session.GetString("AdminUsername") ?? "", HttpContext.Session.GetString("AdminRole") ?? "Admin");
             return View(model);
         }
 

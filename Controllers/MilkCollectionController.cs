@@ -44,7 +44,7 @@ namespace DairyProductApp.Controllers
         // ============ QUICK ENTRY - Modern Daily Collection ============
         public async Task<IActionResult> QuickEntry()
         {
-            var partners = await _sheets.GetAllPartners();
+            var partners = await _sheets.GetPartnersByUser(HttpContext.Session.GetString("AdminUsername") ?? "", HttpContext.Session.GetString("AdminRole") ?? "Admin");
             ViewBag.Partners = partners.Where(p => p.IsActive).OrderBy(p => p.Name).ToList();
             ViewBag.Today = DateTime.Today.ToString("yyyy-MM-dd");
             ViewBag.CurrentShift = DateTime.Now.Hour < 14 ? "Morning" : "Evening";
@@ -68,7 +68,7 @@ namespace DairyProductApp.Controllers
                 await _sheets.AddMilkCollection(milkCollection);
 
                 // Auto-create Transaction in Partner Ledger (farmer ka hisab)
-                var allPartners = await _sheets.GetAllPartners();
+                var allPartners = await _sheets.GetPartnersByUser(HttpContext.Session.GetString("AdminUsername") ?? "", HttpContext.Session.GetString("AdminRole") ?? "Admin");
                 var farmerPartner = allPartners.FirstOrDefault(p =>
                     p.Name.Equals(milkCollection.FarmerName, StringComparison.OrdinalIgnoreCase));
 
@@ -135,7 +135,7 @@ namespace DairyProductApp.Controllers
                 return RedirectToAction(nameof(QuickEntry));
             }
 
-            var partners = await _sheets.GetAllPartners();
+            var partners = await _sheets.GetPartnersByUser(HttpContext.Session.GetString("AdminUsername") ?? "", HttpContext.Session.GetString("AdminRole") ?? "Admin");
             ViewBag.Partners = partners.Where(p => p.IsActive).OrderBy(p => p.Name).ToList();
             ViewBag.Today = DateTime.Today.ToString("yyyy-MM-dd");
             ViewBag.CurrentShift = DateTime.Now.Hour < 14 ? "Morning" : "Evening";

@@ -84,7 +84,7 @@ namespace DairyProductApp.Services
                 [DairyProductSheet] = new List<object> { "Id", "ProductName", "Category", "Quantity", "Unit", "Price", "ManufacturingDate", "ExpiryDate", "StockQuantity", "Description", "IsActive", "CreatedAt" },
                 [GheeProductSheet] = new List<object> { "Id", "BatchNumber", "GheeType", "MilkUsedLiters", "GheeProducedKg", "YieldRate", "PricePerKg", "TotalValue", "StockKg", "ProductionDate", "ExpiryDate", "Quality", "Description", "CreatedAt" },
                 [SettingsSheet] = new List<object> { "Key", "Value" },
-                [PartnerSheet] = new List<object> { "Id", "Name", "Mobile", "Address", "Type", "AccessCode", "IsActive", "CreatedAt" },
+                [PartnerSheet] = new List<object> { "Id", "Name", "Mobile", "Address", "Type", "AccessCode", "IsActive", "CreatedAt", "CreatedBy" },
                 [TransactionSheet] = new List<object> { "Id", "PartnerId", "PartnerName", "Type", "Item", "Description", "Quantity", "Unit", "Rate", "TotalAmount", "PaymentStatus", "TransactionDate", "CreatedAt", "Remarks" },
                 [SubscriptionSheet] = new List<object> { "Id", "PartnerId", "PartnerName", "Product", "DailyQuantity", "Unit", "RatePerUnit", "StartDate", "EndDate", "DeliverySlot", "DeliveryAddress", "Status", "Frequency", "CreatedAt", "Notes" },
                 [OrderSheet] = new List<object> { "Id", "OrderNumber", "PartnerId", "PartnerName", "PartnerMobile", "ProductName", "Quantity", "Unit", "Rate", "TotalAmount", "OrderDate", "DeliveryDate", "DeliverySlot", "Status", "PaymentStatus", "DeliveryAddress", "CreatedAt", "Notes" },
@@ -517,8 +517,17 @@ namespace DairyProductApp.Services
                 Type = Enum.TryParse<PartnerType>(SafeGet(r, 4), out var t) ? t : PartnerType.Supplier,
                 AccessCode = SafeGet(r, 5),
                 IsActive = SafeGet(r, 6).ToLower() != "false",
-                CreatedAt = DateTime.TryParse(SafeGet(r, 7), out var ca) ? ca : DateTime.Now
+                CreatedAt = DateTime.TryParse(SafeGet(r, 7), out var ca) ? ca : DateTime.Now,
+                CreatedBy = SafeGet(r, 8)
             }).ToList();
+        }
+
+        // Get partners filtered by user (Admin sees own, SuperAdmin sees all)
+        public async Task<List<Partner>> GetPartnersByUser(string username, string role)
+        {
+            var all = await GetAllPartners();
+            if (role == "SuperAdmin") return all;
+            return all.Where(p => p.CreatedBy.Equals(username, StringComparison.OrdinalIgnoreCase)).ToList();
         }
 
         public async Task<Partner?> GetPartnerById(int id)
@@ -536,7 +545,6 @@ namespace DairyProductApp.Services
         public async Task AddPartner(Partner p)
         {
             p.Id = await GetNextId(PartnerSheet);
-            // Generate unique access code
             if (string.IsNullOrEmpty(p.AccessCode))
             {
                 p.AccessCode = "RD" + p.Id.ToString("D4");
@@ -544,7 +552,8 @@ namespace DairyProductApp.Services
             var row = new List<object>
             {
                 p.Id, p.Name, p.Mobile, p.Address ?? "", p.Type.ToString(),
-                p.AccessCode, p.IsActive.ToString(), p.CreatedAt.ToString("yyyy-MM-dd HH:mm:ss")
+                p.AccessCode, p.IsActive.ToString(), p.CreatedAt.ToString("yyyy-MM-dd HH:mm:ss"),
+                p.CreatedBy
             };
             await AppendRow(PartnerSheet, row);
         }
@@ -557,7 +566,8 @@ namespace DairyProductApp.Services
             var row = new List<object>
             {
                 p.Id, p.Name, p.Mobile, p.Address ?? "", p.Type.ToString(),
-                p.AccessCode, p.IsActive.ToString(), p.CreatedAt.ToString("yyyy-MM-dd HH:mm:ss")
+                p.AccessCode, p.IsActive.ToString(), p.CreatedAt.ToString("yyyy-MM-dd HH:mm:ss"),
+                p.CreatedBy
             };
             await UpdateRow(PartnerSheet, index, row);
         }

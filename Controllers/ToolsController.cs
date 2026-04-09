@@ -27,7 +27,7 @@ namespace DairyProductApp.Controllers
         public async Task<IActionResult> Attendance(DateTime? date)
         {
             date ??= DateTime.Today;
-            var partners = (await _sheets.GetAllPartners()).Where(p => p.IsActive).ToList();
+            var partners = (await _sheets.GetPartnersByUser(HttpContext.Session.GetString("AdminUsername") ?? "", HttpContext.Session.GetString("AdminRole") ?? "Admin")).Where(p => p.IsActive).ToList();
             var collections = await _sheets.GetAllMilkCollections();
             var dayCollections = collections.Where(m => m.CollectionDate == date).ToList();
 

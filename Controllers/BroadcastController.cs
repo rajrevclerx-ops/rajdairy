@@ -17,7 +17,7 @@ namespace DairyProductApp.Controllers
 
         public async Task<IActionResult> Index()
         {
-            var partners = await _sheets.GetAllPartners();
+            var partners = await _sheets.GetPartnersByUser(HttpContext.Session.GetString("AdminUsername") ?? "", HttpContext.Session.GetString("AdminRole") ?? "Admin");
             ViewBag.Partners = partners.Where(p => p.IsActive).OrderBy(p => p.Name).ToList();
             ViewBag.TotalPartners = partners.Count(p => p.IsActive);
             ViewBag.Suppliers = partners.Count(p => p.IsActive && (p.Type == PartnerType.Supplier || p.Type == PartnerType.Both));
@@ -29,7 +29,7 @@ namespace DairyProductApp.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Send(string message, string sendTo, int[]? selectedPartners)
         {
-            var partners = await _sheets.GetAllPartners();
+            var partners = await _sheets.GetPartnersByUser(HttpContext.Session.GetString("AdminUsername") ?? "", HttpContext.Session.GetString("AdminRole") ?? "Admin");
             var targets = new List<Partner>();
 
             switch (sendTo)

@@ -40,7 +40,7 @@ namespace DairyProductApp.Controllers
 
         public async Task<IActionResult> Create()
         {
-            ViewBag.Partners = await _sheets.GetAllPartners();
+            ViewBag.Partners = await _sheets.GetPartnersByUser(HttpContext.Session.GetString("AdminUsername") ?? "", HttpContext.Session.GetString("AdminRole") ?? "Admin");
             ViewBag.Products = await _sheets.GetAllDairyProducts();
             return View(new Order());
         }
@@ -68,7 +68,7 @@ namespace DairyProductApp.Controllers
                 TempData["Success"] = $"Order #{model.OrderNumber} successfully create ho gaya!";
                 return RedirectToAction("Index");
             }
-            ViewBag.Partners = await _sheets.GetAllPartners();
+            ViewBag.Partners = await _sheets.GetPartnersByUser(HttpContext.Session.GetString("AdminUsername") ?? "", HttpContext.Session.GetString("AdminRole") ?? "Admin");
             ViewBag.Products = await _sheets.GetAllDairyProducts();
             return View(model);
         }
@@ -77,7 +77,7 @@ namespace DairyProductApp.Controllers
         {
             var order = await _sheets.GetOrderById(id);
             if (order == null) return NotFound();
-            ViewBag.Partners = await _sheets.GetAllPartners();
+            ViewBag.Partners = await _sheets.GetPartnersByUser(HttpContext.Session.GetString("AdminUsername") ?? "", HttpContext.Session.GetString("AdminRole") ?? "Admin");
             ViewBag.Products = await _sheets.GetAllDairyProducts();
             return View(order);
         }
@@ -100,7 +100,7 @@ namespace DairyProductApp.Controllers
                 TempData["Success"] = "Order update ho gaya!";
                 return RedirectToAction("Index");
             }
-            ViewBag.Partners = await _sheets.GetAllPartners();
+            ViewBag.Partners = await _sheets.GetPartnersByUser(HttpContext.Session.GetString("AdminUsername") ?? "", HttpContext.Session.GetString("AdminRole") ?? "Admin");
             ViewBag.Products = await _sheets.GetAllDairyProducts();
             return View(model);
         }

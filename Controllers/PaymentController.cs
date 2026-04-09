@@ -19,7 +19,7 @@ namespace DairyProductApp.Controllers
         // Bulk Payment Page - shows all farmers with pending amounts
         public async Task<IActionResult> BulkPayment()
         {
-            var partners = await _sheets.GetAllPartners();
+            var partners = await _sheets.GetPartnersByUser(HttpContext.Session.GetString("AdminUsername") ?? "", HttpContext.Session.GetString("AdminRole") ?? "Admin");
             var allCollections = await _sheets.GetAllMilkCollections();
             var allTransactions = await _sheets.GetAllTransactions();
 
@@ -125,7 +125,7 @@ namespace DairyProductApp.Controllers
         // Export Farmer Summary to CSV
         public async Task<IActionResult> ExportFarmerCSV()
         {
-            var partners = await _sheets.GetAllPartners();
+            var partners = await _sheets.GetPartnersByUser(HttpContext.Session.GetString("AdminUsername") ?? "", HttpContext.Session.GetString("AdminRole") ?? "Admin");
             var allCollections = await _sheets.GetAllMilkCollections();
             var allTransactions = await _sheets.GetAllTransactions();
 

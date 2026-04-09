@@ -24,7 +24,7 @@ namespace DairyProductApp.Controllers
             var todayCollections = allCollections.Where(m => m.CollectionDate == today).ToList();
             var allGhee = await _sheets.GetAllGheeProducts();
             var allProducts = await _sheets.GetAllDairyProducts();
-            var allPartners = await _sheets.GetAllPartners();
+            var allPartners = await _sheets.GetPartnersByUser(HttpContext.Session.GetString("AdminUsername") ?? "", HttpContext.Session.GetString("AdminRole") ?? "Admin");
             var allSubscriptions = await _sheets.GetAllSubscriptions();
             var allOrders = await _sheets.GetAllOrders();
             var allTransactions = await _sheets.GetAllTransactions();

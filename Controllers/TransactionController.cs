@@ -101,7 +101,7 @@ namespace DairyProductApp.Controllers
 
         private async Task LoadPartnerDropdown()
         {
-            var partners = await _sheets.GetAllPartners();
+            var partners = await _sheets.GetPartnersByUser(HttpContext.Session.GetString("AdminUsername") ?? "", HttpContext.Session.GetString("AdminRole") ?? "Admin");
             ViewBag.Partners = new SelectList(partners.Where(p => p.IsActive).OrderBy(p => p.Name), "Id", "Name");
         }
     }
