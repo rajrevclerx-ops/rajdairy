@@ -94,6 +94,12 @@ namespace DairyProductApp.Controllers
             return View(model);
         }
 
+        // Privacy Policy (required for Play Store)
+        public IActionResult Privacy()
+        {
+            return View();
+        }
+
         // Public order tracking by order number (no login needed)
         public async Task<IActionResult> TrackOrder(string orderNumber)
         {
