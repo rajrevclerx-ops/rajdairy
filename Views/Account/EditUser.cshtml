@@ -1,0 +1,60 @@
+@model DairyProductApp.Models.AdminUser
+@{ ViewData["Title"] = "Edit User"; }
+
+<div class="row justify-content-center">
+    <div class="col-lg-7">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h3 class="fw-bold text-primary mb-0"><i class="bi bi-pencil-square me-2"></i>Edit User</h3>
+            <a asp-action="Users" class="btn btn-outline-secondary"><i class="bi bi-arrow-left me-1"></i>Back</a>
+        </div>
+        <div class="card border-0 shadow-sm">
+            <div class="card-body p-4">
+                <form asp-action="EditUser" method="post">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" asp-for="Id" />
+                    <input type="hidden" asp-for="CreatedAt" />
+                    <input type="hidden" asp-for="LastLogin" />
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label asp-for="FullName" class="form-label fw-semibold"></label>
+                            <input asp-for="FullName" class="form-control">
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="Mobile" class="form-label fw-semibold"></label>
+                            <input asp-for="Mobile" class="form-control">
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="Username" class="form-label fw-semibold"></label>
+                            <input asp-for="Username" class="form-control">
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="Password" class="form-label fw-semibold"></label>
+                            <input asp-for="Password" class="form-control">
+                            <small class="text-muted">Change karna ho toh naya password daalo</small>
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="DairyName" class="form-label fw-semibold"></label>
+                            <input asp-for="DairyName" class="form-control">
+                        </div>
+                        <div class="col-md-3">
+                            <label asp-for="Role" class="form-label fw-semibold"></label>
+                            <select asp-for="Role" asp-items="Html.GetEnumSelectList<DairyProductApp.Models.AdminRole>()" class="form-select"></select>
+                        </div>
+                        <div class="col-md-3">
+                            <label asp-for="IsActive" class="form-label fw-semibold d-block"></label>
+                            <div class="form-check form-switch mt-2">
+                                <input asp-for="IsActive" class="form-check-input" type="checkbox" role="switch">
+                                <label class="form-check-label">Active</label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mt-4 d-flex gap-2">
+                        <button type="submit" class="btn btn-primary btn-lg"><i class="bi bi-check-circle me-1"></i>Update</button>
+                        <a asp-action="Users" class="btn btn-outline-secondary btn-lg">Cancel</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+@section Scripts { <partial name="_ValidationScriptsPartial" /> }

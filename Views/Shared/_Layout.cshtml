@@ -67,7 +67,7 @@
                         <div id="navAvatar" style="width:24px;height:24px;border-radius:50%;background:linear-gradient(135deg,#2563eb,#7c3aed);display:flex;align-items:center;justify-content:center;">
                             <i class="bi bi-person-fill" style="font-size:0.7rem;"></i>
                         </div>
-                        <span class="d-none d-md-inline">Admin</span>
+                        <span class="d-none d-md-inline">@(Context.Session.GetString("AdminFullName") ?? "Admin")</span>
                     </a>
                     <ul class="dropdown-menu dropdown-menu-end">
                         <li><a class="dropdown-item" asp-controller="Admin" asp-action="Profile"><i class="bi bi-person me-2"></i>Profile</a></li>
@@ -290,6 +290,21 @@
                         <span>Profile</span>
                     </a>
                 </li>
+                @if (Context.Session.GetString("AdminRole") == "SuperAdmin")
+                {
+                <li class="nav-item">
+                    <a class="nav-link" asp-controller="Account" asp-action="Users">
+                        <i class="bi bi-shield-lock"></i>
+                        <span>User Management</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" asp-controller="Account" asp-action="ActivityLog">
+                        <i class="bi bi-clock-history"></i>
+                        <span>Activity Log</span>
+                    </a>
+                </li>
+                }
                 <li class="nav-item">
                     <a class="nav-link" asp-controller="Admin" asp-action="Settings">
                         <i class="bi bi-gear"></i>

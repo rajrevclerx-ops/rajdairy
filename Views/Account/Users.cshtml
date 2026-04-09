@@ -1,0 +1,72 @@
+@model List<DairyProductApp.Models.AdminUser>
+@{ ViewData["Title"] = "User Management"; }
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <div>
+        <h3 class="fw-bold mb-0"><i class="bi bi-shield-lock me-2 text-primary"></i>User Management</h3>
+        <p class="text-muted mb-0 small">Admin users manage karein - har dairy ka alag login</p>
+    </div>
+    <div class="d-flex gap-2">
+        <a asp-action="ActivityLog" class="btn btn-outline-info btn-sm"><i class="bi bi-clock-history me-1"></i>Activity Log</a>
+        <a asp-action="CreateUser" class="btn btn-primary"><i class="bi bi-person-plus me-1"></i>Add User</a>
+    </div>
+</div>
+
+<div class="card border-0 shadow-sm">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr><th>#</th><th>User</th><th>Username</th><th>Dairy Name</th><th>Role</th><th>Last Login</th><th>Status</th><th>Actions</th></tr>
+                </thead>
+                <tbody>
+                    @{ int sn = 1; }
+                    @foreach (var u in Model)
+                    {
+                        <tr>
+                            <td>@(sn++)</td>
+                            <td>
+                                <span class="fw-bold">@u.FullName</span>
+                                <small class="text-muted d-block">@u.Mobile</small>
+                            </td>
+                            <td><code>@u.Username</code></td>
+                            <td>@u.DairyName</td>
+                            <td>
+                                @if (u.Role == DairyProductApp.Models.AdminRole.SuperAdmin)
+                                { <span class="badge bg-danger">Super Admin</span> }
+                                else if (u.Role == DairyProductApp.Models.AdminRole.Admin)
+                                { <span class="badge bg-primary">Admin</span> }
+                                else
+                                { <span class="badge bg-secondary">Operator</span> }
+                            </td>
+                            <td>
+                                @if (u.LastLogin.HasValue)
+                                { <small>@u.LastLogin.Value.ToString("dd/MM/yy HH:mm")</small> }
+                                else
+                                { <small class="text-muted">Never</small> }
+                            </td>
+                            <td>
+                                @if (u.IsActive)
+                                { <span class="badge bg-success">Active</span> }
+                                else
+                                { <span class="badge bg-secondary">Inactive</span> }
+                            </td>
+                            <td>
+                                <div class="d-flex gap-1">
+                                    <a asp-action="EditUser" asp-route-id="@u.Id" class="btn btn-sm btn-outline-primary" style="border-radius:8px;"><i class="bi bi-pencil"></i></a>
+                                    @if (u.Role != DairyProductApp.Models.AdminRole.SuperAdmin)
+                                    {
+                                        <form asp-action="DeleteUser" asp-route-id="@u.Id" method="post" class="d-inline" onsubmit="return confirm('User delete karein?');">
+                                            @Html.AntiForgeryToken()
+                                            <button class="btn btn-sm btn-outline-danger" style="border-radius:8px;"><i class="bi bi-trash"></i></button>
+                                        </form>
+                                    }
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

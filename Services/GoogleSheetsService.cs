@@ -24,6 +24,8 @@ namespace DairyProductApp.Services
         private const string OrderSheet = "Orders";
         private const string NotificationSheet = "Notifications";
         private const string ExpenseSheet = "Expenses";
+        private const string AdminUserSheet = "AdminUsers";
+        private const string ActivityLogSheet = "ActivityLog";
 
         public GoogleSheetsService(IConfiguration configuration)
         {
@@ -87,7 +89,9 @@ namespace DairyProductApp.Services
                 [SubscriptionSheet] = new List<object> { "Id", "PartnerId", "PartnerName", "Product", "DailyQuantity", "Unit", "RatePerUnit", "StartDate", "EndDate", "DeliverySlot", "DeliveryAddress", "Status", "Frequency", "CreatedAt", "Notes" },
                 [OrderSheet] = new List<object> { "Id", "OrderNumber", "PartnerId", "PartnerName", "PartnerMobile", "ProductName", "Quantity", "Unit", "Rate", "TotalAmount", "OrderDate", "DeliveryDate", "DeliverySlot", "Status", "PaymentStatus", "DeliveryAddress", "CreatedAt", "Notes" },
                 [NotificationSheet] = new List<object> { "Id", "Title", "Message", "Type", "Icon", "Link", "IsRead", "CreatedAt" },
-                [ExpenseSheet] = new List<object> { "Id", "Category", "Description", "Amount", "ExpenseDate", "Mode", "Remarks", "CreatedAt" }
+                [ExpenseSheet] = new List<object> { "Id", "Category", "Description", "Amount", "ExpenseDate", "Mode", "Remarks", "CreatedAt" },
+                [AdminUserSheet] = new List<object> { "Id", "Username", "Password", "FullName", "Mobile", "DairyName", "Role", "IsActive", "LastLogin", "CreatedAt" },
+                [ActivityLogSheet] = new List<object> { "Id", "Username", "Action", "Details", "Timestamp" }
             };
 
             // Create missing sheets
@@ -889,6 +893,120 @@ namespace DairyProductApp.Services
             var rows = await GetAllRows(ExpenseSheet);
             var index = rows.ToList().FindIndex(r => SafeGet(r, 0) == id.ToString());
             if (index >= 0) await DeleteRow(ExpenseSheet, index);
+        }
+
+        // ============ ADMIN USERS ============
+        public async Task<List<AdminUser>> GetAllAdminUsers()
+        {
+            var rows = await GetAllRows(AdminUserSheet);
+            return rows.Select(r => new AdminUser
+            {
+                Id = int.TryParse(SafeGet(r, 0), out var id) ? id : 0,
+                Username = SafeGet(r, 1),
+                Password = SafeGet(r, 2),
+                FullName = SafeGet(r, 3),
+                Mobile = SafeGet(r, 4),
+                DairyName = SafeGet(r, 5),
+                Role = Enum.TryParse<AdminRole>(SafeGet(r, 6), out var role) ? role : AdminRole.Admin,
+                IsActive = SafeGet(r, 7).ToLower() != "false",
+                LastLogin = DateTime.TryParse(SafeGet(r, 8), out var ll) ? ll : null,
+                CreatedAt = DateTime.TryParse(SafeGet(r, 9), out var ca) ? ca : DateTime.Now
+            }).ToList();
+        }
+
+        public async Task<AdminUser?> GetAdminUserById(int id)
+        {
+            var all = await GetAllAdminUsers();
+            return all.FirstOrDefault(u => u.Id == id);
+        }
+
+        public async Task<AdminUser?> ValidateAdminLogin(string username, string password)
+        {
+            var users = await GetAllAdminUsers();
+            return users.FirstOrDefault(u => u.Username == username && u.Password == password && u.IsActive);
+        }
+
+        public async Task AddAdminUser(AdminUser u)
+        {
+            u.Id = await GetNextId(AdminUserSheet);
+            var row = new List<object>
+            {
+                u.Id, u.Username, u.Password, u.FullName, u.Mobile ?? "",
+                u.DairyName, u.Role.ToString(), u.IsActive.ToString(),
+                "", u.CreatedAt.ToString("yyyy-MM-dd HH:mm:ss")
+            };
+            await AppendRow(AdminUserSheet, row);
+        }
+
+        public async Task UpdateAdminUser(AdminUser u)
+        {
+            var rows = await GetAllRows(AdminUserSheet);
+            var index = rows.ToList().FindIndex(r => SafeGet(r, 0) == u.Id.ToString());
+            if (index < 0) return;
+            var row = new List<object>
+            {
+                u.Id, u.Username, u.Password, u.FullName, u.Mobile ?? "",
+                u.DairyName, u.Role.ToString(), u.IsActive.ToString(),
+                u.LastLogin?.ToString("yyyy-MM-dd HH:mm:ss") ?? "", u.CreatedAt.ToString("yyyy-MM-dd HH:mm:ss")
+            };
+            await UpdateRow(AdminUserSheet, index, row);
+        }
+
+        public async Task UpdateLastLogin(int userId)
+        {
+            var user = await GetAdminUserById(userId);
+            if (user == null) return;
+            user.LastLogin = DateTime.Now;
+            await UpdateAdminUser(user);
+        }
+
+        public async Task DeleteAdminUser(int id)
+        {
+            var rows = await GetAllRows(AdminUserSheet);
+            var index = rows.ToList().FindIndex(r => SafeGet(r, 0) == id.ToString());
+            if (index >= 0) await DeleteRow(AdminUserSheet, index);
+        }
+
+        // Seed default SuperAdmin if no users exist
+        public async Task SeedDefaultAdmin()
+        {
+            var users = await GetAllAdminUsers();
+            if (!users.Any())
+            {
+                await AddAdminUser(new AdminUser
+                {
+                    Username = "admin",
+                    Password = "rajdairy123",
+                    FullName = "Super Admin",
+                    DairyName = "Raj Dairy",
+                    Role = AdminRole.SuperAdmin,
+                    IsActive = true
+                });
+            }
+        }
+
+        // ============ ACTIVITY LOG ============
+        public async Task LogActivity(string username, string action, string details)
+        {
+            var id = await GetNextId(ActivityLogSheet);
+            var row = new List<object>
+            {
+                id, username, action, details, DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")
+            };
+            await AppendRow(ActivityLogSheet, row);
+        }
+
+        public async Task<List<ActivityLog>> GetRecentActivity(int count = 50)
+        {
+            var rows = await GetAllRows(ActivityLogSheet);
+            return rows.Select(r => new ActivityLog
+            {
+                Id = int.TryParse(SafeGet(r, 0), out var id) ? id : 0,
+                Username = SafeGet(r, 1),
+                Action = SafeGet(r, 2),
+                Details = SafeGet(r, 3),
+                Timestamp = DateTime.TryParse(SafeGet(r, 4), out var ts) ? ts : DateTime.Now
+            }).OrderByDescending(a => a.Timestamp).Take(count).ToList();
         }
 
         // Helper: Create notification when events happen

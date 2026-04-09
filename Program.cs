@@ -20,6 +20,7 @@ using (var scope = app.Services.CreateScope())
 {
     var sheetsService = scope.ServiceProvider.GetRequiredService<GoogleSheetsService>();
     await sheetsService.InitializeSheetsAsync();
+    await sheetsService.SeedDefaultAdmin();
 }
 
 if (!app.Environment.IsDevelopment())
