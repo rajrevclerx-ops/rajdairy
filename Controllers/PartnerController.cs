@@ -9,11 +9,16 @@ namespace DairyProductApp.Controllers
     public class PartnerController : Controller
     {
         private readonly GoogleSheetsService _sheets;
+        private readonly DataFilterService _filter;
 
-        public PartnerController(GoogleSheetsService sheets)
+        public PartnerController(GoogleSheetsService sheets, DataFilterService filter)
         {
             _sheets = sheets;
+            _filter = filter;
         }
+
+        private string Username => HttpContext.Session.GetString("AdminUsername") ?? "";
+        private string Role => HttpContext.Session.GetString("AdminRole") ?? "Admin";
 
         public async Task<IActionResult> Index()
         {
@@ -120,7 +125,7 @@ namespace DairyProductApp.Controllers
                 .ToList();
 
             // Milk collection entries for this partner this month
-            var allCollections = await _sheets.GetAllMilkCollections();
+            var allCollections = await _filter.GetMilkCollections(Username, Role);
             var monthCollections = allCollections
                 .Where(m => m.FarmerName.Equals(partner.Name, StringComparison.OrdinalIgnoreCase)
                     && m.CollectionDate.Month == month && m.CollectionDate.Year == year)
