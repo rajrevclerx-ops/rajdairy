@@ -85,14 +85,14 @@
         <!-- Sidebar -->
         <nav id="sidebar" class="sidebar">
             <div class="sidebar-header">
-                <div class="text-center py-3">
+                <div class="text-center py-2">
                     <a asp-controller="Admin" asp-action="Profile" class="text-decoration-none">
                         <div id="sidebarAvatar" class="admin-avatar">
                             <i class="bi bi-person-fill"></i>
                         </div>
                     </a>
-                    <h6 class="fw-bold text-white mt-2 mb-0">Admin Panel</h6>
-                    <small class="text-white-50">Raj Dairy Management</small>
+                    <div class="fw-semibold text-white mt-1 mb-0" style="font-size:0.85rem;">@(Context.Session.GetString("AdminFullName") ?? "Admin")</div>
+                    <small class="text-white-50" style="font-size:0.7rem;">@(Context.Session.GetString("AdminDairyName") ?? "Raj Dairy")</small>
                 </div>
             </div>
             <hr class="sidebar-divider">
@@ -366,10 +366,10 @@
             $.get('@Url.Action("GetPhoto", "Admin")', function (data) {
                 if (data.photo) {
                     $('#sidebarAvatar').replaceWith(
-                        '<img src="' + data.photo + '" alt="Admin" class="rounded-3 shadow" style="width:64px;height:64px;object-fit:cover;border:3px solid rgba(255,255,255,0.15);" />'
+                        '<img src="' + data.photo + '" alt="Admin" class="rounded-circle shadow" style="width:50px;height:50px;object-fit:cover;border:2px solid rgba(255,255,255,0.2);" />'
                     );
                     $('#navAvatar').replaceWith(
-                        '<img src="' + data.photo + '" alt="" style="width:24px;height:24px;border-radius:50%;object-fit:cover;" />'
+                        '<img src="' + data.photo + '" alt="" style="width:26px;height:26px;border-radius:50%;object-fit:cover;border:1px solid rgba(255,255,255,0.3);" />'
                     );
                 }
             });
